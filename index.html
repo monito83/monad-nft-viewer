@@ -71,51 +71,45 @@
     <div id="detalle" class="detalle" style="display:none"></div>
   </div>
   <script>
-    const API_KEY = "AIzaSyBT-hqsmIwvLV1XYRBzM6Xwya_LpK1I2Ig";
-    const SHEET_ID = "1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4";
-    const RANGE = "Hoja 1!A2:J";
+  const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/gviz/tq?tqx=out:json&sheet=Hoja1';
 
-    async function cargarDatos() {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
-      const respuesta = await fetch(url);
-      const datos = await respuesta.json();
-      const contenidoTabla = document.getElementById("contenidoTabla");
-      contenidoTabla.innerHTML = "";
+  async function cargarDatos() {
+    try {
+      const respuesta = await fetch(SHEET_URL);
+      const texto = await respuesta.text();
+      const json = JSON.parse(texto.substring(47).slice(0, -2));
+      const filas = json.table.rows;
 
-      if (!datos.values) return;
+      const tabla = document.getElementById('contenidoTabla');
+      tabla.innerHTML = '';
 
-      datos.values.forEach((fila, i) => {
-        const tr = document.createElement("tr");
-        fila.forEach((celda, j) => {
-          const td = document.createElement("td");
-          td.textContent = celda;
-          tr.appendChild(td);
-        });
-
-        tr.addEventListener("click", () => mostrarDetalle(fila));
-        contenidoTabla.appendChild(tr);
+      filas.forEach(row => {
+        const c = row.c.map(cell => (cell ? cell.v : ''));
+        const filaHTML = `
+          <tr>
+            <td>${c[0]}</td>
+            <td>${c[1]}</td>
+            <td>${c[2]}</td>
+            <td>${c[3]}</td>
+            <td>${c[4]}</td>
+            <td>${c[5]}</td>
+            <td><a href="${c[6] || '#'}" target="_blank">Link</a></td>
+            <td><a href="${c[7] || '#'}" target="_blank">Discord</a></td>
+            <td><a href="${c[8] || '#'}" target="_blank">Web</a></td>
+            <td>${c[9]}</td>
+          </tr>
+        `;
+        tabla.innerHTML += filaHTML;
       });
+    } catch (error) {
+      console.error('Error al cargar los datos:', error);
+      document.getElementById('contenidoTabla').innerHTML = '<tr><td colspan="10">Error al cargar la información.</td></tr>';
     }
+  }
 
-    function mostrarDetalle(fila) {
-      const detalle = document.getElementById("detalle");
-      detalle.innerHTML = `
-        <h3>${fila[0]}</h3>
-        <p><strong>Tier:</strong> ${fila[1]}</p>
-        <p><strong>Estado Tesnet:</strong> ${fila[2]}</p>
-        <p><strong>Fecha Mint Mainnet:</strong> ${fila[3]}</p>
-        <p><strong>Requerimientos WL:</strong> ${fila[4]}</p>
-        <p><strong>NFT Testnet / WL Mainnet:</strong> ${fila[5]}</p>
-        <p><strong>Link X:</strong> <a href="${fila[6]}" target="_blank">X</a></p>
-        <p><strong>Link Discord:</strong> <a href="${fila[7]}" target="_blank">Discord</a></p>
-        <p><strong>Link Web:</strong> <a href="${fila[8]}" target="_blank">Sitio Web</a></p>
-        <p><strong>Notas:</strong> ${fila[9]}</p>
-      `;
-      detalle.style.display = "block";
-    }
+  cargarDatos();
+</script>
 
-    cargarDatos();
-  </script>
 </body>
 </html>
 
