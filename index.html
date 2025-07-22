@@ -1,172 +1,109 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Proyectos NFT - Red Monad</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proyectos NFT Monad</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 1rem;
-      background-color: #f2f2f2;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
     }
     h1 {
       text-align: center;
-      color: #6a1b9a;
-    }
-    .filtros {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: center;
-      margin-bottom: 1rem;
-    }
-    input, select {
-      padding: 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+      padding: 1rem;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      background: white;
     }
     th, td {
       padding: 0.5rem;
-      border: 1px solid #ddd;
+      border: 1px solid #ccc;
       text-align: left;
     }
     th {
-      background-color: #e1bee7;
+      background: #eee;
     }
     tr:hover {
-      background-color: #f3e5f5;
+      background-color: #f1f1f1;
+      cursor: pointer;
     }
-    .detalle {
-      margin-top: 1rem;
+    .details {
       padding: 1rem;
-      background: #fff3e0;
-      border: 1px solid #ffcc80;
-      border-radius: 8px;
+      border-top: 1px solid #ccc;
+      background: #fff;
     }
-    a {
-      color: #6a1b9a;
+    .link a {
+      color: #1a0dab;
       text-decoration: none;
     }
-    a:hover {
+    .link a:hover {
       text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <h1>Proyectos NFT - Red Monad</h1>
-  <div class="filtros">
-    <input type="text" id="busqueda" placeholder="Buscar por nombre...">
-    <select id="filtroTier">
-      <option value="">Todos los Tiers</option>
-      <option value="S">S</option>
-      <option value="A">A</option>
-      <option value="B">B</option>
-    </select>
-    <select id="filtroEstado">
-      <option value="">Todos los estados</option>
-      <option value="Activo">Activo</option>
-      <option value="Finalizado">Finalizado</option>
-      <option value="Próximo">Próximo</option>
-    </select>
-  </div>
-
-  <table id="tabla">
-    <thead>
-      <tr>
-        <th>Proyecto</th>
-        <th>Tier</th>
-        <th>Estado Testnet</th>
-        <th>Fecha Mainnet</th>
-        <th>WL</th>
-        <th>Testnet/NFT WL</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  <div id="detalle" class="detalle" style="display: none;"></div>
+  <h1>Proyectos NFT en la red Monad</h1>
+  <div id="table-container"></div>
+  <div class="details" id="details"></div>
 
   <script>
-    const sheetID = '1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4';
-    const sheetName = 'Hoja 1';
-    const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+    const sheetUrl = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
 
-    const tabla = document.querySelector('#tabla tbody');
-    const detalle = document.getElementById('detalle');
-
-    fetch(url)
-      .then(res => res.text())
+    fetch(sheetUrl)
+      .then(response => response.text())
       .then(data => {
-        const json = JSON.parse(data.substr(47).slice(0, -2));
-        const rows = json.table.rows.map(r => r.c.map(c => c ? c.v : ''));
-        window.proyectos = rows.map(row => ({
-          proyecto: row[0],
-          tier: row[1],
-          estadoTestnet: row[2],
-          fechaMainnet: row[3],
-          requerimientosWL: row[4],
-          nftTestnetWL: row[5],
-          linkX: row[6],
-          linkDiscord: row[7],
-          linkWeb: row[8],
-          notas: row[9],
-        })).filter(p => p.proyecto !== '');
-        renderTabla();
+        const rows = data.trim().split('\n').map(row => row.split(','));
+        const headers = rows[0];
+        const body = rows.slice(1);
+
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+
+        headers.forEach(header => {
+          const th = document.createElement('th');
+          th.textContent = header;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        body.forEach((row, index) => {
+          const tr = document.createElement('tr');
+          row.forEach(cell => {
+            const td = document.createElement('td');
+            td.textContent = cell;
+            tr.appendChild(td);
+          });
+          tr.addEventListener('click', () => showDetails(headers, row));
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+
+        document.getElementById('table-container').appendChild(table);
       });
 
-    function renderTabla() {
-      const busqueda = document.getElementById('busqueda').value.toLowerCase();
-      const filtroTier = document.getElementById('filtroTier').value;
-      const filtroEstado = document.getElementById('filtroEstado').value;
-      
-      tabla.innerHTML = '';
-      window.proyectos.forEach(p => {
-        if ((busqueda && !p.proyecto.toLowerCase().includes(busqueda)) ||
-            (filtroTier && p.tier !== filtroTier) ||
-            (filtroEstado && p.estadoTestnet !== filtroEstado)) return;
-        
-        const fila = document.createElement('tr');
-        fila.innerHTML = `
-          <td>${p.proyecto}</td>
-          <td>${p.tier}</td>
-          <td>${p.estadoTestnet}</td>
-          <td>${p.fechaMainnet}</td>
-          <td>${p.requerimientosWL}</td>
-          <td>${p.nftTestnetWL}</td>
-        `;
-        fila.onclick = () => mostrarDetalle(p);
-        tabla.appendChild(fila);
+    function showDetails(headers, row) {
+      const detailsDiv = document.getElementById('details');
+      detailsDiv.innerHTML = '<h3>Detalles del proyecto</h3>';
+      const ul = document.createElement('ul');
+      headers.forEach((header, i) => {
+        const li = document.createElement('li');
+        const value = row[i] || '';
+        if (header.toLowerCase().includes('link')) {
+          li.innerHTML = `<strong>${header}:</strong> <span class="link"><a href="${value}" target="_blank">${value}</a></span>`;
+        } else {
+          li.innerHTML = `<strong>${header}:</strong> ${value}`;
+        }
+        ul.appendChild(li);
       });
+      detailsDiv.appendChild(ul);
     }
-
-    function mostrarDetalle(p) {
-      detalle.style.display = 'block';
-      detalle.innerHTML = `
-        <h3>${p.proyecto}</h3>
-        <p><strong>Tier:</strong> ${p.tier}</p>
-        <p><strong>Estado Testnet:</strong> ${p.estadoTestnet}</p>
-        <p><strong>Fecha Mint Mainnet:</strong> ${p.fechaMainnet}</p>
-        <p><strong>Requisitos WL:</strong> ${p.requerimientosWL}</p>
-        <p><strong>NFT Testnet / WL Mainnet:</strong> ${p.nftTestnetWL}</p>
-        <p><strong>Links:</strong><br>
-          ${p.linkX ? `X: <a href="${p.linkX}" target="_blank">${p.linkX}</a><br>` : ''}
-          ${p.linkDiscord ? `Discord: <a href="${p.linkDiscord}" target="_blank">${p.linkDiscord}</a><br>` : ''}
-          ${p.linkWeb ? `Web: <a href="${p.linkWeb}" target="_blank">${p.linkWeb}</a>` : ''}
-        </p>
-        <p><strong>Notas:</strong> ${p.notas}</p>
-      `;
-    }
-
-    document.getElementById('busqueda').oninput = renderTabla;
-    document.getElementById('filtroTier').onchange = renderTabla;
-    document.getElementById('filtroEstado').onchange = renderTabla;
   </script>
 </body>
 </html>
-
