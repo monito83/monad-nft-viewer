@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proyectos NFT - Red Monad</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 1rem;
+      background-color: #f2f2f2;
+    }
+    h1 {
+      text-align: center;
+      color: #6a1b9a;
+    }
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    input, select {
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+    th, td {
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #e1bee7;
+    }
+    tr:hover {
+      background-color: #f3e5f5;
+    }
+    .detalle {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #fff3e0;
+      border: 1px solid #ffcc80;
+      border-radius: 8px;
+    }
+    a {
+      color: #6a1b9a;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Proyectos NFT - Red Monad</h1>
+  <div class="filtros">
+    <input type="text" id="busqueda" placeholder="Buscar por nombre...">
+    <select id="filtroTier">
+      <option value="">Todos los Tiers</option>
+      <option value="S">S</option>
+      <option value="A">A</option>
+      <option value="B">B</option>
+    </select>
+    <select id="filtroEstado">
+      <option value="">Todos los estados</option>
+      <option value="Activo">Activo</option>
+      <option value="Finalizado">Finalizado</option>
+      <option value="Próximo">Próximo</option>
+    </select>
+  </div>
+
+  <table id="tabla">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Método WL</th>
+        <th>Roles Discord / NFT</th>
+        <th>Testnet → Mainnet</th>
+        <th>Estado</th>
+        <th>Tier</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="detalle" class="detalle" style="display: none;"></div>
+
+  <script>
+    const sheetID = '1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4';
+    const sheetName = 'Hoja 1';
+    const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+
+    const tabla = document.querySelector('#tabla tbody');
+    const detalle = document.getElementById('detalle');
+
+    fetch(url)
+      .then(res => res.text())
+      .then(data => {
+        const json = JSON.parse(data.substr(47).slice(0, -2));
+        const rows = json.table.rows.map(r => r.c.map(c => c ? c.v : ''));
+        window.proyectos = rows.map(row => ({
+          nombre: row[0],
+          metodoWL: row[1],
+          rolesDiscord: row[2],
+          rolesNFT: row[3],
+          links: row[4],
+          fechaTestnet: row[5],
+          fechaMainnet: row[6],
+          estado: row[7],
+          notas: row[8],
+          tier: row[9],
+        })).filter(p => p.nombre !== '');
+        renderTabla();
+      });
+
+    function renderTabla() {
+      const busqueda = document.getElementById('busqueda').value.toLowerCase();
+      const filtroTier = document.getElementById('filtroTier').value;
+      const filtroEstado = document.getElementById('filtroEstado').value;
+      
+      tabla.innerHTML = '';
+      window.proyectos.forEach(p => {
+        if ((busqueda && !p.nombre.toLowerCase().includes(busqueda)) ||
+            (filtroTier && p.tier !== filtroTier) ||
+            (filtroEstado && p.estado !== filtroEstado)) return;
+        
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+          <td>${p.nombre}</td>
+          <td>${p.metodoWL}</td>
+          <td>${p.rolesDiscord || ''} ${p.rolesNFT ? '/ ' + p.rolesNFT : ''}</td>
+          <td>${p.fechaTestnet || ''} → ${p.fechaMainnet || ''}</td>
+          <td>${p.estado}</td>
+          <td>${p.tier}</td>
+        `;
+        fila.onclick = () => mostrarDetalle(p);
+        tabla.appendChild(fila);
+      });
+    }
+
+    function mostrarDetalle(p) {
+      detalle.style.display = 'block';
+      detalle.innerHTML = `
+        <h3>${p.nombre}</h3>
+        <p><strong>Método para obtener WL:</strong> ${p.metodoWL}</p>
+        <p><strong>Roles:</strong><br>Discord: ${p.rolesDiscord || '-'}<br>NFT: ${p.rolesNFT || '-'}</p>
+        <p><strong>Fechas Mint:</strong><br>Testnet: ${p.fechaTestnet || '-'}<br>Mainnet: ${p.fechaMainnet || '-'}</p>
+        <p><strong>Estado:</strong> ${p.estado}</p>
+        <p><strong>Tier:</strong> ${p.tier}</p>
+        <p><strong>Notas:</strong> ${p.notas || '-'}</p>
+        <p><strong>Links:</strong> ${p.links ? `<a href="${p.links}" target="_blank">${p.links}</a>` : '-'}</p>
+      `;
+    }
+
+    document.getElementById('busqueda').oninput = renderTabla;
+    document.getElementById('filtroTier').onchange = renderTabla;
+    document.getElementById('filtroEstado').onchange = renderTabla;
+  </script>
+</body>
+</html>
