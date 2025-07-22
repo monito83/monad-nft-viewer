@@ -3,190 +3,120 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Proyectos Monad NFT</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 20px;
-      background-color: #f7f7f7;
-    }
-    h1 {
-      text-align: center;
-    }
-    .filtros {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 2rem;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-      max-width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    th {
-      background-color: #eaeaea;
-    }
-    tr:hover {
-      background-color: #f0f0f0;
-      cursor: pointer;
-    }
-    #detalle {
-      background-color: #fff;
-      border: 1px solid #ccc;
-      padding: 1rem;
-      max-width: 100%;
-      display: none;
-    }
-  </style>
+  <title>Visualizador de Proyectos Monad</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-  <h1>Proyectos NFT - Red Monad</h1>
+<body class="bg-gray-100 text-gray-900">
+  <div class="container mx-auto py-8">
+    <h1 class="text-2xl font-bold mb-4">Proyectos NFT en la red Monad</h1>
 
-  <div class="filtros">
-    <label>Tier:
-      <select id="filtroTier">
-        <option value="">Todos</option>
+    <div class="flex flex-wrap gap-4 mb-4">
+      <select id="tierFilter" class="p-2 border rounded">
+        <option value="">Filtrar por Tier</option>
       </select>
-    </label>
-    <label>Estado Testnet:
-      <select id="filtroEstado">
-        <option value="">Todos</option>
+      <select id="estadoFilter" class="p-2 border rounded">
+        <option value="">Filtrar por Estado Testnet</option>
       </select>
-    </label>
-    <label>Fecha Mint Mainnet:
-      <input type="month" id="filtroFecha" />
-    </label>
+      <input type="date" id="fechaFilter" class="p-2 border rounded" />
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white border">
+        <thead>
+          <tr>
+            <th class="border px-4 py-2">Proyecto</th>
+            <th class="border px-4 py-2">Tier</th>
+            <th class="border px-4 py-2">Estado Tesnet</th>
+            <th class="border px-4 py-2">Fecha Mint Mainnet</th>
+            <th class="border px-4 py-2">Requerimientos WL</th>
+            <th class="border px-4 py-2">Nft Testnet / WL Mainnet</th>
+            <th class="border px-4 py-2">Link X</th>
+            <th class="border px-4 py-2">Link Discord</th>
+            <th class="border px-4 py-2">Link Web</th>
+            <th class="border px-4 py-2">Notas</th>
+          </tr>
+        </thead>
+        <tbody id="tablaProyectos"></tbody>
+      </table>
+    </div>
   </div>
 
-  <table id="tabla">
-    <thead>
-      <tr>
-        <th>Proyecto</th>
-        <th>Tier</th>
-        <th>Estado Tesnet</th>
-        <th>Fecha Mint Mainnet</th>
-        <th>Requerimientos WL</th>
-        <th>NFT Testnet / WL Mainnet</th>
-        <th>Link X</th>
-        <th>Link Discord</th>
-        <th>Link Web</th>
-        <th>Notas</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  <div id="detalle"></div>
-
   <script>
-    const sheetUrl = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
+    const sheetId = "1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4";
+    const sheetRange = "Hoja1!A2:J"; // Lee desde la fila 2
+    const apiKey = "AIzaSyCrT6u8vTSwGm_7zLMXfZrhpk_q1lUS4A8";
 
-    fetch(sheetUrl)
-      .then(res => res.text())
-      .then(data => {
-        const rows = data.split('\n').slice(1); // Omitir encabezado
-        const tableBody = document.querySelector('#tabla tbody');
-        const filtroTier = document.getElementById('filtroTier');
-        const filtroEstado = document.getElementById('filtroEstado');
-        const filtroFecha = document.getElementById('filtroFecha');
-        const detalle = document.getElementById('detalle');
+    async function cargarDatos() {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetRange}?key=${apiKey}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const filas = data.values || [];
 
-        let allData = [];
+      const tabla = document.getElementById("tablaProyectos");
+      tabla.innerHTML = "";
 
-        rows.forEach(row => {
-          const cols = row.split(',');
-          if (cols.length < 10) return;
-          const obj = {
-            proyecto: cols[0],
-            tier: cols[1],
-            estado: cols[2],
-            fecha: cols[3],
-            wl: cols[4],
-            nft: cols[5],
-            x: cols[6],
-            discord: cols[7],
-            web: cols[8],
-            notas: cols[9]
-          };
-          allData.push(obj);
-        });
+      const tierSet = new Set();
+      const estadoSet = new Set();
 
-        const unique = (arr) => [...new Set(arr)].filter(x => x);
+      filas.forEach((fila) => {
+        // Normalización y protección ante filas incompletas
+        while (fila.length < 10) fila.push("");
+        const [proyecto, tier, estado, fecha, req, wl, x, discord, web, notas] = fila.map(c => c.trim());
 
-        unique(allData.map(d => d.tier)).forEach(t => {
-          filtroTier.innerHTML += `<option value="${t}">${t}</option>`;
-        });
-        unique(allData.map(d => d.estado)).forEach(e => {
-          filtroEstado.innerHTML += `<option value="${e}">${e}</option>`;
-        });
+        tierSet.add(tier);
+        estadoSet.add(estado);
 
-        function renderTabla(data) {
-          tableBody.innerHTML = '';
-          data.forEach(d => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>${d.proyecto}</td>
-              <td>${d.tier}</td>
-              <td>${d.estado}</td>
-              <td>${d.fecha}</td>
-              <td>${d.wl}</td>
-              <td>${d.nft}</td>
-              <td><a href="${d.x}" target="_blank">Link</a></td>
-              <td><a href="${d.discord}" target="_blank">Link</a></td>
-              <td><a href="${d.web}" target="_blank">Link</a></td>
-              <td>${d.notas}</td>
-            `;
-            tr.addEventListener('click', () => {
-              detalle.innerHTML = `
-                <h3>${d.proyecto}</h3>
-                <p><b>Tier:</b> ${d.tier}</p>
-                <p><b>Estado Tesnet:</b> ${d.estado}</p>
-                <p><b>Fecha Mint Mainnet:</b> ${d.fecha}</p>
-                <p><b>Requerimientos WL:</b> ${d.wl}</p>
-                <p><b>NFT Testnet / WL:</b> ${d.nft}</p>
-                <p><b>Notas:</b> ${d.notas}</p>
-                <p><a href="${d.x}" target="_blank">Link X</a> | 
-                   <a href="${d.discord}" target="_blank">Discord</a> | 
-                   <a href="${d.web}" target="_blank">Web</a></p>
-              `;
-              detalle.style.display = 'block';
-              detalle.scrollIntoView({ behavior: 'smooth' });
-            });
-            tableBody.appendChild(tr);
-          });
-        }
+        const filaHTML = `
+          <tr>
+            <td class="border px-4 py-2">${proyecto}</td>
+            <td class="border px-4 py-2">${tier}</td>
+            <td class="border px-4 py-2">${estado}</td>
+            <td class="border px-4 py-2">${fecha}</td>
+            <td class="border px-4 py-2">${req}</td>
+            <td class="border px-4 py-2">${wl}</td>
+            <td class="border px-4 py-2"><a href="${x}" target="_blank">X</a></td>
+            <td class="border px-4 py-2"><a href="${discord}" target="_blank">Discord</a></td>
+            <td class="border px-4 py-2"><a href="${web}" target="_blank">Web</a></td>
+            <td class="border px-4 py-2">${notas}</td>
+          </tr>`;
 
-        function aplicarFiltros() {
-          const tier = filtroTier.value;
-          const estado = filtroEstado.value;
-          const fecha = filtroFecha.value;
-
-          let filtrado = allData.filter(d => {
-            return (!tier || d.tier === tier) &&
-                   (!estado || d.estado === estado) &&
-                   (!fecha || d.fecha.startsWith(fecha));
-          });
-
-          renderTabla(filtrado);
-        }
-
-        filtroTier.addEventListener('change', aplicarFiltros);
-        filtroEstado.addEventListener('change', aplicarFiltros);
-        filtroFecha.addEventListener('change', aplicarFiltros);
-
-        renderTabla(allData);
+        tabla.insertAdjacentHTML("beforeend", filaHTML);
       });
+
+      // Cargar filtros
+      const tierFilter = document.getElementById("tierFilter");
+      tierSet.forEach(t => {
+        if (t) tierFilter.innerHTML += `<option value="${t}">${t}</option>`;
+      });
+
+      const estadoFilter = document.getElementById("estadoFilter");
+      estadoSet.forEach(e => {
+        if (e) estadoFilter.innerHTML += `<option value="${e}">${e}</option>`;
+      });
+
+      // Evento de filtros
+      document.querySelectorAll("#tierFilter, #estadoFilter, #fechaFilter").forEach(el => {
+        el.addEventListener("change", aplicarFiltros);
+      });
+    }
+
+    function aplicarFiltros() {
+      const tier = document.getElementById("tierFilter").value.trim();
+      const estado = document.getElementById("estadoFilter").value.trim();
+      const fecha = document.getElementById("fechaFilter").value;
+
+      const filas = document.querySelectorAll("#tablaProyectos tr");
+      filas.forEach(fila => {
+        const celdas = fila.querySelectorAll("td");
+        const coincideTier = !tier || celdas[1].innerText.trim() === tier;
+        const coincideEstado = !estado || celdas[2].innerText.trim() === estado;
+        const coincideFecha = !fecha || celdas[3].innerText.includes(fecha);
+
+        fila.style.display = coincideTier && coincideEstado && coincideFecha ? "" : "none";
+      });
+    }
+
+    cargarDatos();
   </script>
 </body>
 </html>
