@@ -4,141 +4,149 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Proyectos NFT - Red Monad</title>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
       display: flex;
-      height: 100vh;
-      overflow: hidden;
+      flex-direction: column;
+      align-items: center;
+      background-color: #f9f9f9;
     }
-    .container {
-      display: flex;
-      width: 100%;
+
+    h1 {
+      text-align: center;
+      margin-top: 1rem;
     }
-    .list {
-      width: 50%;
-      overflow-y: auto;
-      border-right: 1px solid #ccc;
-    }
-    .details {
-      width: 50%;
-      padding: 1rem;
-      overflow-y: auto;
-    }
+
     table {
-      width: 100%;
+      width: 95%;
       border-collapse: collapse;
+      margin: 1rem 0;
+      background-color: white;
     }
+
     th, td {
-      padding: 0.75rem;
-      border-bottom: 1px solid #ddd;
+      border: 1px solid #ccc;
+      padding: 0.5rem;
       text-align: left;
-      vertical-align: top;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
+
     th {
-      background-color: #f8f8f8;
-      position: sticky;
-      top: 0;
-      z-index: 1;
+      background-color: #eee;
     }
+
     tr:hover {
-      background-color: #f0f0f0;
+      background-color: #f1f1f1;
       cursor: pointer;
     }
-    .field {
-      margin-bottom: 0.75rem;
+
+    #details {
+      width: 95%;
+      margin: 1rem 0;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      background-color: #fff;
+      display: none;
+      flex-direction: column;
     }
-    .field strong {
-      display: inline-block;
-      width: 180px;
+
+    .show-more {
+      color: blue;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 0.9rem;
     }
+
     @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
-      .list, .details {
+      table, #details {
         width: 100%;
-        height: 50vh;
       }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="list">
-      <table id="projectTable">
-        <thead>
-          <tr>
-            <th>Proyecto</th>
-            <th>Tier</th>
-            <th>Estado Testnet</th>
-            <th>Fecha Mint Mainnet</th>
-            <th>Requerimientos WL</th>
-            <th>NFT Testnet / WL Mainnet</th>
-            <th>Link X</th>
-            <th>Link Discord</th>
-            <th>Link Web</th>
-            <th>Notas</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    <div class="details" id="details">
-      <p>Selecciona un proyecto para ver los detalles.</p>
-    </div>
-  </div>
+  <h1>Proyectos NFT - Red Monad</h1>
+  <table id="project-table">
+    <thead>
+      <tr>
+        <th>Proyecto</th>
+        <th>Tier</th>
+        <th>Estado Testnet</th>
+        <th>Fecha Mint Mainnet</th>
+        <th>Requerimientos WL</th>
+        <th>NFT Testnet / WL Mainnet</th>
+        <th>Link X</th>
+        <th>Link Discord</th>
+        <th>Link Web</th>
+        <th>Notas</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="details"></div>
 
   <script>
     const sheetUrl = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
 
-    Papa.parse(sheetUrl, {
-      download: true,
-      header: true,
-      skipEmptyLines: true,
-      complete: function(results) {
-        const data = results.data;
-        const tbody = document.querySelector('#projectTable tbody');
-        data.forEach((row, index) => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${row['Proyecto'] || ''}</td>
-            <td>${row['Tier'] || ''}</td>
-            <td>${row['Estado Testnet'] || ''}</td>
-            <td>${row['Fecha Mint Mainnet'] || ''}</td>
-            <td>${row['Requerimientos WL'] || ''}</td>
-            <td>${row['Nft Testnet / WL Mainnet'] || ''}</td>
-            <td>${row['Link X'] ? `<a href="${row['Link X']}" target="_blank">X</a>` : ''}</td>
-            <td>${row['Link Discord'] ? `<a href="${row['Link Discord']}" target="_blank">Discord</a>` : ''}</td>
-            <td>${row['Link Web'] ? `<a href="${row['Link Web']}" target="_blank">Web</a>` : ''}</td>
-            <td>${row['Notas'] || ''}</td>
-          `;
-          tr.addEventListener('click', () => showDetails(row));
-          tbody.appendChild(tr);
-        });
-      }
-    });
+    async function fetchData() {
+      const response = await fetch(sheetUrl);
+      const data = await response.text();
+      const rows = data.trim().split('\n').slice(1); // ignorar encabezado
+      const tableBody = document.querySelector('#project-table tbody');
 
-    function showDetails(row) {
-      const details = document.getElementById('details');
-      details.innerHTML = '';
-      for (const key in row) {
-        if (row.hasOwnProperty(key)) {
-          const div = document.createElement('div');
-          div.className = 'field';
-          let value = row[key];
-          if (key.includes('Link') && value) {
-            value = `<a href="${value}" target="_blank">${key}</a>`;
+      rows.forEach(row => {
+        const columns = row.split(',');
+        const tr = document.createElement('tr');
+
+        columns.forEach((col, index) => {
+          const td = document.createElement('td');
+
+          if (col.length > 50) {
+            const shortText = col.substring(0, 50) + '...';
+            const showMore = document.createElement('span');
+            showMore.textContent = 'Mostrar más';
+            showMore.classList.add('show-more');
+            showMore.onclick = () => showDetails(columns);
+
+            td.textContent = shortText + ' ';
+            td.appendChild(showMore);
+          } else {
+            td.textContent = col;
           }
-          div.innerHTML = `<strong>${key}:</strong> ${value || ''}`;
-          details.appendChild(div);
-        }
-      }
+
+          tr.appendChild(td);
+        });
+
+        tr.onclick = () => showDetails(columns);
+        tableBody.appendChild(tr);
+      });
     }
+
+    function showDetails(data) {
+      const fields = [
+        'Proyecto', 'Tier', 'Estado Testnet', 'Fecha Mint Mainnet',
+        'Requerimientos WL', 'NFT Testnet / WL Mainnet',
+        'Link X', 'Link Discord', 'Link Web', 'Notas'
+      ];
+
+      const details = document.getElementById('details');
+      details.innerHTML = '<h3>Detalles del proyecto</h3>';
+      fields.forEach((label, i) => {
+        const p = document.createElement('p');
+        p.innerHTML = `<strong>${label}:</strong> ${data[i] || ''}`;
+        details.appendChild(p);
+      });
+      details.style.display = 'flex';
+    }
+
+    fetchData();
   </script>
 </body>
 </html>
