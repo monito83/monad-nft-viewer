@@ -2,114 +2,108 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Proyectos Monad NFT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Monad NFT Viewer</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f4;
-    }
-    header {
-      background-color: #5b21b6;
-      color: white;
-      padding: 1rem;
-      text-align: center;
+      margin: 20px;
+      background-color: #f7f7f7;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin: 1rem 0;
-      font-size: 0.9rem;
+      background: white;
     }
     th, td {
+      padding: 10px;
       border: 1px solid #ccc;
-      padding: 0.5rem;
       text-align: left;
+      max-width: 200px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
     th {
-      background-color: #ede9fe;
+      background-color: #e0e0e0;
     }
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
+    tr:hover {
+      background-color: #f1f1f1;
+      cursor: pointer;
+    }
+    #detalle {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background: white;
     }
     .container {
-      padding: 1rem;
-    }
-    .detalle {
-      margin-top: 2rem;
-      background-color: white;
-      padding: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+      display: flex;
+      flex-direction: column;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Proyectos NFT - Red Monad</h1>
-  </header>
+  <h2>Proyectos NFT en la red Monad</h2>
   <div class="container">
-    <table id="tablaProyectos">
-      <thead>
-        <tr>
-          <th>Proyecto</th>
-          <th>Tier</th>
-          <th>Estado Tesnet</th>
-          <th>Fecha Mint Mainnet</th>
-          <th>Requerimientos WL</th>
-          <th>NFT Testnet / WL Mainnet</th>
-          <th>Link X</th>
-          <th>Link Discord</th>
-          <th>Link Web</th>
-          <th>Notas</th>
-        </tr>
-      </thead>
-      <tbody id="contenidoTabla"></tbody>
+    <table id="tabla">
+      <!-- Encabezado y contenido se generarán automáticamente -->
     </table>
-    <div id="detalle" class="detalle" style="display:none"></div>
+    <div id="detalle"></div>
   </div>
+
   <script>
-  const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/gviz/tq?tqx=out:json&sheet=Hoja1';
+    const API_KEY = 'AIzaSyBT-hqsmIwvLV1XYRBzM6Xwya_LpK1I2Ig';
+    const SHEET_ID = '1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4';
+    const RANGE = 'Hoja1!A1:J';
 
-  async function cargarDatos() {
-    try {
-      const respuesta = await fetch(SHEET_URL);
-      const texto = await respuesta.text();
-      const json = JSON.parse(texto.substring(47).slice(0, -2));
-      const filas = json.table.rows;
+    async function cargarDatos() {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!data.values || data.values.length === 0) {
+          throw new Error("No se encontró información en la hoja.");
+        }
 
-      const tabla = document.getElementById('contenidoTabla');
-      tabla.innerHTML = '';
+        const tabla = document.getElementById("tabla");
+        tabla.innerHTML = ""; // Limpiar tabla
 
-      filas.forEach(row => {
-        const c = row.c.map(cell => (cell ? cell.v : ''));
-        const filaHTML = `
-          <tr>
-            <td>${c[0]}</td>
-            <td>${c[1]}</td>
-            <td>${c[2]}</td>
-            <td>${c[3]}</td>
-            <td>${c[4]}</td>
-            <td>${c[5]}</td>
-            <td><a href="${c[6] || '#'}" target="_blank">Link</a></td>
-            <td><a href="${c[7] || '#'}" target="_blank">Discord</a></td>
-            <td><a href="${c[8] || '#'}" target="_blank">Web</a></td>
-            <td>${c[9]}</td>
-          </tr>
-        `;
-        tabla.innerHTML += filaHTML;
-      });
-    } catch (error) {
-      console.error('Error al cargar los datos:', error);
-      document.getElementById('contenidoTabla').innerHTML = '<tr><td colspan="10">Error al cargar la información.</td></tr>';
+        // Encabezado
+        const encabezados = data.values[0];
+        const thead = tabla.createTHead();
+        const filaEncabezado = thead.insertRow();
+        encabezados.forEach(texto => {
+          const th = document.createElement("th");
+          th.textContent = texto;
+          filaEncabezado.appendChild(th);
+        });
+
+        // Cuerpo
+        const tbody = tabla.createTBody();
+        for (let i = 1; i < data.values.length; i++) {
+          const fila = data.values[i];
+          const tr = tbody.insertRow();
+          fila.forEach(celda => {
+            const td = tr.insertCell();
+            td.textContent = celda;
+          });
+
+          tr.addEventListener("click", () => mostrarDetalle(encabezados, fila));
+        }
+      } catch (error) {
+        document.getElementById("tabla").innerHTML = "<tr><td>Error al cargar los datos.</td></tr>";
+        console.error(error);
+      }
     }
-  }
 
-  cargarDatos();
-</script>
+    function mostrarDetalle(encabezados, fila) {
+      const detalle = document.getElementById("detalle");
+      detalle.innerHTML = "<h3>Detalle del proyecto</h3>";
+      detalle.innerHTML += "<ul>" + fila.map((valor, i) => `<li><strong>${encabezados[i]}:</strong> ${valor}</li>`).join("") + "</ul>";
+    }
 
+    cargarDatos();
+  </script>
 </body>
 </html>
-
