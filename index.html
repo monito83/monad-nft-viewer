@@ -4,121 +4,77 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Proyectos Monad NFT</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const sheetURL =
-        "https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv";
-      const tableBody = document.querySelector("#data-body");
-      const detailPanel = document.querySelector("#detail-panel");
-
-      Papa.parse(sheetURL, {
-        download: true,
-        header: false,
-        complete: function (results) {
-          const data = results.data.slice(1); // saltar encabezado
-
-          data.forEach((row, index) => {
-            if (row.length < 10) return; // evitar filas incompletas
-
-            const tr = document.createElement("tr");
-            row.slice(0, 10).forEach((cell, idx) => {
-              const td = document.createElement("td");
-              if (idx === 0) {
-                const button = document.createElement("button");
-                button.textContent = cell;
-                button.onclick = () => showDetails(row);
-                td.appendChild(button);
-              } else {
-                td.textContent = cell.length > 60 ? cell.slice(0, 60) + "..." : cell;
-              }
-              tr.appendChild(td);
-            });
-            tableBody.appendChild(tr);
-          });
-        },
-      });
-
-      function showDetails(row) {
-        const fields = [
-          "Proyecto",
-          "Tier",
-          "Estado Testnet",
-          "Fecha Mint Mainnet",
-          "Requerimientos WL",
-          "NFT Testnet / WL Mainnet",
-          "Link X",
-          "Link Discord",
-          "Link Web",
-          "Notas",
-        ];
-        let html = "<h2>Detalles del Proyecto</h2><ul>";
-        fields.forEach((label, i) => {
-          if (row[i]) {
-            let value = row[i];
-            if (label.includes("Link") && value.startsWith("http")) {
-              value = `<a href="${value}" target="_blank">${label}</a>`;
-            }
-            html += `<li><strong>${label}:</strong> ${value}</li>`;
-          }
-        });
-        html += "</ul>";
-        detailPanel.innerHTML = html;
-      }
-    });
-  </script>
   <style>
     body {
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      padding: 1rem;
-      background-color: #f3f4f6;
+      font-family: sans-serif;
+      margin: 20px;
+      background-color: #f7f7f7;
     }
     h1 {
       text-align: center;
+    }
+    .filtros {
+      display: flex;
+      gap: 1rem;
       margin-bottom: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      background: white;
+      margin-bottom: 2rem;
     }
     th, td {
-      border: 1px solid #e5e7eb;
-      padding: 0.5rem;
+      border: 1px solid #ccc;
+      padding: 8px;
       text-align: left;
-      font-size: 0.9rem;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     th {
-      background-color: #f9fafb;
-      font-weight: 600;
+      background-color: #eaeaea;
     }
-    button {
-      background: none;
-      border: none;
-      color: #2563eb;
+    tr:hover {
+      background-color: #f0f0f0;
       cursor: pointer;
-      padding: 0;
-      font-weight: 600;
     }
-    #detail-panel {
-      margin-top: 2rem;
+    #detalle {
+      background-color: #fff;
+      border: 1px solid #ccc;
       padding: 1rem;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 0.5rem;
+      max-width: 100%;
+      display: none;
     }
   </style>
 </head>
 <body>
-  <h1>Proyectos NFT en la red Monad</h1>
-  <table>
+  <h1>Proyectos NFT - Red Monad</h1>
+
+  <div class="filtros">
+    <label>Tier:
+      <select id="filtroTier">
+        <option value="">Todos</option>
+      </select>
+    </label>
+    <label>Estado Testnet:
+      <select id="filtroEstado">
+        <option value="">Todos</option>
+      </select>
+    </label>
+    <label>Fecha Mint Mainnet:
+      <input type="month" id="filtroFecha" />
+    </label>
+  </div>
+
+  <table id="tabla">
     <thead>
       <tr>
         <th>Proyecto</th>
         <th>Tier</th>
-        <th>Estado Testnet</th>
+        <th>Estado Tesnet</th>
         <th>Fecha Mint Mainnet</th>
         <th>Requerimientos WL</th>
         <th>NFT Testnet / WL Mainnet</th>
@@ -128,8 +84,109 @@
         <th>Notas</th>
       </tr>
     </thead>
-    <tbody id="data-body"></tbody>
+    <tbody></tbody>
   </table>
-  <div id="detail-panel"></div>
+
+  <div id="detalle"></div>
+
+  <script>
+    const sheetUrl = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
+
+    fetch(sheetUrl)
+      .then(res => res.text())
+      .then(data => {
+        const rows = data.split('\n').slice(1); // Omitir encabezado
+        const tableBody = document.querySelector('#tabla tbody');
+        const filtroTier = document.getElementById('filtroTier');
+        const filtroEstado = document.getElementById('filtroEstado');
+        const filtroFecha = document.getElementById('filtroFecha');
+        const detalle = document.getElementById('detalle');
+
+        let allData = [];
+
+        rows.forEach(row => {
+          const cols = row.split(',');
+          if (cols.length < 10) return;
+          const obj = {
+            proyecto: cols[0],
+            tier: cols[1],
+            estado: cols[2],
+            fecha: cols[3],
+            wl: cols[4],
+            nft: cols[5],
+            x: cols[6],
+            discord: cols[7],
+            web: cols[8],
+            notas: cols[9]
+          };
+          allData.push(obj);
+        });
+
+        const unique = (arr) => [...new Set(arr)].filter(x => x);
+
+        unique(allData.map(d => d.tier)).forEach(t => {
+          filtroTier.innerHTML += `<option value="${t}">${t}</option>`;
+        });
+        unique(allData.map(d => d.estado)).forEach(e => {
+          filtroEstado.innerHTML += `<option value="${e}">${e}</option>`;
+        });
+
+        function renderTabla(data) {
+          tableBody.innerHTML = '';
+          data.forEach(d => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${d.proyecto}</td>
+              <td>${d.tier}</td>
+              <td>${d.estado}</td>
+              <td>${d.fecha}</td>
+              <td>${d.wl}</td>
+              <td>${d.nft}</td>
+              <td><a href="${d.x}" target="_blank">Link</a></td>
+              <td><a href="${d.discord}" target="_blank">Link</a></td>
+              <td><a href="${d.web}" target="_blank">Link</a></td>
+              <td>${d.notas}</td>
+            `;
+            tr.addEventListener('click', () => {
+              detalle.innerHTML = `
+                <h3>${d.proyecto}</h3>
+                <p><b>Tier:</b> ${d.tier}</p>
+                <p><b>Estado Tesnet:</b> ${d.estado}</p>
+                <p><b>Fecha Mint Mainnet:</b> ${d.fecha}</p>
+                <p><b>Requerimientos WL:</b> ${d.wl}</p>
+                <p><b>NFT Testnet / WL:</b> ${d.nft}</p>
+                <p><b>Notas:</b> ${d.notas}</p>
+                <p><a href="${d.x}" target="_blank">Link X</a> | 
+                   <a href="${d.discord}" target="_blank">Discord</a> | 
+                   <a href="${d.web}" target="_blank">Web</a></p>
+              `;
+              detalle.style.display = 'block';
+              detalle.scrollIntoView({ behavior: 'smooth' });
+            });
+            tableBody.appendChild(tr);
+          });
+        }
+
+        function aplicarFiltros() {
+          const tier = filtroTier.value;
+          const estado = filtroEstado.value;
+          const fecha = filtroFecha.value;
+
+          let filtrado = allData.filter(d => {
+            return (!tier || d.tier === tier) &&
+                   (!estado || d.estado === estado) &&
+                   (!fecha || d.fecha.startsWith(fecha));
+          });
+
+          renderTabla(filtrado);
+        }
+
+        filtroTier.addEventListener('change', aplicarFiltros);
+        filtroEstado.addEventListener('change', aplicarFiltros);
+        filtroFecha.addEventListener('change', aplicarFiltros);
+
+        renderTabla(allData);
+      });
+  </script>
 </body>
 </html>
