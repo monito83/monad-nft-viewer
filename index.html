@@ -30,49 +30,24 @@
     </thead>
     <tbody></tbody>
   </table>
-
   <script>
-    const sheetID = "1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4";
-    const apiKey = "AIzaSyBT-hqsmIwvLV1XYRBzM6Xwya_LpK1I2Ig";
-    const range = "Hoja1!A2:J";
+  const sheetID = "1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4";
+  const apiKey = "AIzaSyBT-hqsmIwvLV1XYRBzM6Xwya_LpK1I2Ig";
+  const range = encodeURIComponent("'Hoja 1'!A2:J"); // <-- ojo con el nombre y comillas
 
-    async function cargarDatos() {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${range}?key=${apiKey}`;
-      const res = await fetch(url);
-      if (!res.ok) {
-        alert('Error al obtener datos: ' + res.statusText);
-        return;
-      }
-      const data = await res.json();
-      console.log('Datos recibidos:', data);
-
-      const filas = data.values || [];
-      const tbody = document.querySelector("#dataTable tbody");
-      tbody.innerHTML = "";
-
-      filas.forEach(row => {
-        // Rellenar hasta 10 columnas en caso que falten
-        while(row.length < 10) row.push('');
-        const [proyecto, tier, estado, fecha, wl, nft, x, discord, web, notas] = row.map(c => c.trim());
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${proyecto}</td>
-          <td>${tier}</td>
-          <td>${estado}</td>
-          <td>${fecha}</td>
-          <td>${wl}</td>
-          <td>${nft}</td>
-          <td><a href="${x}" target="_blank">X</a></td>
-          <td><a href="${discord}" target="_blank">Discord</a></td>
-          <td><a href="${web}" target="_blank">Web</a></td>
-          <td>${notas}</td>
-        `;
-        tbody.appendChild(tr);
-      });
+  async function cargarDatos() {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${range}?key=${apiKey}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      alert('Error al obtener datos: ' + res.statusText);
+      return;
     }
+    const data = await res.json();
+    console.log('Datos recibidos:', data);
+    // ... resto igual ...
+  }
+  cargarDatos();
+</script>
 
-    cargarDatos();
-  </script>
 </body>
 </html>
