@@ -2,60 +2,17 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Monad NFT Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Depuración Monad NFT Viewer</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 1rem;
-      background: #f9f9f9;
-    }
-    h1 {
-      text-align: center;
-    }
-    select {
-      margin: 0.5rem;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-      background-color: white;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 0.6rem;
-      text-align: left;
-    }
-    th {
-      background-color: #eee;
-    }
-    tr:hover {
-      background-color: #f0f8ff;
-    }
+    body { font-family: Arial, sans-serif; margin: 1rem; background: #f9f9f9; }
+    table { border-collapse: collapse; width: 100%; background: white; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; }
+    th { background: #eee; }
   </style>
 </head>
 <body>
-
-  <h1>Monad NFT Viewer</h1>
-
-  <div>
-    <label>Filtrar por Tier:</label>
-    <select id="tierFilter">
-      <option value="">Todos</option>
-    </select>
-
-    <label>Estado Testnet:</label>
-    <select id="estadoFilter">
-      <option value="">Todos</option>
-    </select>
-
-    <label>Fecha Mint Mainnet:</label>
-    <select id="fechaFilter">
-      <option value="">Todas</option>
-    </select>
-  </div>
-
+  <h1>Depuración - Mostrar Datos Google Sheets</h1>
   <table id="dataTable">
     <thead>
       <tr>
@@ -76,104 +33,46 @@
 
   <script>
     const sheetID = "1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4";
-    const sheetName = "Hoja 1";
     const apiKey = "AIzaSyBT-hqsmIwvLV1XYRBzM6Xwya_LpK1I2Ig";
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetName}?key=${apiKey}`;
+    const range = "Hoja1!A2:J";
 
-    async function fetchData() {
+    async function cargarDatos() {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${range}?key=${apiKey}`;
       const res = await fetch(url);
+      if (!res.ok) {
+        alert('Error al obtener datos: ' + res.statusText);
+        return;
+      }
       const data = await res.json();
-      const rows = data.values;
+      console.log('Datos recibidos:', data);
 
-      if (!rows || rows.length < 2) return;
-
-      const headers = rows[0];
-      const body = rows.slice(1);
-
+      const filas = data.values || [];
       const tbody = document.querySelector("#dataTable tbody");
       tbody.innerHTML = "";
 
-      // Obtener valores únicos para filtros
-      const tiers = new Set();
-      const estados = new Set();
-      const fechas = new Set();
+      filas.forEach(row => {
+        // Rellenar hasta 10 columnas en caso que falten
+        while(row.length < 10) row.push('');
+        const [proyecto, tier, estado, fecha, wl, nft, x, discord, web, notas] = row.map(c => c.trim());
 
-      body.forEach(row => {
-        const [
-          proyecto = "", tier = "", estado = "", fecha = "",
-          reqWL = "", nftTestnet = "", linkX = "", discord = "",
-          web = "", notas = ""
-        ] = row.map(cell => cell.trim());
-
-        tiers.add(tier);
-        estados.add(estado);
-        fechas.add(fecha);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${proyecto}</td>
+          <td>${tier}</td>
+          <td>${estado}</td>
+          <td>${fecha}</td>
+          <td>${wl}</td>
+          <td>${nft}</td>
+          <td><a href="${x}" target="_blank">X</a></td>
+          <td><a href="${discord}" target="_blank">Discord</a></td>
+          <td><a href="${web}" target="_blank">Web</a></td>
+          <td>${notas}</td>
+        `;
+        tbody.appendChild(tr);
       });
-
-      // Insertar opciones únicas en los select
-      const tierSelect = document.getElementById("tierFilter");
-      const estadoSelect = document.getElementById("estadoFilter");
-      const fechaSelect = document.getElementById("fechaFilter");
-
-      insertOptions(tierSelect, tiers);
-      insertOptions(estadoSelect, estados);
-      insertOptions(fechaSelect, fechas);
-
-      function insertOptions(select, set) {
-        [...set].sort().forEach(val => {
-          const opt = document.createElement("option");
-          opt.value = val;
-          opt.textContent = val;
-          select.appendChild(opt);
-        });
-      }
-
-      function renderTable() {
-        const tierVal = tierSelect.value;
-        const estadoVal = estadoSelect.value;
-        const fechaVal = fechaSelect.value;
-
-        tbody.innerHTML = "";
-
-        body.forEach(row => {
-          const [
-            proyecto = "", tier = "", estado = "", fecha = "",
-            reqWL = "", nftTestnet = "", linkX = "", discord = "",
-            web = "", notas = ""
-          ] = row.map(cell => cell.trim());
-
-          const matchTier = !tierVal || tier === tierVal;
-          const matchEstado = !estadoVal || estado === estadoVal;
-          const matchFecha = !fechaVal || fecha === fechaVal;
-
-          if (matchTier && matchEstado && matchFecha) {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-              <td>${proyecto}</td>
-              <td>${tier}</td>
-              <td>${estado}</td>
-              <td>${fecha}</td>
-              <td>${reqWL}</td>
-              <td>${nftTestnet}</td>
-              <td><a href="${linkX}" target="_blank">X</a></td>
-              <td><a href="${discord}" target="_blank">Discord</a></td>
-              <td><a href="${web}" target="_blank">Web</a></td>
-              <td>${notas}</td>
-            `;
-            tbody.appendChild(tr);
-          }
-        });
-      }
-
-      // Listeners
-      tierSelect.addEventListener("change", renderTable);
-      estadoSelect.addEventListener("change", renderTable);
-      fechaSelect.addEventListener("change", renderTable);
-
-      renderTable();
     }
 
-    fetchData();
+    cargarDatos();
   </script>
 </body>
 </html>
