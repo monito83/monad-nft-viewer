@@ -3,76 +3,117 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Proyectos NFT - Red Monad</title>
+  <title>Proyectos Monad NFT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const sheetURL =
+        "https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv";
+      const tableBody = document.querySelector("#data-body");
+      const detailPanel = document.querySelector("#detail-panel");
+
+      Papa.parse(sheetURL, {
+        download: true,
+        header: false,
+        complete: function (results) {
+          const data = results.data.slice(1); // saltar encabezado
+
+          data.forEach((row, index) => {
+            if (row.length < 10) return; // evitar filas incompletas
+
+            const tr = document.createElement("tr");
+            row.slice(0, 10).forEach((cell, idx) => {
+              const td = document.createElement("td");
+              if (idx === 0) {
+                const button = document.createElement("button");
+                button.textContent = cell;
+                button.onclick = () => showDetails(row);
+                td.appendChild(button);
+              } else {
+                td.textContent = cell.length > 60 ? cell.slice(0, 60) + "..." : cell;
+              }
+              tr.appendChild(td);
+            });
+            tableBody.appendChild(tr);
+          });
+        },
+      });
+
+      function showDetails(row) {
+        const fields = [
+          "Proyecto",
+          "Tier",
+          "Estado Testnet",
+          "Fecha Mint Mainnet",
+          "Requerimientos WL",
+          "NFT Testnet / WL Mainnet",
+          "Link X",
+          "Link Discord",
+          "Link Web",
+          "Notas",
+        ];
+        let html = "<h2>Detalles del Proyecto</h2><ul>";
+        fields.forEach((label, i) => {
+          if (row[i]) {
+            let value = row[i];
+            if (label.includes("Link") && value.startsWith("http")) {
+              value = `<a href="${value}" target="_blank">${label}</a>`;
+            }
+            html += `<li><strong>${label}:</strong> ${value}</li>`;
+          }
+        });
+        html += "</ul>";
+        detailPanel.innerHTML = html;
+      }
+    });
+  </script>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Inter', sans-serif;
       margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background-color: #f9f9f9;
+      padding: 1rem;
+      background-color: #f3f4f6;
     }
-
     h1 {
       text-align: center;
-      margin-top: 1rem;
+      margin-bottom: 1rem;
     }
-
     table {
-      width: 95%;
+      width: 100%;
       border-collapse: collapse;
-      margin: 1rem 0;
-      background-color: white;
+      background: white;
     }
-
     th, td {
-      border: 1px solid #ccc;
+      border: 1px solid #e5e7eb;
       padding: 0.5rem;
       text-align: left;
-      max-width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    th {
-      background-color: #eee;
-    }
-
-    tr:hover {
-      background-color: #f1f1f1;
-      cursor: pointer;
-    }
-
-    #details {
-      width: 95%;
-      margin: 1rem 0;
-      padding: 1rem;
-      border: 1px solid #ccc;
-      background-color: #fff;
-      display: none;
-      flex-direction: column;
-    }
-
-    .show-more {
-      color: blue;
-      text-decoration: underline;
-      cursor: pointer;
       font-size: 0.9rem;
     }
-
-    @media (max-width: 768px) {
-      table, #details {
-        width: 100%;
-      }
+    th {
+      background-color: #f9fafb;
+      font-weight: 600;
+    }
+    button {
+      background: none;
+      border: none;
+      color: #2563eb;
+      cursor: pointer;
+      padding: 0;
+      font-weight: 600;
+    }
+    #detail-panel {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 0.5rem;
     }
   </style>
 </head>
 <body>
-  <h1>Proyectos NFT - Red Monad</h1>
-  <table id="project-table">
+  <h1>Proyectos NFT en la red Monad</h1>
+  <table>
     <thead>
       <tr>
         <th>Proyecto</th>
@@ -87,66 +128,8 @@
         <th>Notas</th>
       </tr>
     </thead>
-    <tbody></tbody>
+    <tbody id="data-body"></tbody>
   </table>
-
-  <div id="details"></div>
-
-  <script>
-    const sheetUrl = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
-
-    async function fetchData() {
-      const response = await fetch(sheetUrl);
-      const data = await response.text();
-      const rows = data.trim().split('\n').slice(1); // ignorar encabezado
-      const tableBody = document.querySelector('#project-table tbody');
-
-      rows.forEach(row => {
-        const columns = row.split(',');
-        const tr = document.createElement('tr');
-
-        columns.forEach((col, index) => {
-          const td = document.createElement('td');
-
-          if (col.length > 50) {
-            const shortText = col.substring(0, 50) + '...';
-            const showMore = document.createElement('span');
-            showMore.textContent = 'Mostrar más';
-            showMore.classList.add('show-more');
-            showMore.onclick = () => showDetails(columns);
-
-            td.textContent = shortText + ' ';
-            td.appendChild(showMore);
-          } else {
-            td.textContent = col;
-          }
-
-          tr.appendChild(td);
-        });
-
-        tr.onclick = () => showDetails(columns);
-        tableBody.appendChild(tr);
-      });
-    }
-
-    function showDetails(data) {
-      const fields = [
-        'Proyecto', 'Tier', 'Estado Testnet', 'Fecha Mint Mainnet',
-        'Requerimientos WL', 'NFT Testnet / WL Mainnet',
-        'Link X', 'Link Discord', 'Link Web', 'Notas'
-      ];
-
-      const details = document.getElementById('details');
-      details.innerHTML = '<h3>Detalles del proyecto</h3>';
-      fields.forEach((label, i) => {
-        const p = document.createElement('p');
-        p.innerHTML = `<strong>${label}:</strong> ${data[i] || ''}`;
-        details.appendChild(p);
-      });
-      details.style.display = 'flex';
-    }
-
-    fetchData();
-  </script>
+  <div id="detail-panel"></div>
 </body>
 </html>
