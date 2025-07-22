@@ -3,21 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Monad NFT Viewer</title>
+  <title>Proyectos Monad</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 20px;
-      background-color: #f7f7f7;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    h2 {
+      margin-bottom: 10px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      background: white;
+      background: #fff;
     }
     th, td {
-      padding: 10px;
       border: 1px solid #ccc;
+      padding: 8px;
       text-align: left;
       max-width: 200px;
       overflow: hidden;
@@ -25,7 +28,7 @@
       text-overflow: ellipsis;
     }
     th {
-      background-color: #e0e0e0;
+      background-color: #ddd;
     }
     tr:hover {
       background-color: #f1f1f1;
@@ -34,73 +37,74 @@
     #detalle {
       margin-top: 20px;
       padding: 10px;
+      background: #fff;
       border: 1px solid #ccc;
-      background: white;
-    }
-    .container {
-      display: flex;
-      flex-direction: column;
     }
   </style>
 </head>
 <body>
-  <h2>Proyectos NFT en la red Monad</h2>
-  <div class="container">
-    <table id="tabla">
-      <!-- Encabezado y contenido se generarán automáticamente -->
-    </table>
-    <div id="detalle"></div>
-  </div>
+  <h2>Proyectos en la red Monad</h2>
+  <table id="tabla">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Tier</th>
+        <th>Método WL</th>
+        <th>Roles por Discord</th>
+        <th>Roles por NFT</th>
+        <th>Links</th>
+        <th>Fecha Testnet</th>
+        <th>Fecha Mainnet</th>
+        <th>Estado</th>
+        <th>Notas</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="detalle"></div>
 
   <script>
     const API_KEY = 'AIzaSyBT-hqsmIwvLV1XYRBzM6Xwya_LpK1I2Ig';
     const SHEET_ID = '1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4';
-    const RANGE = 'Hoja1!A1:J';
+    const RANGE = 'Hoja1!A2:J';
 
     async function cargarDatos() {
       const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
       try {
         const res = await fetch(url);
         const data = await res.json();
-        if (!data.values || data.values.length === 0) {
-          throw new Error("No se encontró información en la hoja.");
-        }
+        const filas = data.values;
 
-        const tabla = document.getElementById("tabla");
-        tabla.innerHTML = ""; // Limpiar tabla
+        const tbody = document.querySelector("#tabla tbody");
+        tbody.innerHTML = "";
 
-        // Encabezado
-        const encabezados = data.values[0];
-        const thead = tabla.createTHead();
-        const filaEncabezado = thead.insertRow();
-        encabezados.forEach(texto => {
-          const th = document.createElement("th");
-          th.textContent = texto;
-          filaEncabezado.appendChild(th);
-        });
-
-        // Cuerpo
-        const tbody = tabla.createTBody();
-        for (let i = 1; i < data.values.length; i++) {
-          const fila = data.values[i];
-          const tr = tbody.insertRow();
+        filas.forEach(fila => {
+          const tr = document.createElement("tr");
           fila.forEach(celda => {
-            const td = tr.insertCell();
+            const td = document.createElement("td");
             td.textContent = celda;
+            tr.appendChild(td);
           });
 
-          tr.addEventListener("click", () => mostrarDetalle(encabezados, fila));
-        }
-      } catch (error) {
-        document.getElementById("tabla").innerHTML = "<tr><td>Error al cargar los datos.</td></tr>";
-        console.error(error);
+          tr.addEventListener("click", () => mostrarDetalle(fila));
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        console.error("Error al cargar los datos:", e);
+        document.querySelector("#tabla tbody").innerHTML = "<tr><td colspan='10'>No se pudo cargar la información</td></tr>";
       }
     }
 
-    function mostrarDetalle(encabezados, fila) {
+    function mostrarDetalle(fila) {
       const detalle = document.getElementById("detalle");
-      detalle.innerHTML = "<h3>Detalle del proyecto</h3>";
-      detalle.innerHTML += "<ul>" + fila.map((valor, i) => `<li><strong>${encabezados[i]}:</strong> ${valor}</li>`).join("") + "</ul>";
+      const campos = [
+        "Nombre", "Tier", "Método WL", "Roles por Discord", "Roles por NFT",
+        "Links", "Fecha Testnet", "Fecha Mainnet", "Estado", "Notas"
+      ];
+      detalle.innerHTML = "<h3>Detalle del proyecto</h3><ul>" +
+        fila.map((valor, i) => `<li><strong>${campos[i]}:</strong> ${valor}</li>`).join("") +
+        "</ul>";
     }
 
     cargarDatos();
