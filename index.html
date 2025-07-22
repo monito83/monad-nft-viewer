@@ -79,12 +79,12 @@
   <table id="tabla">
     <thead>
       <tr>
-        <th>Nombre</th>
-        <th>Método WL</th>
-        <th>Roles Discord / NFT</th>
-        <th>Testnet → Mainnet</th>
-        <th>Estado</th>
+        <th>Proyecto</th>
         <th>Tier</th>
+        <th>Estado Testnet</th>
+        <th>Fecha Mainnet</th>
+        <th>WL</th>
+        <th>Testnet/NFT WL</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -106,17 +106,17 @@
         const json = JSON.parse(data.substr(47).slice(0, -2));
         const rows = json.table.rows.map(r => r.c.map(c => c ? c.v : ''));
         window.proyectos = rows.map(row => ({
-          nombre: row[0],
-          metodoWL: row[1],
-          rolesDiscord: row[2],
-          rolesNFT: row[3],
-          links: row[4],
-          fechaTestnet: row[5],
-          fechaMainnet: row[6],
-          estado: row[7],
-          notas: row[8],
-          tier: row[9],
-        })).filter(p => p.nombre !== '');
+          proyecto: row[0],
+          tier: row[1],
+          estadoTestnet: row[2],
+          fechaMainnet: row[3],
+          requerimientosWL: row[4],
+          nftTestnetWL: row[5],
+          linkX: row[6],
+          linkDiscord: row[7],
+          linkWeb: row[8],
+          notas: row[9],
+        })).filter(p => p.proyecto !== '');
         renderTabla();
       });
 
@@ -127,18 +127,18 @@
       
       tabla.innerHTML = '';
       window.proyectos.forEach(p => {
-        if ((busqueda && !p.nombre.toLowerCase().includes(busqueda)) ||
+        if ((busqueda && !p.proyecto.toLowerCase().includes(busqueda)) ||
             (filtroTier && p.tier !== filtroTier) ||
-            (filtroEstado && p.estado !== filtroEstado)) return;
+            (filtroEstado && p.estadoTestnet !== filtroEstado)) return;
         
         const fila = document.createElement('tr');
         fila.innerHTML = `
-          <td>${p.nombre}</td>
-          <td>${p.metodoWL}</td>
-          <td>${p.rolesDiscord || ''} ${p.rolesNFT ? '/ ' + p.rolesNFT : ''}</td>
-          <td>${p.fechaTestnet || ''} → ${p.fechaMainnet || ''}</td>
-          <td>${p.estado}</td>
+          <td>${p.proyecto}</td>
           <td>${p.tier}</td>
+          <td>${p.estadoTestnet}</td>
+          <td>${p.fechaMainnet}</td>
+          <td>${p.requerimientosWL}</td>
+          <td>${p.nftTestnetWL}</td>
         `;
         fila.onclick = () => mostrarDetalle(p);
         tabla.appendChild(fila);
@@ -148,14 +148,18 @@
     function mostrarDetalle(p) {
       detalle.style.display = 'block';
       detalle.innerHTML = `
-        <h3>${p.nombre}</h3>
-        <p><strong>Método para obtener WL:</strong> ${p.metodoWL}</p>
-        <p><strong>Roles:</strong><br>Discord: ${p.rolesDiscord || '-'}<br>NFT: ${p.rolesNFT || '-'}</p>
-        <p><strong>Fechas Mint:</strong><br>Testnet: ${p.fechaTestnet || '-'}<br>Mainnet: ${p.fechaMainnet || '-'}</p>
-        <p><strong>Estado:</strong> ${p.estado}</p>
+        <h3>${p.proyecto}</h3>
         <p><strong>Tier:</strong> ${p.tier}</p>
-        <p><strong>Notas:</strong> ${p.notas || '-'}</p>
-        <p><strong>Links:</strong> ${p.links ? `<a href="${p.links}" target="_blank">${p.links}</a>` : '-'}</p>
+        <p><strong>Estado Testnet:</strong> ${p.estadoTestnet}</p>
+        <p><strong>Fecha Mint Mainnet:</strong> ${p.fechaMainnet}</p>
+        <p><strong>Requisitos WL:</strong> ${p.requerimientosWL}</p>
+        <p><strong>NFT Testnet / WL Mainnet:</strong> ${p.nftTestnetWL}</p>
+        <p><strong>Links:</strong><br>
+          ${p.linkX ? `X: <a href="${p.linkX}" target="_blank">${p.linkX}</a><br>` : ''}
+          ${p.linkDiscord ? `Discord: <a href="${p.linkDiscord}" target="_blank">${p.linkDiscord}</a><br>` : ''}
+          ${p.linkWeb ? `Web: <a href="${p.linkWeb}" target="_blank">${p.linkWeb}</a>` : ''}
+        </p>
+        <p><strong>Notas:</strong> ${p.notas}</p>
       `;
     }
 
@@ -165,3 +169,4 @@
   </script>
 </body>
 </html>
+
