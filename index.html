@@ -3,106 +3,141 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Proyectos NFT Monad</title>
+  <title>Proyectos NFT - Red Monad</title>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 0;
-      background: #f9f9f9;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
     }
-    h1 {
-      text-align: center;
+    .container {
+      display: flex;
+      width: 100%;
+    }
+    .list {
+      width: 50%;
+      overflow-y: auto;
+      border-right: 1px solid #ccc;
+    }
+    .details {
+      width: 50%;
       padding: 1rem;
+      overflow-y: auto;
     }
     table {
       width: 100%;
       border-collapse: collapse;
     }
     th, td {
-      padding: 0.5rem;
-      border: 1px solid #ccc;
+      padding: 0.75rem;
+      border-bottom: 1px solid #ddd;
       text-align: left;
+      vertical-align: top;
     }
     th {
-      background: #eee;
+      background-color: #f8f8f8;
+      position: sticky;
+      top: 0;
+      z-index: 1;
     }
     tr:hover {
-      background-color: #f1f1f1;
+      background-color: #f0f0f0;
       cursor: pointer;
     }
-    .details {
-      padding: 1rem;
-      border-top: 1px solid #ccc;
-      background: #fff;
+    .field {
+      margin-bottom: 0.75rem;
     }
-    .link a {
-      color: #1a0dab;
-      text-decoration: none;
+    .field strong {
+      display: inline-block;
+      width: 180px;
     }
-    .link a:hover {
-      text-decoration: underline;
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      .list, .details {
+        width: 100%;
+        height: 50vh;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Proyectos NFT en la red Monad</h1>
-  <div id="table-container"></div>
-  <div class="details" id="details"></div>
+  <div class="container">
+    <div class="list">
+      <table id="projectTable">
+        <thead>
+          <tr>
+            <th>Proyecto</th>
+            <th>Tier</th>
+            <th>Estado Testnet</th>
+            <th>Fecha Mint Mainnet</th>
+            <th>Requerimientos WL</th>
+            <th>NFT Testnet / WL Mainnet</th>
+            <th>Link X</th>
+            <th>Link Discord</th>
+            <th>Link Web</th>
+            <th>Notas</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="details" id="details">
+      <p>Selecciona un proyecto para ver los detalles.</p>
+    </div>
+  </div>
 
   <script>
     const sheetUrl = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
 
-    fetch(sheetUrl)
-      .then(response => response.text())
-      .then(data => {
-        const rows = data.trim().split('\n').map(row => row.split(','));
-        const headers = rows[0];
-        const body = rows.slice(1);
-
-        const table = document.createElement('table');
-        const thead = document.createElement('thead');
-        const headerRow = document.createElement('tr');
-
-        headers.forEach(header => {
-          const th = document.createElement('th');
-          th.textContent = header;
-          headerRow.appendChild(th);
-        });
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-
-        const tbody = document.createElement('tbody');
-        body.forEach((row, index) => {
+    Papa.parse(sheetUrl, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: function(results) {
+        const data = results.data;
+        const tbody = document.querySelector('#projectTable tbody');
+        data.forEach((row, index) => {
           const tr = document.createElement('tr');
-          row.forEach(cell => {
-            const td = document.createElement('td');
-            td.textContent = cell;
-            tr.appendChild(td);
-          });
-          tr.addEventListener('click', () => showDetails(headers, row));
+          tr.innerHTML = `
+            <td>${row['Proyecto'] || ''}</td>
+            <td>${row['Tier'] || ''}</td>
+            <td>${row['Estado Testnet'] || ''}</td>
+            <td>${row['Fecha Mint Mainnet'] || ''}</td>
+            <td>${row['Requerimientos WL'] || ''}</td>
+            <td>${row['Nft Testnet / WL Mainnet'] || ''}</td>
+            <td>${row['Link X'] ? `<a href="${row['Link X']}" target="_blank">X</a>` : ''}</td>
+            <td>${row['Link Discord'] ? `<a href="${row['Link Discord']}" target="_blank">Discord</a>` : ''}</td>
+            <td>${row['Link Web'] ? `<a href="${row['Link Web']}" target="_blank">Web</a>` : ''}</td>
+            <td>${row['Notas'] || ''}</td>
+          `;
+          tr.addEventListener('click', () => showDetails(row));
           tbody.appendChild(tr);
         });
-        table.appendChild(tbody);
+      }
+    });
 
-        document.getElementById('table-container').appendChild(table);
-      });
-
-    function showDetails(headers, row) {
-      const detailsDiv = document.getElementById('details');
-      detailsDiv.innerHTML = '<h3>Detalles del proyecto</h3>';
-      const ul = document.createElement('ul');
-      headers.forEach((header, i) => {
-        const li = document.createElement('li');
-        const value = row[i] || '';
-        if (header.toLowerCase().includes('link')) {
-          li.innerHTML = `<strong>${header}:</strong> <span class="link"><a href="${value}" target="_blank">${value}</a></span>`;
-        } else {
-          li.innerHTML = `<strong>${header}:</strong> ${value}`;
+    function showDetails(row) {
+      const details = document.getElementById('details');
+      details.innerHTML = '';
+      for (const key in row) {
+        if (row.hasOwnProperty(key)) {
+          const div = document.createElement('div');
+          div.className = 'field';
+          let value = row[key];
+          if (key.includes('Link') && value) {
+            value = `<a href="${value}" target="_blank">${key}</a>`;
+          }
+          div.innerHTML = `<strong>${key}:</strong> ${value || ''}`;
+          details.appendChild(div);
         }
-        ul.appendChild(li);
-      });
-      detailsDiv.appendChild(ul);
+      }
     }
   </script>
 </body>
