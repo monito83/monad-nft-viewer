@@ -6,7 +6,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 20px;
+      padding: 20px;
     }
 
     h1 {
@@ -24,28 +24,22 @@
       border: 1px solid #ccc;
       padding: 8px;
       text-align: left;
-      vertical-align: top;
     }
 
     th {
-      background-color: #eee;
+      background-color: #5c2f93;
+      color: white;
     }
 
     tr:hover {
-      background-color: #f5f5f5;
-      cursor: pointer;
+      background-color: #f3f3f3;
     }
 
     #detalle {
+      display: none;
       border: 1px solid #ccc;
       padding: 10px;
-      background-color: #fafafa;
-      display: none;
-    }
-
-    .encabezado-fijo {
-      background-color: #5c2f93;
-      color: white;
+      background-color: #f9f9f9;
     }
   </style>
 </head>
@@ -53,9 +47,9 @@
 
   <h1>Proyectos en la red Monad</h1>
 
-  <table id="tabla-proyectos">
+  <table id="tabla">
     <thead>
-      <tr class="encabezado-fijo">
+      <tr>
         <th>Nombre</th>
         <th>Tier</th>
         <th>WL Método</th>
@@ -79,14 +73,17 @@
     const RANGE = 'Hoja1!A2:J'; // Fila 2 en adelante
 
     async function cargarDatos() {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+
       try {
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
-        const respuesta = await fetch(url);
-        const data = await respuesta.json();
+        const res = await fetch(url);
+        const data = await res.json();
 
-        if (!data.values) throw new Error("No se pudo cargar la información");
+        if (!data.values || data.values.length === 0) {
+          throw new Error("No se encontraron datos.");
+        }
 
-        const tbody = document.querySelector("#tabla-proyectos tbody");
+        const tbody = document.querySelector("#tabla tbody");
         tbody.innerHTML = "";
 
         data.values.forEach(fila => {
@@ -101,32 +98,31 @@
           tbody.appendChild(tr);
         });
 
-      } catch (error) {
-        document.querySelector("#detalle").textContent = "No se pudo cargar la información";
+      } catch (err) {
+        document.querySelector("#detalle").innerHTML = `<strong>Error:</strong> ${err.message}`;
         document.querySelector("#detalle").style.display = "block";
-        console.error(error);
+        console.error(err);
       }
     }
 
     function mostrarDetalle(fila) {
       const campos = [
-        "Nombre", "Tier", "WL Método", "Roles Discord",
-        "Roles vía NFT", "Links", "Mint Testnet", "Mint Mainnet", "Estado", "Notas"
+        "Nombre", "Tier", "WL Método", "Roles Discord", "Roles vía NFT",
+        "Links", "Mint Testnet", "Mint Mainnet", "Estado", "Notas"
       ];
 
       let html = "<h3>Detalles del Proyecto</h3><ul>";
-      fila.forEach((valor, i) => {
-        html += `<li><strong>${campos[i]}:</strong> ${valor}</li>`;
-      });
+      for (let i = 0; i < campos.length; i++) {
+        html += `<li><strong>${campos[i]}:</strong> ${fila[i] || ""}</li>`;
+      }
       html += "</ul>";
 
-      const detalleDiv = document.getElementById("detalle");
-      detalleDiv.innerHTML = html;
-      detalleDiv.style.display = "block";
+      const div = document.getElementById("detalle");
+      div.innerHTML = html;
+      div.style.display = "block";
     }
 
     cargarDatos();
   </script>
-
 </body>
 </html>
