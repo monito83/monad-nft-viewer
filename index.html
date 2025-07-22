@@ -1,125 +1,107 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Proyectos Monad</title>
+  <meta charset="UTF-8" />
+  <title>Proyectos NFT - Red Monad</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
+      margin: 20px;
+      background: #f7f7f7;
     }
-
     h1 {
       text-align: center;
-      color: #5c2f93;
+      color: #4b0082;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 20px;
+      background: white;
     }
-
     th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #5c2f93;
-      color: white;
-    }
-
-    tr:hover {
-      background-color: #f3f3f3;
-    }
-
-    #detalle {
-      display: none;
-      border: 1px solid #ccc;
       padding: 10px;
-      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+      text-align: left;
+      max-width: 200px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    th {
+      background-color: #e0e0e0;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+      cursor: pointer;
+    }
+    #detalle {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background: white;
     }
   </style>
 </head>
 <body>
-
-  <h1>Proyectos en la red Monad</h1>
-
-  <table id="tabla">
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Tier</th>
-        <th>WL Método</th>
-        <th>Roles Discord</th>
-        <th>Roles vía NFT</th>
-        <th>Links</th>
-        <th>Mint Testnet</th>
-        <th>Mint Mainnet</th>
-        <th>Estado</th>
-        <th>Notas</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
+  <h1>Proyectos NFT - Red Monad</h1>
+  <table id="tabla"></table>
   <div id="detalle"></div>
 
   <script>
-    const API_KEY = 'AIzaSyBT-hqsmIwvLV1XYRBzM6Xwya_LpK1I2Ig';
-    const SPREADSHEET_ID = '1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4';
-    const RANGE = 'Hoja1!A2:J'; // Fila 2 en adelante
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/gviz/tq?tqx=out:json&sheet=Hoja1';
 
     async function cargarDatos() {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
-
       try {
-        const res = await fetch(url);
-        const data = await res.json();
+        const res = await fetch(SHEET_URL);
+        const text = await res.text();
+        // El JSON viene envuelto en callback, hay que extraerlo
+        const json = JSON.parse(text.substr(47).slice(0, -2));
 
-        if (!data.values || data.values.length === 0) {
-          throw new Error("No se encontraron datos.");
-        }
+        const filas = json.table.rows;
 
-        const tbody = document.querySelector("#tabla tbody");
-        tbody.innerHTML = "";
+        const tabla = document.getElementById('tabla');
+        tabla.innerHTML = '';
 
-        data.values.forEach(fila => {
-          const tr = document.createElement("tr");
+        // Crear encabezado con la primer fila
+        const encabezado = filas[0].c.map(c => c ? c.v : '');
+        const thead = document.createElement('thead');
+        const filaHead = document.createElement('tr');
+        encabezado.forEach(texto => {
+          const th = document.createElement('th');
+          th.textContent = texto;
+          filaHead.appendChild(th);
+        });
+        thead.appendChild(filaHead);
+        tabla.appendChild(thead);
+
+        // Crear cuerpo con el resto de filas (desde fila 2)
+        const tbody = document.createElement('tbody');
+        for(let i=1; i<filas.length; i++) {
+          const fila = filas[i].c.map(c => c ? c.v : '');
+          const tr = document.createElement('tr');
           fila.forEach(celda => {
-            const td = document.createElement("td");
+            const td = document.createElement('td');
             td.textContent = celda;
             tr.appendChild(td);
           });
-
-          tr.addEventListener("click", () => mostrarDetalle(fila));
+          tr.addEventListener('click', () => mostrarDetalle(encabezado, fila));
           tbody.appendChild(tr);
-        });
-
-      } catch (err) {
-        document.querySelector("#detalle").innerHTML = `<strong>Error:</strong> ${err.message}`;
-        document.querySelector("#detalle").style.display = "block";
-        console.error(err);
+        }
+        tabla.appendChild(tbody);
+      } catch(e) {
+        document.getElementById('tabla').innerHTML = '<tr><td colspan="10">Error al cargar los datos.</td></tr>';
+        console.error(e);
       }
     }
 
-    function mostrarDetalle(fila) {
-      const campos = [
-        "Nombre", "Tier", "WL Método", "Roles Discord", "Roles vía NFT",
-        "Links", "Mint Testnet", "Mint Mainnet", "Estado", "Notas"
-      ];
-
-      let html = "<h3>Detalles del Proyecto</h3><ul>";
-      for (let i = 0; i < campos.length; i++) {
-        html += `<li><strong>${campos[i]}:</strong> ${fila[i] || ""}</li>`;
-      }
-      html += "</ul>";
-
-      const div = document.getElementById("detalle");
+    function mostrarDetalle(encabezado, fila) {
+      const div = document.getElementById('detalle');
+      let html = '<h3>Detalle del proyecto</h3><ul>';
+      fila.forEach((valor, i) => {
+        html += `<li><strong>${encabezado[i]}:</strong> ${valor || ''}</li>`;
+      });
+      html += '</ul>';
       div.innerHTML = html;
-      div.style.display = "block";
     }
 
     cargarDatos();
