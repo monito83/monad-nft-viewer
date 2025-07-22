@@ -3,17 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Depuración Monad NFT Viewer</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 1rem; background: #f9f9f9; }
-    table { border-collapse: collapse; width: 100%; background: white; }
-    th, td { border: 1px solid #ccc; padding: 0.5rem; }
-    th { background: #eee; }
-  </style>
+  <title>Monad NFT Viewer - Debug</title>
 </head>
 <body>
-  <h1>Depuración - Mostrar Datos Google Sheets</h1>
-  <table id="dataTable">
+  <h1>Probando carga de Google Sheets</h1>
+  <table border="1" id="dataTable">
     <thead>
       <tr>
         <th>Proyecto</th>
@@ -30,24 +24,48 @@
     </thead>
     <tbody></tbody>
   </table>
+
   <script>
-  const sheetID = "1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4";
-  const apiKey = "AIzaSyBT-hqsmIwvLV1XYRBzM6Xwya_LpK1I2Ig";
-  const range = encodeURIComponent("'Hoja 1'!A2:J"); // <-- ojo con el nombre y comillas
+    const sheetID = "1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4";
+    const apiKey = "AIzaSyBT-hqsmIwvLV1XYRBzM6Xwya_LpK1I2Ig";
+    const range = encodeURIComponent("'Hoja 1'!A2:J");
 
-  async function cargarDatos() {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${range}?key=${apiKey}`;
-    const res = await fetch(url);
-    if (!res.ok) {
-      alert('Error al obtener datos: ' + res.statusText);
-      return;
+    async function cargarDatos() {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${range}?key=${apiKey}`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        alert('Error al obtener datos: ' + res.statusText);
+        return;
+      }
+      const data = await res.json();
+      console.log('Datos recibidos:', data);
+
+      const filas = data.values || [];
+      const tbody = document.querySelector("#dataTable tbody");
+      tbody.innerHTML = "";
+
+      filas.forEach(row => {
+        while(row.length < 10) row.push('');
+        const [proyecto, tier, estado, fecha, reqWL, nftTestnet, linkX, discord, web, notas] = row.map(c => c.trim());
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${proyecto}</td>
+          <td>${tier}</td>
+          <td>${estado}</td>
+          <td>${fecha}</td>
+          <td>${reqWL}</td>
+          <td>${nftTestnet}</td>
+          <td><a href="${linkX}" target="_blank">X</a></td>
+          <td><a href="${discord}" target="_blank">Discord</a></td>
+          <td><a href="${web}" target="_blank">Web</a></td>
+          <td>${notas}</td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
-    const data = await res.json();
-    console.log('Datos recibidos:', data);
-    // ... resto igual ...
-  }
-  cargarDatos();
-</script>
 
+    cargarDatos();
+  </script>
 </body>
 </html>
