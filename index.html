@@ -1,60 +1,69 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Proyectos Monad</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      padding: 20px;
+      margin: 20px;
     }
-    h2 {
-      margin-bottom: 10px;
+
+    h1 {
+      text-align: center;
+      color: #5c2f93;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      background: #fff;
+      margin-bottom: 20px;
     }
+
     th, td {
       border: 1px solid #ccc;
       padding: 8px;
       text-align: left;
-      max-width: 200px;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
+      vertical-align: top;
     }
+
     th {
-      background-color: #ddd;
+      background-color: #eee;
     }
+
     tr:hover {
-      background-color: #f1f1f1;
+      background-color: #f5f5f5;
       cursor: pointer;
     }
+
     #detalle {
-      margin-top: 20px;
-      padding: 10px;
-      background: #fff;
       border: 1px solid #ccc;
+      padding: 10px;
+      background-color: #fafafa;
+      display: none;
+    }
+
+    .encabezado-fijo {
+      background-color: #5c2f93;
+      color: white;
     }
   </style>
 </head>
 <body>
-  <h2>Proyectos en la red Monad</h2>
-  <table id="tabla">
+
+  <h1>Proyectos en la red Monad</h1>
+
+  <table id="tabla-proyectos">
     <thead>
-      <tr>
+      <tr class="encabezado-fijo">
         <th>Nombre</th>
         <th>Tier</th>
-        <th>Método WL</th>
-        <th>Roles por Discord</th>
-        <th>Roles por NFT</th>
+        <th>WL Método</th>
+        <th>Roles Discord</th>
+        <th>Roles vía NFT</th>
         <th>Links</th>
-        <th>Fecha Testnet</th>
-        <th>Fecha Mainnet</th>
+        <th>Mint Testnet</th>
+        <th>Mint Mainnet</th>
         <th>Estado</th>
         <th>Notas</th>
       </tr>
@@ -66,20 +75,21 @@
 
   <script>
     const API_KEY = 'AIzaSyBT-hqsmIwvLV1XYRBzM6Xwya_LpK1I2Ig';
-    const SHEET_ID = '1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4';
-    const RANGE = 'Hoja1!A2:J';
+    const SPREADSHEET_ID = '1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4';
+    const RANGE = 'Hoja1!A2:J'; // Fila 2 en adelante
 
     async function cargarDatos() {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
       try {
-        const res = await fetch(url);
-        const data = await res.json();
-        const filas = data.values;
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+        const respuesta = await fetch(url);
+        const data = await respuesta.json();
 
-        const tbody = document.querySelector("#tabla tbody");
+        if (!data.values) throw new Error("No se pudo cargar la información");
+
+        const tbody = document.querySelector("#tabla-proyectos tbody");
         tbody.innerHTML = "";
 
-        filas.forEach(fila => {
+        data.values.forEach(fila => {
           const tr = document.createElement("tr");
           fila.forEach(celda => {
             const td = document.createElement("td");
@@ -90,24 +100,33 @@
           tr.addEventListener("click", () => mostrarDetalle(fila));
           tbody.appendChild(tr);
         });
-      } catch (e) {
-        console.error("Error al cargar los datos:", e);
-        document.querySelector("#tabla tbody").innerHTML = "<tr><td colspan='10'>No se pudo cargar la información</td></tr>";
+
+      } catch (error) {
+        document.querySelector("#detalle").textContent = "No se pudo cargar la información";
+        document.querySelector("#detalle").style.display = "block";
+        console.error(error);
       }
     }
 
     function mostrarDetalle(fila) {
-      const detalle = document.getElementById("detalle");
       const campos = [
-        "Nombre", "Tier", "Método WL", "Roles por Discord", "Roles por NFT",
-        "Links", "Fecha Testnet", "Fecha Mainnet", "Estado", "Notas"
+        "Nombre", "Tier", "WL Método", "Roles Discord",
+        "Roles vía NFT", "Links", "Mint Testnet", "Mint Mainnet", "Estado", "Notas"
       ];
-      detalle.innerHTML = "<h3>Detalle del proyecto</h3><ul>" +
-        fila.map((valor, i) => `<li><strong>${campos[i]}:</strong> ${valor}</li>`).join("") +
-        "</ul>";
+
+      let html = "<h3>Detalles del Proyecto</h3><ul>";
+      fila.forEach((valor, i) => {
+        html += `<li><strong>${campos[i]}:</strong> ${valor}</li>`;
+      });
+      html += "</ul>";
+
+      const detalleDiv = document.getElementById("detalle");
+      detalleDiv.innerHTML = html;
+      detalleDiv.style.display = "block";
     }
 
     cargarDatos();
   </script>
+
 </body>
 </html>
