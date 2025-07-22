@@ -3,71 +3,119 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Visualizador de Proyectos Monad</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <title>Proyectos Monad NFT</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    header {
+      background-color: #5b21b6;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    th {
+      background-color: #ede9fe;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .container {
+      padding: 1rem;
+    }
+    .detalle {
+      margin-top: 2rem;
+      background-color: white;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-900">
-  <div class="container mx-auto py-8">
-    <h1 class="text-2xl font-bold mb-4">Proyectos NFT en la red Monad</h1>
-
-    <div class="overflow-x-auto">
-      <table class="min-w-full bg-white border">
-        <thead>
-          <tr>
-            <th class="border px-4 py-2">Proyecto</th>
-            <th class="border px-4 py-2">Tier</th>
-            <th class="border px-4 py-2">Estado Tesnet</th>
-            <th class="border px-4 py-2">Fecha Mint Mainnet</th>
-            <th class="border px-4 py-2">Requerimientos WL</th>
-            <th class="border px-4 py-2">Nft Testnet / WL Mainnet</th>
-            <th class="border px-4 py-2">Link X</th>
-            <th class="border px-4 py-2">Link Discord</th>
-            <th class="border px-4 py-2">Link Web</th>
-            <th class="border px-4 py-2">Notas</th>
-          </tr>
-        </thead>
-        <tbody id="tablaProyectos"></tbody>
-      </table>
-    </div>
+<body>
+  <header>
+    <h1>Proyectos NFT - Red Monad</h1>
+  </header>
+  <div class="container">
+    <table id="tablaProyectos">
+      <thead>
+        <tr>
+          <th>Proyecto</th>
+          <th>Tier</th>
+          <th>Estado Tesnet</th>
+          <th>Fecha Mint Mainnet</th>
+          <th>Requerimientos WL</th>
+          <th>NFT Testnet / WL Mainnet</th>
+          <th>Link X</th>
+          <th>Link Discord</th>
+          <th>Link Web</th>
+          <th>Notas</th>
+        </tr>
+      </thead>
+      <tbody id="contenidoTabla"></tbody>
+    </table>
+    <div id="detalle" class="detalle" style="display:none"></div>
   </div>
-
   <script>
-    const sheetId = "1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4";
-    const sheetRange = "Hoja 1!A2:J"; // Leer desde fila 2 para no tomar encabezados
-    const apiKey = "AIzaSyCrT6u8vTSwGm_7zLMXfZrhpk_q1lUS4A8";
+    const API_KEY = "AIzaSyBT-hqsmIwvLV1XYRBzM6Xwya_LpK1I2Ig";
+    const SHEET_ID = "1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4";
+    const RANGE = "Hoja 1!A2:J";
 
     async function cargarDatos() {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(sheetRange)}?key=${apiKey}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const filas = data.values || [];
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+      const respuesta = await fetch(url);
+      const datos = await respuesta.json();
+      const contenidoTabla = document.getElementById("contenidoTabla");
+      contenidoTabla.innerHTML = "";
 
-      const tabla = document.getElementById("tablaProyectos");
-      tabla.innerHTML = "";
+      if (!datos.values) return;
 
-      filas.forEach((fila) => {
-        while (fila.length < 10) fila.push("");
-        const [proyecto, tier, estado, fecha, req, wl, x, discord, web, notas] = fila.map(c => c.trim());
+      datos.values.forEach((fila, i) => {
+        const tr = document.createElement("tr");
+        fila.forEach((celda, j) => {
+          const td = document.createElement("td");
+          td.textContent = celda;
+          tr.appendChild(td);
+        });
 
-        const filaHTML = `
-          <tr>
-            <td class="border px-4 py-2">${proyecto}</td>
-            <td class="border px-4 py-2">${tier}</td>
-            <td class="border px-4 py-2">${estado}</td>
-            <td class="border px-4 py-2">${fecha}</td>
-            <td class="border px-4 py-2">${req}</td>
-            <td class="border px-4 py-2">${wl}</td>
-            <td class="border px-4 py-2"><a href="${x}" target="_blank">X</a></td>
-            <td class="border px-4 py-2"><a href="${discord}" target="_blank">Discord</a></td>
-            <td class="border px-4 py-2"><a href="${web}" target="_blank">Web</a></td>
-            <td class="border px-4 py-2">${notas}</td>
-          </tr>`;
-
-        tabla.insertAdjacentHTML("beforeend", filaHTML);
+        tr.addEventListener("click", () => mostrarDetalle(fila));
+        contenidoTabla.appendChild(tr);
       });
+    }
+
+    function mostrarDetalle(fila) {
+      const detalle = document.getElementById("detalle");
+      detalle.innerHTML = `
+        <h3>${fila[0]}</h3>
+        <p><strong>Tier:</strong> ${fila[1]}</p>
+        <p><strong>Estado Tesnet:</strong> ${fila[2]}</p>
+        <p><strong>Fecha Mint Mainnet:</strong> ${fila[3]}</p>
+        <p><strong>Requerimientos WL:</strong> ${fila[4]}</p>
+        <p><strong>NFT Testnet / WL Mainnet:</strong> ${fila[5]}</p>
+        <p><strong>Link X:</strong> <a href="${fila[6]}" target="_blank">X</a></p>
+        <p><strong>Link Discord:</strong> <a href="${fila[7]}" target="_blank">Discord</a></p>
+        <p><strong>Link Web:</strong> <a href="${fila[8]}" target="_blank">Sitio Web</a></p>
+        <p><strong>Notas:</strong> ${fila[9]}</p>
+      `;
+      detalle.style.display = "block";
     }
 
     cargarDatos();
   </script>
 </body>
 </html>
+
