@@ -1,125 +1,128 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Proyectos NFT - Red Monad</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Proyectos NFT Monad – WL Dashboard</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
-      text-align: center;
-      padding: 20px;
-    }
-    h1 {
-      color: purple;
-    }
-    table {
-      width: 90%;
-      margin: auto;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      max-width: 250px;
-      word-wrap: break-word;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    select {
-      margin: 10px;
-      padding: 5px;
-    }
-    .oculto {
-      display: none;
+    body { font-family: Arial, sans-serif; background: #f5f5f5; color: #333; margin: 0; padding: 0; }
+    header { background: #4c51bf; color: white; padding: 1rem; text-align: center; }
+    main { padding: 1rem; max-width: 1200px; margin: auto; }
+    input { margin-bottom: 1rem; padding: 0.5rem; width: 100%; font-size: 1rem; }
+    table { width: 100%; border-collapse: collapse; background: white; }
+    th, td { padding: 0.75rem; border-bottom: 1px solid #ddd; text-align: left; vertical-align: top; }
+    th { background: #e2e8f0; position: sticky; top: 0; }
+    tr:hover { background: #edf2f7; }
+    button.copy-btn { padding: 0.3rem 0.6rem; font-size: 0.85rem; margin-top: 5px; cursor: pointer; background: #4299e1; color: white; border: none; border-radius: 4px; }
+    button.copy-btn:hover { background: #2b6cb0; }
+    .tag { padding: 0.2rem 0.5rem; border-radius: 0.25rem; font-size: 0.85rem; color: white; display: inline-block; }
+    .Abierto { background: #48bb78; }
+    .Cerrado { background: #f56565; }
+    a { color: #3182ce; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    @media (prefers-color-scheme: dark) {
+      body { background: #1a202c; color: #e2e8f0; }
+      table { background: #2d3748; }
+      th { background: #4a5568; }
+      tr:hover { background: #2f855a; }
     }
   </style>
 </head>
 <body>
-  <h1>Proyectos NFT - Red Monad</h1>
-  <select id="tierFilter">
-    <option value="Todos">Todos los Tiers</option>
-  </select>
-  <select id="proyectoFilter">
-    <option value="Todos">Todos los Proyectos</option>
-  </select>
-  <div id="contenedor"></div>
+  <header>
+    <h1>Proyectos NFT en Monad – WL Dashboard</h1>
+    <p>Actualizado: <span id="fecha"></span></p>
+  </header>
+  <main>
+    <input type="text" id="filterInput" placeholder="Filtrar por nombre, estado, tier, etc...">
+    <table>
+      <thead>
+        <tr>
+          <th>Proyecto</th>
+          <th>Tier</th>
+          <th>Estado Testnet</th>
+          <th>Fecha Mint</th>
+          <th>Requisitos WL</th>
+          <th>NFT Testnet / WL</th>
+          <th>Links</th>
+          <th>Notas</th>
+        </tr>
+      </thead>
+      <tbody id="nftTableBody"></tbody>
+    </table>
+  </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script>
-    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQqZn_SI4cQDoTc_7HogHjAzEkuLzG_1vlAwPAqHRQ3FuGpddU0vP5Qkx1mu1--LUvdqt2Kce5KRcTK/pub?output=csv";
+    const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
+    const tbody = document.getElementById('nftTableBody');
+    const filterInput = document.getElementById('filterInput');
+    const fechaSpan = document.getElementById('fecha');
+    let allData = [];
 
-    fetch(sheetURL)
-      .then(response => response.text())
-      .then(csv => {
-        const rows = csv.trim().split("\n").map(r => r.split(","));
-        const headers = rows[0];
-        const data = rows.slice(1);
+    const formatDate = (str) => {
+      const date = new Date(str);
+      return isNaN(date) ? str : date.toLocaleDateString('es-AR');
+    };
 
-        // Eliminar columnas vacías (después de 'Notas')
-        const colLimit = headers.findIndex(h => h.trim().toLowerCase() === "notas") + 1;
-        const cleanHeaders = headers.slice(0, colLimit);
-        const cleanData = data.map(r => r.slice(0, colLimit));
-
-        renderTable(cleanHeaders, cleanData);
-        setupFilters(cleanData);
-      });
-
-    function renderTable(headers, data) {
-      const contenedor = document.getElementById("contenedor");
-      let html = "<table><thead><tr>";
-      headers.forEach(h => html += `<th>${h}</th>`);
-      html += "</tr></thead><tbody>";
+    function render(data) {
+      tbody.innerHTML = '';
       data.forEach(row => {
-        html += "<tr>";
-        row.forEach(cell => html += `<td>${cell}</td>`);
-        html += "</tr>";
-      });
-      html += "</tbody></table>";
-      contenedor.innerHTML = html;
-    }
+        const tr = document.createElement('tr');
 
-    function setupFilters(data) {
-      const tierSet = new Set();
-      const proyectoSet = new Set();
-      data.forEach(row => {
-        if (row[0]) proyectoSet.add(row[0]); // Nombre del proyecto
-        if (row[1]) tierSet.add(row[1]);     // Tier
-      });
+        const links = `
+          <a href="${row['Link X']}" target="_blank">X</a> | 
+          <a href="${row['Link Discord']}" target="_blank">Discord</a> | 
+          <a href="${row['Link Web']}" target="_blank">Web</a>
+          <br>
+          <button class="copy-btn" onclick="copyLinks('${row['Link X']}', '${row['Link Discord']}', '${row['Link Web']}')">Copiar Links</button>
+        `;
 
-      const tierSelect = document.getElementById("tierFilter");
-      [...tierSet].sort().forEach(t => {
-        const opt = document.createElement("option");
-        opt.value = t;
-        opt.textContent = t;
-        tierSelect.appendChild(opt);
-      });
-
-      const proyectoSelect = document.getElementById("proyectoFilter");
-      [...proyectoSet].sort().forEach(p => {
-        const opt = document.createElement("option");
-        opt.value = p;
-        opt.textContent = p;
-        proyectoSelect.appendChild(opt);
-      });
-
-      tierSelect.addEventListener("change", applyFilters);
-      proyectoSelect.addEventListener("change", applyFilters);
-    }
-
-    function applyFilters() {
-      const tierValue = document.getElementById("tierFilter").value;
-      const proyectoValue = document.getElementById("proyectoFilter").value;
-
-      const rows = document.querySelectorAll("tbody tr");
-      rows.forEach(row => {
-        const [proyecto, tier] = [row.cells[0].textContent, row.cells[1].textContent];
-        const tierMatch = (tierValue === "Todos" || tier === tierValue);
-        const proyectoMatch = (proyectoValue === "Todos" || proyecto === proyectoValue);
-        row.style.display = (tierMatch && proyectoMatch) ? "" : "none";
+        tr.innerHTML = `
+          <td>${row['Proyecto']}</td>
+          <td>${row['Tier']}</td>
+          <td><span class="tag ${row['Estado Tesnet']}">${row['Estado Tesnet']}</span></td>
+          <td>${formatDate(row['Fecha Mint Mainnet'])}</td>
+          <td>
+            ${row['Requerimientos WL']}<br>
+            <button class="copy-btn" onclick="copyText(\`${row['Requerimientos WL']}\`)">Copiar</button>
+          </td>
+          <td>${row['Nft Testnet / WL Mainnet']}</td>
+          <td>${links}</td>
+          <td>${row['Notas']}</td>
+        `;
+        tbody.appendChild(tr);
       });
     }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text).then(() => alert('📋 Requisitos copiados'));
+    }
+
+    function copyLinks(x, discord, web) {
+      const text = `X: ${x}\nDiscord: ${discord}\nWeb: ${web}`;
+      navigator.clipboard.writeText(text).then(() => alert('📋 Links copiados'));
+    }
+
+    function filterTable() {
+      const q = filterInput.value.toLowerCase();
+      const filtered = allData.filter(row =>
+        Object.values(row).some(val => val.toLowerCase().includes(q))
+      );
+      render(filtered);
+    }
+
+    Papa.parse(SHEET_CSV, {
+      download: true,
+      header: true,
+      complete: results => {
+        allData = results.data.filter(r => r['Proyecto']); // evitar filas vacías
+        render(allData);
+        fechaSpan.textContent = new Date().toLocaleDateString('es-AR');
+      }
+    });
+
+    filterInput.addEventListener('input', filterTable);
   </script>
 </body>
 </html>
