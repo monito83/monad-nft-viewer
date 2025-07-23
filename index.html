@@ -149,8 +149,6 @@ function showModal(index) {
       </div>` : ''}
   `;
 }
-
-
     function render(data) {
       cardGrid.innerHTML = '';
       data.forEach((row, i) => {
@@ -190,27 +188,41 @@ function showModal(index) {
       render(filtered);
     }
 
-    Papa.parse(SHEET_CSV, {
-      download: true,
-      header: true,
-      complete: results => {
-        allData = results.data.filter(r => r['Proyecto']);
-        [...new Set(allData.map(r => r['Tier']).filter(Boolean))].forEach(tier => {
-          const opt = document.createElement('option');
-          opt.value = tier;
-          opt.textContent = tier;
-          tierFilter.appendChild(opt);
-        });
-        [...new Set(allData.map(r => r['Estado Testnet']).filter(Boolean))].forEach(est => {
-          const opt = document.createElement('option');
-          opt.value = est;
-          opt.textContent = est;
-          estadoFilter.appendChild(opt);
-        });
-        render(allData);
-        fechaSpan.textContent = new Date().toLocaleDateString('es-AR');
+Papa.parse(SHEET_CSV, {
+  download: true,
+  header: true,
+  complete: results => {
+    // 🧼 Normalizar claves (quita espacios invisibles y extras)
+    results.data = results.data.map(row => {
+      const cleaned = {};
+      for (const key in row) {
+        const newKey = key.trim().replace(/\s+/g, ' ');
+        cleaned[newKey] = row[key];
       }
+      return cleaned;
     });
+
+    allData = results.data.filter(r => r['Proyecto']);
+    
+    // 🏷️ Filtros dinámicos
+    [...new Set(allData.map(r => r['Tier']).filter(Boolean))].forEach(tier => {
+      const opt = document.createElement('option');
+      opt.value = tier;
+      opt.textContent = tier;
+      tierFilter.appendChild(opt);
+    });
+
+    [...new Set(allData.map(r => r['Estado Testnet']).filter(Boolean))].forEach(est => {
+      const opt = document.createElement('option');
+      opt.value = est;
+      opt.textContent = est;
+      estadoFilter.appendChild(opt);
+    });
+
+    render(allData);
+    fechaSpan.textContent = new Date().toLocaleDateString('es-AR');
+  }
+});
 
     projectFilter.addEventListener('input', applyFilters);
     tierFilter.addEventListener('change', applyFilters);
