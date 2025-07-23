@@ -20,7 +20,7 @@
     .tag { padding: 0.2rem 0.5rem; border-radius: 0.25rem; font-size: 0.85rem; color: white; display: inline-block; }
     .Abierto { background: #38a169; }
     .Cerrado { background: #e53e3e; }
-    .Desconocido, .Pendiente { background: #718096; }
+    .Pendiente, .Desconocido, .Otro { background: #718096; }
     button.copy-btn {
       padding: 0.3rem 0.6rem; font-size: 0.85rem; margin-top: 5px;
       background: #4299e1; color: white; border: none; border-radius: 4px; cursor: pointer;
@@ -28,6 +28,7 @@
     button.copy-btn:hover { background: #2b6cb0; }
     a { color: #3182ce; text-decoration: none; }
     a:hover { text-decoration: underline; }
+    .info-block { margin-bottom: .5rem; }
     @media (prefers-color-scheme: dark) {
       body { background: #1a202c; color: #e2e8f0; }
       table { background: #2d3748; }
@@ -49,10 +50,6 @@
       </select>
       <select id="estadoFilter">
         <option value="">Todos los estados</option>
-        <option value="Abierto">Abierto</option>
-        <option value="Cerrado">Cerrado</option>
-        <option value="Pendiente">Pendiente</option>
-        <option value="Desconocido">Desconocido</option>
       </select>
     </div>
     <table>
@@ -62,8 +59,7 @@
           <th>Tier</th>
           <th>Estado Testnet</th>
           <th>Fecha Mint</th>
-          <th>Requisitos WL</th>
-          <th>NFT Testnet / WL</th>
+          <th>Info WL</th>
           <th>Link X</th>
           <th>Discord</th>
           <th>Web</th>
@@ -96,18 +92,25 @@
     function render(data) {
       tbody.innerHTML = '';
       data.forEach(row => {
+        const estado = row['Estado Tesnet'] || 'Desconocido';
+        const estadoClass = estado.match(/abierto/i) ? 'Abierto'
+                          : estado.match(/cerrado/i) ? 'Cerrado'
+                          : estado.match(/pendiente/i) ? 'Pendiente'
+                          : 'Otro';
+
+        const infoBlock = `
+          <div class="info-block"><strong>Requisitos WL:</strong><br>${row['Requerimientos WL']}<br>
+          <button class="copy-btn" onclick="copyText(\`${row['Requerimientos WL']}\`)">Copiar</button></div>
+          <div class="info-block"><strong>NFT Testnet / WL:</strong><br>${row['Nft Testnet / WL Mainnet']}</div>
+        `;
+
         const tr = document.createElement('tr');
-        const estadoClass = ['Abierto', 'Cerrado', 'Pendiente', 'Desconocido'].includes(row['Estado Tesnet']) ? row['Estado Tesnet'] : 'Desconocido';
         tr.innerHTML = `
           <td>${row['Proyecto']}</td>
           <td>${row['Tier']}</td>
-          <td><span class="tag ${estadoClass}">${row['Estado Tesnet']}</span></td>
+          <td><span class="tag ${estadoClass}">${estado}</span></td>
           <td>${formatDate(row['Fecha Mint Mainnet'])}</td>
-          <td>
-            ${row['Requerimientos WL']}<br>
-            <button class="copy-btn" onclick="copyText(\`${row['Requerimientos WL']}\`)">Copiar</button>
-          </td>
-          <td>${row['Nft Testnet / WL Mainnet']}</td>
+          <td>${infoBlock}</td>
           <td><a href="${row['Link X']}" target="_blank">X</a></td>
           <td><a href="${row['Link Discord']}" target="_blank">Discord</a></td>
           <td><a href="${row['Link Web']}" target="_blank">Web</a></td>
@@ -135,13 +138,23 @@
       header: true,
       complete: results => {
         allData = results.data.filter(r => r['Proyecto']);
+
         const uniqueTiers = [...new Set(allData.map(r => r['Tier']).filter(Boolean))];
         uniqueTiers.forEach(tier => {
           const opt = document.createElement('option');
           opt.value = tier;
-          opt.textContent = `Tier ${tier}`;
+          opt.textContent = tier;
           tierFilter.appendChild(opt);
         });
+
+        const uniqueEstados = [...new Set(allData.map(r => r['Estado Tesnet']).filter(Boolean))];
+        uniqueEstados.forEach(est => {
+          const opt = document.createElement('option');
+          opt.value = est;
+          opt.textContent = est;
+          estadoFilter.appendChild(opt);
+        });
+
         render(allData);
         fechaSpan.textContent = new Date().toLocaleDateString('es-AR');
       }
