@@ -84,7 +84,7 @@
   <footer>🔧 Generado desde Google Sheets</footer>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script>
-    const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
+        const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
     const cardGrid = document.getElementById('cardGrid');
     const fechaSpan = document.getElementById('fecha');
     const tierFilter = document.getElementById('tierFilter');
@@ -94,73 +94,62 @@
     const modalDetails = document.getElementById('modalDetails');
     let allData = [];
 
-    function formatDate(str) {
-      const date = new Date(str);
-      return isNaN(date) ? str : date.toLocaleDateString('es-AR');
+    function showModal(index) {
+      const row = allData[index];
+      const estado = row['Estado Testnet'] || 'Desconocido';
+      const estadoClass = /abierto/i.test(estado) ? 'Abierto'
+                          : /cerrado/i.test(estado) ? 'Cerrado'
+                          : /pendiente/i.test(estado) ? 'Pendiente'
+                          : 'Otro';
+
+      const floorDirecto = row['Floor Price Pase Directo (MON)'];
+      const floorAcumulativo = row['Floor Price NFT Acumulativo (MON)'];
+
+      modal.style.display = 'flex';
+      modalDetails.innerHTML = `
+        ${row['Logo'] ? `<img src="${row['Logo']}" class="logo" alt="logo">` : ''}
+        <h2>${row['Proyecto']}</h2>
+        <div class="tag ${estadoClass}">${estado}</div>
+
+        <div class="info-block"><strong>🧠 Roles WL:</strong><br>${(row['Roles WL'] || '').replace(/\n|<br\s*\/?>/gi, '<br>')}</div>
+
+        ${row['Pase WL Directo'] ? `
+          <div class="info-block"><strong>🏅 Pase WL Directo:</strong><br>${row['Pase WL Directo'].replace(/\n/g, '<br>')}
+          ${floorDirecto ? `<br><strong>💰 Floor:</strong> ${floorDirecto} MON` : ''}
+          ${row['Link Pase Directo'] ? `<br><a href="${row['Link Pase Directo']}" target="_blank" class="buy-button"><i class="fas fa-shopping-cart"></i> Comprar</a>` : ''}
+          </div>` : ''}
+
+        ${row['NFT Acumulativo'] ? `
+          <div class="info-block"><strong>📦 NFT Acumulativo:</strong><br>${row['NFT Acumulativo'].replace(/\n/g, '<br>')}
+          ${row['Beneficios Acumulativos'] ? `<br>${row['Beneficios Acumulativos'].replace(/\n/g, '<br>')}` : ''}
+          ${floorAcumulativo ? `<br><strong>💰 Floor:</strong> ${floorAcumulativo} MON` : ''}
+          ${row['Link NFT Acumulativo'] ? `<br><a href="${row['Link NFT Acumulativo']}" target="_blank" class="buy-button"><i class="fas fa-shopping-cart"></i> Comprar</a>` : ''}
+          </div>` : ''}
+
+        <div class="info-block"><strong>📎 Notas:</strong><br>${row['Notas'] || ''}</div>
+
+        ${(row['Link X'] || row['Link Discord'] || row['Link Web']) ? `
+          <div class="info-block"><strong>🌐 Enlaces:</strong><br>
+            ${row['Link X'] ? `<a href="${row['Link X']}" target="_blank"><i class="fab fa-twitter"></i></a>` : ''}
+            ${row['Link Discord'] ? `<a href="${row['Link Discord']}" target="_blank"><i class="fab fa-discord"></i></a>` : ''}
+            ${row['Link Web'] ? `<a href="${row['Link Web']}" target="_blank"><i class="fas fa-globe"></i></a>` : ''}
+          </div>` : ''}
+      `;
     }
 
-    function getTierBadge(tier) {
-      const t = (tier || '').toLowerCase();
-      if (t.includes('1')) return 'tier-1-badge';
-      if (t.includes('2')) return 'tier-2-badge';
-      if (t.includes('3')) return 'tier-3-badge';
-      return '';
-    }
-
-function showModal(index) {
-  const row = allData[index];
-  const estado = row['Estado Testnet'] || 'Desconocido';
-  const estadoClass = /abierto/i.test(estado) ? 'Abierto'
-                      : /cerrado/i.test(estado) ? 'Cerrado'
-                      : /pendiente/i.test(estado) ? 'Pendiente'
-                      : 'Otro';
-
-  const floorDirecto = row['Floor Price Pase Directo (MON)'];
-  const floorAcumulativo = row['Floor Price NFT Acumulativo (MON)'];
-
-  modal.style.display = 'flex';
-  modalDetails.innerHTML = `
-    ${row['Logo'] ? `<img src="${row['Logo']}" class="logo" alt="logo">` : ''}
-    <h2>${row['Proyecto']}</h2>
-    <div class="tag ${estadoClass}">${estado}</div>
-
-    <div class="info-block"><strong>🧠 Roles WL:</strong><br>${(row['Roles WL'] || '').replace(/\n|<br\s*\/?>/gi, '<br>')}</div>
-
-    ${row['Pase WL Directo'] ? `
-      <div class="info-block"><strong>🏅 Pase WL Directo:</strong><br>${row['Pase WL Directo'].replace(/\n/g, '<br>')}
-      ${floorDirecto ? `<br><strong>💰 Floor:</strong> ${floorDirecto} MON` : ''}
-      ${row['Link Pase Directo'] ? `<br><a href="${row['Link Pase Directo']}" target="_blank" class="buy-button"><i class="fas fa-shopping-cart"></i> Comprar</a>` : ''}
-      </div>` : ''}
-
-    ${row['NFT Acumulativo'] ? `
-      <div class="info-block"><strong>📦 NFT Acumulativo:</strong><br>${row['NFT Acumulativo'].replace(/\n/g, '<br>')}
-      ${row['Beneficios Acumulativos'] ? `<br>${row['Beneficios Acumulativos'].replace(/\n/g, '<br>')}` : ''}
-      ${floorAcumulativo ? `<br><strong>💰 Floor:</strong> ${floorAcumulativo} MON` : ''}
-      ${row['Link NFT Acumulativo'] ? `<br><a href="${row['Link NFT Acumulativo']}" target="_blank" class="buy-button"><i class="fas fa-shopping-cart"></i> Comprar</a>` : ''}
-      </div>` : ''}
-
-    <div class="info-block"><strong>📎 Notas:</strong><br>${row['Notas'] || ''}</div>
-
-    ${(row['Link X'] || row['Link Discord'] || row['Link Web']) ? `
-      <div class="info-block"><strong>🌐 Enlaces:</strong><br>
-        ${row['Link X'] ? `<a href="${row['Link X']}" target="_blank"><i class="fab fa-twitter"></i></a>` : ''}
-        ${row['Link Discord'] ? `<a href="${row['Link Discord']}" target="_blank"><i class="fab fa-discord"></i></a>` : ''}
-        ${row['Link Web'] ? `<a href="${row['Link Web']}" target="_blank"><i class="fas fa-globe"></i></a>` : ''}
-      </div>` : ''}
-  `;
-}
     function render(data) {
       cardGrid.innerHTML = '';
       data.forEach((row, i) => {
         const estado = row['Estado Testnet'] || 'Desconocido';
         const estadoClass = /abierto/i.test(estado) ? 'Abierto'
-                          : /cerrado/i.test(estado) ? 'Cerrado'
-                          : /pendiente/i.test(estado) ? 'Pendiente'
-                          : 'Otro';
+                            : /cerrado/i.test(estado) ? 'Cerrado'
+                            : /pendiente/i.test(estado) ? 'Pendiente'
+                            : 'Otro';
         const card = document.createElement('div');
-        card.className = `card ${getTierBadge(row['Tier'])}`;
+        const tierClass = getTierBadge(row['Tier']);
+        card.className = `card ${tierClass}`;
         card.dataset.index = i;
-        const tierBadge = `<div class="tier-badge ${getTierBadge(row['Tier'])}">🏅 Tier ${row['Tier']}</div>`;
+        const tierBadge = `<div class="tier-badge ${tierClass}">🏅 Tier ${row['Tier']}</div>`;
         card.innerHTML = `
           ${row['Logo'] ? `<img src="${row['Logo']}" class="logo" alt="logo">` : ''}
           <h3>${row['Proyecto']}</h3>
@@ -176,6 +165,14 @@ function showModal(index) {
       });
     }
 
+    function getTierBadge(tier) {
+      const t = (tier || '').toLowerCase();
+      if (t.includes('1')) return 'tier-1-badge';
+      if (t.includes('2')) return 'tier-2-badge';
+      if (t.includes('3')) return 'tier-3-badge';
+      return '';
+    }
+
     function applyFilters() {
       const nameQ = projectFilter.value.toLowerCase();
       const tierQ = tierFilter.value;
@@ -188,41 +185,37 @@ function showModal(index) {
       render(filtered);
     }
 
-Papa.parse(SHEET_CSV, {
-  download: true,
-  header: true,
-  complete: results => {
-    // 🧼 Normalizar claves (quita espacios invisibles y extras)
-    results.data = results.data.map(row => {
-      const cleaned = {};
-      for (const key in row) {
-        const newKey = key.trim().replace(/\s+/g, ' ');
-        cleaned[newKey] = row[key];
+    Papa.parse(SHEET_CSV, {
+      download: true,
+      header: true,
+      complete: results => {
+        // 🧼 Normalizar claves
+        results.data = results.data.map(row => {
+          const cleaned = {};
+          for (const key in row) {
+            const newKey = key.trim().replace(/\s+/g, ' ');
+            cleaned[newKey] = row[key];
+          }
+          return cleaned;
+        });
+
+        allData = results.data.filter(r => r['Proyecto']);
+        [...new Set(allData.map(r => r['Tier']).filter(Boolean))].forEach(tier => {
+          const opt = document.createElement('option');
+          opt.value = tier;
+          opt.textContent = tier;
+          tierFilter.appendChild(opt);
+        });
+        [...new Set(allData.map(r => r['Estado Testnet']).filter(Boolean))].forEach(est => {
+          const opt = document.createElement('option');
+          opt.value = est;
+          opt.textContent = est;
+          estadoFilter.appendChild(opt);
+        });
+        render(allData);
+        fechaSpan.textContent = new Date().toLocaleDateString('es-AR');
       }
-      return cleaned;
     });
-
-    allData = results.data.filter(r => r['Proyecto']);
-    
-    // 🏷️ Filtros dinámicos
-    [...new Set(allData.map(r => r['Tier']).filter(Boolean))].forEach(tier => {
-      const opt = document.createElement('option');
-      opt.value = tier;
-      opt.textContent = tier;
-      tierFilter.appendChild(opt);
-    });
-
-    [...new Set(allData.map(r => r['Estado Testnet']).filter(Boolean))].forEach(est => {
-      const opt = document.createElement('option');
-      opt.value = est;
-      opt.textContent = est;
-      estadoFilter.appendChild(opt);
-    });
-
-    render(allData);
-    fechaSpan.textContent = new Date().toLocaleDateString('es-AR');
-  }
-});
 
     projectFilter.addEventListener('input', applyFilters);
     tierFilter.addEventListener('change', applyFilters);
