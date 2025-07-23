@@ -22,7 +22,7 @@
       padding: 10px;
       border: 1px solid #ccc;
       text-align: left;
-      max-width: 200px;
+      max-width: 250px;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
@@ -40,6 +40,10 @@
       border: 1px solid #ccc;
       background: white;
     }
+    a {
+      color: #1a0dab;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -54,16 +58,15 @@
       try {
         const res = await fetch(SHEET_URL);
         const text = await res.text();
-        // El JSON viene envuelto en callback, hay que extraerlo
         const json = JSON.parse(text.substr(47).slice(0, -2));
-
         const filas = json.table.rows;
+
+        const encabezado = json.table.cols.map(col => col.label).filter(label => label !== '');
 
         const tabla = document.getElementById('tabla');
         tabla.innerHTML = '';
 
-        // Crear encabezado con la primer fila
-        const encabezado = filas[0].c.map(c => c ? c.v : '');
+        // Crear encabezado
         const thead = document.createElement('thead');
         const filaHead = document.createElement('tr');
         encabezado.forEach(texto => {
@@ -74,21 +77,25 @@
         thead.appendChild(filaHead);
         tabla.appendChild(thead);
 
-        // Crear cuerpo con el resto de filas (desde fila 2)
+        // Crear cuerpo
         const tbody = document.createElement('tbody');
-        for(let i=1; i<filas.length; i++) {
-          const fila = filas[i].c.map(c => c ? c.v : '');
+        for (let i = 0; i < filas.length; i++) {
+          const fila = filas[i].c.map(c => (c ? c.v : ''));
           const tr = document.createElement('tr');
-          fila.forEach(celda => {
+
+          // Solo mostrar tantas celdas como encabezados
+          for (let j = 0; j < encabezado.length; j++) {
             const td = document.createElement('td');
-            td.textContent = celda;
+            td.textContent = fila[j];
             tr.appendChild(td);
-          });
+          }
+
           tr.addEventListener('click', () => mostrarDetalle(encabezado, fila));
           tbody.appendChild(tr);
         }
+
         tabla.appendChild(tbody);
-      } catch(e) {
+      } catch (e) {
         document.getElementById('tabla').innerHTML = '<tr><td colspan="10">Error al cargar los datos.</td></tr>';
         console.error(e);
       }
@@ -97,9 +104,14 @@
     function mostrarDetalle(encabezado, fila) {
       const div = document.getElementById('detalle');
       let html = '<h3>Detalle del proyecto</h3><ul>';
-      fila.forEach((valor, i) => {
-        html += `<li><strong>${encabezado[i]}:</strong> ${valor || ''}</li>`;
-      });
+      for (let i = 0; i < encabezado.length; i++) {
+        let valor = fila[i] || '';
+        // Si es un link, mostrarlo como hipervínculo
+        if (valor.toString().startsWith('http')) {
+          valor = `<a href="${valor}" target="_blank">${valor}</a>`;
+        }
+        html += `<li><strong>${encabezado[i]}:</strong> ${valor}</li>`;
+      }
       html += '</ul>';
       div.innerHTML = html;
     }
