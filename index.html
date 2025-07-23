@@ -118,29 +118,8 @@
                           : /pendiente/i.test(estado) ? 'Pendiente'
                           : 'Otro';
 
-      const floorDirecto = parseFloat(row['Floor Price Pase Directo (MON)']) || '';
-      const floorAcumulativo = parseFloat(row['Floor Price NFT Acumulativo (MON)']) || '';
-
-      const costoDirecto = (row['Beneficio WL Directo'] || '').split(/\n|<br\s*\/?>/i).map(line => {
-        const match = line.match(/(\d+)/);
-        if (match && floorDirecto) {
-          const cantidad = parseInt(match[1]);
-          const total = cantidad * floorDirecto;
-          return `${line} ≈ ${total} MON`;
-        }
-        return line;
-      }).join('<br>');
-
-      const beneficiosAcumulativos = (row['Beneficios Acumulativos'] || '').split(/\n|<br\s*\/?>/i).map(line => {
-        const match = line.match(/(\d+)\s*=\s*WL\s*(GTD|FCFS)?/i);
-        if (match && floorAcumulativo) {
-          const qty = parseInt(match[1]);
-          const tipo = match[2] || '';
-          const total = qty * floorAcumulativo;
-          return `${qty} NFTs → WL ${tipo} ≈ ${total} MON`;
-        }
-        return line;
-      }).join('<br>');
+      const floorDirecto = row['Floor Price Pase Directo (MON)'];
+      const floorAcumulativo = row['Floor Price NFT Acumulativo (MON)'];
 
       modal.style.display = 'flex';
       modalDetails.innerHTML = `
@@ -148,12 +127,13 @@
         <h2>${row['Proyecto']}</h2>
         <div class="tag ${estadoClass}">${estado}</div>
         <div class="info-block"><strong>🧠 Roles WL:</strong><br>${(row['Roles WL'] || '').replace(/\n|<br\s*\/?>/gi, '<br>')}</div>
-        ${row['Pase WL Directo'] ? `<div class="info-block"><strong>🏅 Pase WL Directo:</strong><br>${row['Pase WL Directo'].replace(/\n/g, '<br>')}<br>${costoDirecto}
+        ${row['Pase WL Directo'] ? `<div class="info-block"><strong>🏅 Pase WL Directo:</strong><br>${row['Pase WL Directo'].replace(/\n/g, '<br>')}
+        ${floorDirecto ? `<br><strong>💰 Floor:</strong> ${floorDirecto} MON` : ''}
         ${row['Link Pase Directo'] ? `<br><a href="${row['Link Pase Directo']}" target="_blank" class="buy-button"><i class="fas fa-shopping-cart"></i> Comprar</a>` : ''}</div>` : ''}
-        ${floorDirecto ? `<div class="info-block"><strong>💰 Floor Directo:</strong> ${floorDirecto} MON</div>` : ''}
-        ${row['NFT Acumulativo'] ? `<div class="info-block"><strong>📦 NFT Acumulativo:</strong><br>${row['NFT Acumulativo'].replace(/\n/g, '<br>')}<br>${beneficiosAcumulativos}
+        ${row['NFT Acumulativo'] ? `<div class="info-block"><strong>📦 NFT Acumulativo:</strong><br>${row['NFT Acumulativo'].replace(/\n/g, '<br>')}
+        ${row['Beneficios Acumulativos'] ? `<br>${row['Beneficios Acumulativos'].replace(/\n/g, '<br>')}` : ''}
+        ${floorAcumulativo ? `<br><strong>💰 Floor:</strong> ${floorAcumulativo} MON` : ''}
         ${row['Link NFT Acumulativo'] ? `<br><a href="${row['Link NFT Acumulativo']}" target="_blank" class="buy-button"><i class="fas fa-shopping-cart"></i> Comprar</a>` : ''}</div>` : ''}
-        ${floorAcumulativo ? `<div class="info-block"><strong>💰 Floor Acumulativo:</strong> ${floorAcumulativo} MON</div>` : ''}
         <div class="info-block"><strong>📎 Notas:</strong><br>${row['Notas'] || ''}</div>
         <div class="info-block"><strong>🌐 Enlaces:</strong><br>
           ${row['Link X'] ? `<a href="${row['Link X']}" target="_blank"><i class="fab fa-twitter"></i></a>` : ''}
