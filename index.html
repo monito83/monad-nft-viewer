@@ -8,16 +8,24 @@
     body { font-family: Arial, sans-serif; background: #f5f5f5; color: #333; margin: 0; padding: 0; }
     header { background: #4c51bf; color: white; padding: 1rem; text-align: center; }
     main { padding: 1rem; max-width: 1200px; margin: auto; }
-    input { margin-bottom: 1rem; padding: 0.5rem; width: 100%; font-size: 1rem; }
+    .filters { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .filters input, .filters select {
+      padding: 0.5rem; font-size: 1rem;
+      border: 1px solid #ccc; border-radius: 4px;
+    }
     table { width: 100%; border-collapse: collapse; background: white; }
     th, td { padding: 0.75rem; border-bottom: 1px solid #ddd; text-align: left; vertical-align: top; }
     th { background: #e2e8f0; position: sticky; top: 0; }
     tr:hover { background: #edf2f7; }
-    button.copy-btn { padding: 0.3rem 0.6rem; font-size: 0.85rem; margin-top: 5px; cursor: pointer; background: #4299e1; color: white; border: none; border-radius: 4px; }
-    button.copy-btn:hover { background: #2b6cb0; }
     .tag { padding: 0.2rem 0.5rem; border-radius: 0.25rem; font-size: 0.85rem; color: white; display: inline-block; }
-    .Abierto { background: #48bb78; }
-    .Cerrado { background: #f56565; }
+    .Abierto { background: #38a169; }
+    .Cerrado { background: #e53e3e; }
+    .Desconocido, .Pendiente { background: #718096; }
+    button.copy-btn {
+      padding: 0.3rem 0.6rem; font-size: 0.85rem; margin-top: 5px;
+      background: #4299e1; color: white; border: none; border-radius: 4px; cursor: pointer;
+    }
+    button.copy-btn:hover { background: #2b6cb0; }
     a { color: #3182ce; text-decoration: none; }
     a:hover { text-decoration: underline; }
     @media (prefers-color-scheme: dark) {
@@ -34,7 +42,19 @@
     <p>Actualizado: <span id="fecha"></span></p>
   </header>
   <main>
-    <input type="text" id="filterInput" placeholder="Filtrar por nombre, estado, tier, etc...">
+    <div class="filters">
+      <input type="text" id="projectFilter" placeholder="Filtrar por proyecto...">
+      <select id="tierFilter">
+        <option value="">Todos los Tiers</option>
+      </select>
+      <select id="estadoFilter">
+        <option value="">Todos los estados</option>
+        <option value="Abierto">Abierto</option>
+        <option value="Cerrado">Cerrado</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="Desconocido">Desconocido</option>
+      </select>
+    </div>
     <table>
       <thead>
         <tr>
@@ -44,7 +64,9 @@
           <th>Fecha Mint</th>
           <th>Requisitos WL</th>
           <th>NFT Testnet / WL</th>
-          <th>Links</th>
+          <th>Link X</th>
+          <th>Discord</th>
+          <th>Web</th>
           <th>Notas</th>
         </tr>
       </thead>
@@ -56,58 +78,54 @@
   <script>
     const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
     const tbody = document.getElementById('nftTableBody');
-    const filterInput = document.getElementById('filterInput');
     const fechaSpan = document.getElementById('fecha');
+    const tierFilter = document.getElementById('tierFilter');
+    const estadoFilter = document.getElementById('estadoFilter');
+    const projectFilter = document.getElementById('projectFilter');
     let allData = [];
 
-    const formatDate = (str) => {
+    function formatDate(str) {
       const date = new Date(str);
       return isNaN(date) ? str : date.toLocaleDateString('es-AR');
-    };
+    }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text).then(() => alert('📋 Copiado'));
+    }
 
     function render(data) {
       tbody.innerHTML = '';
       data.forEach(row => {
         const tr = document.createElement('tr');
-
-        const links = `
-          <a href="${row['Link X']}" target="_blank">X</a> | 
-          <a href="${row['Link Discord']}" target="_blank">Discord</a> | 
-          <a href="${row['Link Web']}" target="_blank">Web</a>
-          <br>
-          <button class="copy-btn" onclick="copyLinks('${row['Link X']}', '${row['Link Discord']}', '${row['Link Web']}')">Copiar Links</button>
-        `;
-
+        const estadoClass = ['Abierto', 'Cerrado', 'Pendiente', 'Desconocido'].includes(row['Estado Tesnet']) ? row['Estado Tesnet'] : 'Desconocido';
         tr.innerHTML = `
           <td>${row['Proyecto']}</td>
           <td>${row['Tier']}</td>
-          <td><span class="tag ${row['Estado Tesnet']}">${row['Estado Tesnet']}</span></td>
+          <td><span class="tag ${estadoClass}">${row['Estado Tesnet']}</span></td>
           <td>${formatDate(row['Fecha Mint Mainnet'])}</td>
           <td>
             ${row['Requerimientos WL']}<br>
             <button class="copy-btn" onclick="copyText(\`${row['Requerimientos WL']}\`)">Copiar</button>
           </td>
           <td>${row['Nft Testnet / WL Mainnet']}</td>
-          <td>${links}</td>
+          <td><a href="${row['Link X']}" target="_blank">X</a></td>
+          <td><a href="${row['Link Discord']}" target="_blank">Discord</a></td>
+          <td><a href="${row['Link Web']}" target="_blank">Web</a></td>
           <td>${row['Notas']}</td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    function copyText(text) {
-      navigator.clipboard.writeText(text).then(() => alert('📋 Requisitos copiados'));
-    }
+    function applyFilters() {
+      const nameQ = projectFilter.value.toLowerCase();
+      const tierQ = tierFilter.value;
+      const estadoQ = estadoFilter.value;
 
-    function copyLinks(x, discord, web) {
-      const text = `X: ${x}\nDiscord: ${discord}\nWeb: ${web}`;
-      navigator.clipboard.writeText(text).then(() => alert('📋 Links copiados'));
-    }
-
-    function filterTable() {
-      const q = filterInput.value.toLowerCase();
-      const filtered = allData.filter(row =>
-        Object.values(row).some(val => val.toLowerCase().includes(q))
+      const filtered = allData.filter(r =>
+        r['Proyecto'].toLowerCase().includes(nameQ) &&
+        (tierQ === '' || r['Tier'] === tierQ) &&
+        (estadoQ === '' || r['Estado Tesnet'] === estadoQ)
       );
       render(filtered);
     }
@@ -116,13 +134,22 @@
       download: true,
       header: true,
       complete: results => {
-        allData = results.data.filter(r => r['Proyecto']); // evitar filas vacías
+        allData = results.data.filter(r => r['Proyecto']);
+        const uniqueTiers = [...new Set(allData.map(r => r['Tier']).filter(Boolean))];
+        uniqueTiers.forEach(tier => {
+          const opt = document.createElement('option');
+          opt.value = tier;
+          opt.textContent = `Tier ${tier}`;
+          tierFilter.appendChild(opt);
+        });
         render(allData);
         fechaSpan.textContent = new Date().toLocaleDateString('es-AR');
       }
     });
 
-    filterInput.addEventListener('input', filterTable);
+    projectFilter.addEventListener('input', applyFilters);
+    tierFilter.addEventListener('change', applyFilters);
+    estadoFilter.addEventListener('change', applyFilters);
   </script>
 </body>
 </html>
