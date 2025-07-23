@@ -6,148 +6,120 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f8f8f8;
-      color: #222;
+      background: #f9f9f9;
+      text-align: center;
       padding: 20px;
     }
     h1 {
       color: purple;
-      text-align: center;
-    }
-    #filters {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    select, input {
-      padding: 5px;
-      font-size: 16px;
     }
     table {
-      width: 100%;
+      width: 90%;
+      margin: auto;
       border-collapse: collapse;
-      background-color: #fff;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-top: 20px;
     }
     th, td {
       border: 1px solid #ddd;
       padding: 8px;
-      text-align: left;
+      max-width: 250px;
+      word-wrap: break-word;
     }
     th {
-      background-color: #eee;
+      background-color: #f2f2f2;
+    }
+    select {
+      margin: 10px;
+      padding: 5px;
+    }
+    .oculto {
+      display: none;
     }
   </style>
 </head>
 <body>
   <h1>Proyectos NFT - Red Monad</h1>
-
-  <div id="filters">
-    <select id="tierFilter">
-      <option value="">Todos los Tiers</option>
-    </select>
-
-    <select id="proyectoFilter">
-      <option value="">Todos los Proyectos</option>
-    </select>
-  </div>
-
-  <table id="data-table">
-    <thead></thead>
-    <tbody></tbody>
-  </table>
+  <select id="tierFilter">
+    <option value="Todos">Todos los Tiers</option>
+  </select>
+  <select id="proyectoFilter">
+    <option value="Todos">Todos los Proyectos</option>
+  </select>
+  <div id="contenedor"></div>
 
   <script>
-    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT04R5F5uxh9kSmW-TTbhgVzVPxURsn-U7PcsGQHYRhSNCe3dK48a9wnQZbtTfPZmoCD6lhm1LZ7slI/pub?output=tsv';
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQqZn_SI4cQDoTc_7HogHjAzEkuLzG_1vlAwPAqHRQ3FuGpddU0vP5Qkx1mu1--LUvdqt2Kce5KRcTK/pub?output=csv";
 
-    fetch(SHEET_URL)
-      .then(res => res.text())
-      .then(data => {
-        const rows = data.trim().split('\n').map(r => r.split('\t'));
-        const header = rows[0];
+    fetch(sheetURL)
+      .then(response => response.text())
+      .then(csv => {
+        const rows = csv.trim().split("\n").map(r => r.split(","));
+        const headers = rows[0];
+        const data = rows.slice(1);
 
-        // Detectar columnas vacías después de "Notas"
-        const notasIndex = header.findIndex(h => h.trim().toLowerCase() === "notas");
-        const lastUsedIndex = rows[0].length - 1;
-        const visibleCols = header.map((h, i) => {
-          if (i <= notasIndex) return true;
-          const colEmpty = rows.every((r, ri) => ri === 0 || !r[i]?.trim());
-          return !colEmpty;
-        });
+        // Eliminar columnas vacías (después de 'Notas')
+        const colLimit = headers.findIndex(h => h.trim().toLowerCase() === "notas") + 1;
+        const cleanHeaders = headers.slice(0, colLimit);
+        const cleanData = data.map(r => r.slice(0, colLimit));
 
-        const tbody = document.querySelector('tbody');
-        const thead = document.querySelector('thead');
-
-        const trHead = document.createElement('tr');
-        header.forEach((h, i) => {
-          if (visibleCols[i]) {
-            const th = document.createElement('th');
-            th.textContent = h;
-            trHead.appendChild(th);
-          }
-        });
-        thead.appendChild(trHead);
-
-        const tierSet = new Set();
-        const proyectoSet = new Set();
-
-        rows.slice(1).forEach(row => {
-          const tr = document.createElement('tr');
-          row.forEach((cell, i) => {
-            if (visibleCols[i]) {
-              const td = document.createElement('td');
-              td.innerHTML = cell || "";
-              tr.appendChild(td);
-            }
-          });
-          tbody.appendChild(tr);
-
-          // Para filtros
-          const tier = row[header.findIndex(h => h.toLowerCase() === "tier")];
-          const proyecto = row[header.findIndex(h => h.toLowerCase().includes("nombre"))];
-
-          if (tier) tierSet.add(tier.trim());
-          if (proyecto) proyectoSet.add(proyecto.trim());
-        });
-
-        // Cargar filtros
-        const tierFilter = document.getElementById("tierFilter");
-        [...tierSet].sort().forEach(t => {
-          const opt = document.createElement("option");
-          opt.value = t;
-          opt.textContent = t;
-          tierFilter.appendChild(opt);
-        });
-
-        const proyectoFilter = document.getElementById("proyectoFilter");
-        [...proyectoSet].sort().forEach(p => {
-          const opt = document.createElement("option");
-          opt.value = p;
-          opt.textContent = p;
-          proyectoFilter.appendChild(opt);
-        });
-
-        // Filtros dinámicos
-        document.querySelectorAll("#tierFilter, #proyectoFilter").forEach(select => {
-          select.addEventListener("change", () => {
-            const tierValue = tierFilter.value.toLowerCase();
-            const proyectoValue = proyectoFilter.value.toLowerCase();
-
-            Array.from(tbody.rows).forEach(row => {
-              const cells = row.cells;
-              const tierText = cells[header.findIndex(h => h.toLowerCase() === "tier")]?.textContent.toLowerCase() || "";
-              const proyectoText = cells[header.findIndex(h => h.toLowerCase().includes("nombre"))]?.textContent.toLowerCase() || "";
-
-              const show =
-                (!tierValue || tierText === tierValue) &&
-                (!proyectoValue || proyectoText === proyectoValue);
-
-              row.style.display = show ? "" : "none";
-            });
-          });
-        });
+        renderTable(cleanHeaders, cleanData);
+        setupFilters(cleanData);
       });
+
+    function renderTable(headers, data) {
+      const contenedor = document.getElementById("contenedor");
+      let html = "<table><thead><tr>";
+      headers.forEach(h => html += `<th>${h}</th>`);
+      html += "</tr></thead><tbody>";
+      data.forEach(row => {
+        html += "<tr>";
+        row.forEach(cell => html += `<td>${cell}</td>`);
+        html += "</tr>";
+      });
+      html += "</tbody></table>";
+      contenedor.innerHTML = html;
+    }
+
+    function setupFilters(data) {
+      const tierSet = new Set();
+      const proyectoSet = new Set();
+      data.forEach(row => {
+        if (row[0]) proyectoSet.add(row[0]); // Nombre del proyecto
+        if (row[1]) tierSet.add(row[1]);     // Tier
+      });
+
+      const tierSelect = document.getElementById("tierFilter");
+      [...tierSet].sort().forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t;
+        opt.textContent = t;
+        tierSelect.appendChild(opt);
+      });
+
+      const proyectoSelect = document.getElementById("proyectoFilter");
+      [...proyectoSet].sort().forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p;
+        opt.textContent = p;
+        proyectoSelect.appendChild(opt);
+      });
+
+      tierSelect.addEventListener("change", applyFilters);
+      proyectoSelect.addEventListener("change", applyFilters);
+    }
+
+    function applyFilters() {
+      const tierValue = document.getElementById("tierFilter").value;
+      const proyectoValue = document.getElementById("proyectoFilter").value;
+
+      const rows = document.querySelectorAll("tbody tr");
+      rows.forEach(row => {
+        const [proyecto, tier] = [row.cells[0].textContent, row.cells[1].textContent];
+        const tierMatch = (tierValue === "Todos" || tier === tierValue);
+        const proyectoMatch = (proyectoValue === "Todos" || proyecto === proyectoValue);
+        row.style.display = (tierMatch && proyectoMatch) ? "" : "none";
+      });
+    }
   </script>
 </body>
 </html>
