@@ -77,7 +77,7 @@
   <main><div class="grid" id="cardGrid"></div></main>
   <div class="modal" id="modal">
     <div class="modal-content">
-      <span class="modal-close" onclick="document.getElementById('modal').style.display='none'">&times;</span>
+      <span class="modal-close" onclick="modal.style.display='none'">&times;</span>
       <div id="modalDetails"></div>
     </div>
   </div>
@@ -94,29 +94,26 @@
     const modalDetails = document.getElementById('modalDetails');
     let allData = [];
 
-    const formatDate = str => {
+    function formatDate(str) {
       const date = new Date(str);
       return isNaN(date) ? str : date.toLocaleDateString('es-AR');
-    };
+    }
 
-    const getTierBadge = tier => {
+    function getTierBadge(tier) {
       const t = (tier || '').toLowerCase();
       if (t.includes('1')) return 'tier-1-badge';
       if (t.includes('2')) return 'tier-2-badge';
       if (t.includes('3')) return 'tier-3-badge';
       return '';
-    };
-
-    function showModalFromCard(e, row) {
-      e.stopPropagation(); showModal(row);
     }
 
-    function showModal(row) {
+    function showModal(index) {
+      const row = allData[index];
       const estado = row['Estado Testnet'] || 'Desconocido';
       const estadoClass = /abierto/i.test(estado) ? 'Abierto'
-                          : /cerrado/i.test(estado) ? 'Cerrado'
-                          : /pendiente/i.test(estado) ? 'Pendiente'
-                          : 'Otro';
+                        : /cerrado/i.test(estado) ? 'Cerrado'
+                        : /pendiente/i.test(estado) ? 'Pendiente'
+                        : 'Otro';
 
       const floorDirecto = row['Floor Price Pase Directo (MON)'];
       const floorAcumulativo = row['Floor Price NFT Acumulativo (MON)'];
@@ -135,17 +132,17 @@
         ${floorAcumulativo ? `<br><strong>💰 Floor:</strong> ${floorAcumulativo} MON` : ''}
         ${row['Link NFT Acumulativo'] ? `<br><a href="${row['Link NFT Acumulativo']}" target="_blank" class="buy-button"><i class="fas fa-shopping-cart"></i> Comprar</a>` : ''}</div>` : ''}
         <div class="info-block"><strong>📎 Notas:</strong><br>${row['Notas'] || ''}</div>
-       <div class="info-block"><strong>🌐 Enlaces:</strong><br>
-  ${row['Link X'] ? `<a href="${row['Link X']}" target="_blank"><i class="fab fa-twitter"></i></a>` : ''}
-  ${row['Link Discord'] ? `<a href="${row['Link Discord']}" target="_blank"><i class="fab fa-discord"></i></a>` : ''}
-  ${row['Link Web'] ? `<a href="${row['Link Web']}" target="_blank"><i class="fas fa-globe"></i></a>` : ''}
-</div>
+        <div class="info-block"><strong>🌐 Enlaces:</strong><br>
+          ${row['Link X'] ? `<a href="${row['Link X']}" target="_blank"><i class="fab fa-twitter"></i></a>` : ''}
+          ${row['Link Discord'] ? `<a href="${row['Link Discord']}" target="_blank"><i class="fab fa-discord"></i></a>` : ''}
+          ${row['Link Web'] ? `<a href="${row['Link Web']}" target="_blank"><i class="fas fa-globe"></i></a>` : ''}
+        </div>
       `;
     }
 
     function render(data) {
       cardGrid.innerHTML = '';
-      data.forEach(row => {
+      data.forEach((row, i) => {
         const estado = row['Estado Testnet'] || 'Desconocido';
         const estadoClass = /abierto/i.test(estado) ? 'Abierto'
                           : /cerrado/i.test(estado) ? 'Cerrado'
@@ -153,14 +150,19 @@
                           : 'Otro';
         const card = document.createElement('div');
         card.className = `card ${getTierBadge(row['Tier'])}`;
+        card.dataset.index = i;
         const tierBadge = `<div class="tier-badge ${getTierBadge(row['Tier'])}">🏅 Tier ${row['Tier']}</div>`;
         card.innerHTML = `
           ${row['Logo'] ? `<img src="${row['Logo']}" class="logo" alt="logo">` : ''}
           <h3>${row['Proyecto']}</h3>
           <div class="tag ${estadoClass}">${estado}</div>
           ${tierBadge}
-          <button class="copy-btn" onclick="showModalFromCard(event, ${JSON.stringify(row).replace(/"/g, '&quot;')})">Ver detalles</button>
+          <button class="copy-btn">Ver detalles</button>
         `;
+        card.querySelector('button').addEventListener('click', e => {
+          e.stopPropagation();
+          showModal(i);
+        });
         cardGrid.appendChild(card);
       });
     }
@@ -178,17 +180,20 @@
     }
 
     Papa.parse(SHEET_CSV, {
-      download: true, header: true,
+      download: true,
+      header: true,
       complete: results => {
         allData = results.data.filter(r => r['Proyecto']);
         [...new Set(allData.map(r => r['Tier']).filter(Boolean))].forEach(tier => {
           const opt = document.createElement('option');
-          opt.value = tier; opt.textContent = tier;
+          opt.value = tier;
+          opt.textContent = tier;
           tierFilter.appendChild(opt);
         });
         [...new Set(allData.map(r => r['Estado Testnet']).filter(Boolean))].forEach(est => {
           const opt = document.createElement('option');
-          opt.value = est; opt.textContent = est;
+          opt.value = est;
+          opt.textContent = est;
           estadoFilter.appendChild(opt);
         });
         render(allData);
