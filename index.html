@@ -13,34 +13,42 @@
     }
     main { max-width: 1200px; margin: auto; padding: 1rem; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+
     .card {
       background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      padding: 1rem; display: flex; flex-direction: column; gap: .5rem;
-      border-left: 6px solid transparent;
+      padding: 1rem; display: flex; flex-direction: column; align-items: center; gap: .5rem;
+      border-left: 6px solid transparent; transition: transform 0.2s ease;
     }
     .card:hover { transform: scale(1.02); cursor: pointer; }
     .tier-1 { border-left-color: gold; }
     .tier-2 { border-left-color: silver; }
     .tier-3 { border-left-color: #cd7f32; }
     .tier-default { border-left-color: #a0aec0; }
+
     .card h3 { margin: 0; color: #4c51bf; font-size: 1.2rem; text-align: center; }
-    .tag { display: inline-block; padding: 0.3rem 0.6rem; border-radius: 6px; color: white; font-size: 0.85rem; margin: auto; }
+    .tag, .tier-badge {
+      display: inline-block; padding: 0.3rem 0.6rem; border-radius: 6px; color: white; font-size: 0.85rem; margin: 0.2rem;
+    }
     .Abierto { background: #38a169; }
     .Cerrado { background: #e53e3e; }
     .Pendiente, .Desconocido, .Otro { background: #718096; }
-    .info-block { font-size: 0.95rem; line-height: 1.4; white-space: pre-line; }
-    .info-block strong { display: block; margin-bottom: 0.2rem; }
-    .icons a { margin-right: 10px; font-size: 1.2rem; text-decoration: none; }
-    .icons a:hover { opacity: 0.8; }
-    .copy-btn {
-      background: #4299e1; color: white; border: none;
-      border-radius: 4px; padding: 0.3rem 0.6rem; cursor: pointer;
-      font-size: 0.85rem; margin: 0.5rem auto 0 auto; display: block;
-    }
+
+    .tier-badge { background: #805ad5; }
+    .tier-1-badge { background: #d69e2e; }
+    .tier-2-badge { background: #a0aec0; }
+    .tier-3-badge { background: #cd7f32; }
+
     .logo {
       width: 60px; height: 60px; border-radius: 50%;
       object-fit: cover; display: block; margin: 0 auto 0.5rem auto;
     }
+
+    .copy-btn, .buy-button {
+      background: #4299e1; color: white; border: none;
+      border-radius: 6px; padding: 0.4rem 0.8rem; cursor: pointer;
+      font-size: 0.9rem; margin-top: 0.5rem; text-decoration: none; font-weight: bold;
+    }
+    .buy-button i { margin-right: 5px; }
 
     .modal {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -48,11 +56,15 @@
     }
     .modal-content {
       background: white; padding: 2rem; border-radius: 12px; max-width: 600px;
-      max-height: 80vh; overflow-y: auto; position: relative;
+      max-height: 85vh; overflow-y: auto; position: relative;
     }
     .modal-close {
       position: absolute; top: 10px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #333;
     }
+
+    .info-block { font-size: 0.95rem; line-height: 1.5; white-space: pre-line; margin-top: 1rem; }
+    .info-block strong { display: block; margin-bottom: 0.2rem; }
+    .icons a { margin-right: 10px; font-size: 1.2rem; text-decoration: none; }
 
     footer { text-align: center; padding: 1rem; font-size: 0.85rem; color: #666; }
   </style>
@@ -83,144 +95,151 @@
 
   <footer>🔧 Generado desde Google Sheets</footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script>
-    const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
-    const cardGrid = document.getElementById('cardGrid');
-    const fechaSpan = document.getElementById('fecha');
-    const tierFilter = document.getElementById('tierFilter');
-    const estadoFilter = document.getElementById('estadoFilter');
-    const projectFilter = document.getElementById('projectFilter');
-    const modal = document.getElementById('modal');
-    const modalDetails = document.getElementById('modalDetails');
-    let allData = [];
+  <!-- JS sigue en la próxima respuesta -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script>
+  const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
+  const cardGrid = document.getElementById('cardGrid');
+  const fechaSpan = document.getElementById('fecha');
+  const tierFilter = document.getElementById('tierFilter');
+  const estadoFilter = document.getElementById('estadoFilter');
+  const projectFilter = document.getElementById('projectFilter');
+  const modal = document.getElementById('modal');
+  const modalDetails = document.getElementById('modalDetails');
+  let allData = [];
 
-    const formatDate = str => {
-      const date = new Date(str);
-      return isNaN(date) ? str : date.toLocaleDateString('es-AR');
-    };
+  const formatDate = str => {
+    const date = new Date(str);
+    return isNaN(date) ? str : date.toLocaleDateString('es-AR');
+  };
 
-    const getTierClass = tier => {
-      const t = (tier || '').toLowerCase();
-      if (t.includes('1')) return 'tier-1';
-      if (t.includes('2')) return 'tier-2';
-      if (t.includes('3')) return 'tier-3';
-      return 'tier-default';
-    };
+  const getTierBadge = tier => {
+    const t = (tier || '').toLowerCase();
+    if (t.includes('1')) return 'tier-1-badge';
+    if (t.includes('2')) return 'tier-2-badge';
+    if (t.includes('3')) return 'tier-3-badge';
+    return '';
+  };
 
-    function showModalFromCard(e, row) {
-      e.stopPropagation();
-      showModal(row);
-    }
+  function showModalFromCard(e, row) {
+    e.stopPropagation();
+    showModal(row);
+  }
 
-    function showModal(row) {
+  function showModal(row) {
+    const estado = row['Estado Testnet'] || 'Desconocido';
+    const estadoClass = /abierto/i.test(estado) ? 'Abierto'
+                      : /cerrado/i.test(estado) ? 'Cerrado'
+                      : /pendiente/i.test(estado) ? 'Pendiente'
+                      : 'Otro';
+
+    const floorDirecto = parseFloat(row['Floor Price Pase Directo (MON)']) || 0;
+    const floorAcumulativo = parseFloat(row['Floor Price NFT Acumulativo (MON)']) || 0;
+
+    const costoDirecto = row['Beneficio WL Directo'] && floorDirecto
+      ? `${row['Beneficio WL Directo']} ≈ ${parseInt(row['Beneficio WL Directo']) * floorDirecto} MON`
+      : row['Beneficio WL Directo'] || '';
+
+    const beneficiosAcumulativos = (row['Beneficios Acumulativos'] || '').split(/\n|<br\s*\/?>/i).map(line => {
+      const match = line.match(/(\d+)\s*=\s*WL\s*(GTD|FCFS)?/i);
+      if (match && floorAcumulativo) {
+        const qty = parseInt(match[1]);
+        const tipo = match[2] || '';
+        const total = qty * floorAcumulativo;
+        return `${qty} NFTs → WL ${tipo} ≈ ${total} MON`;
+      }
+      return line;
+    }).join('<br>');
+
+    modal.style.display = 'flex';
+    modalDetails.innerHTML = `
+      ${row['Logo'] ? `<img src="${row['Logo']}" class="logo" alt="logo">` : ''}
+      <h2>${row['Proyecto']}</h2>
+      <div class="tag ${estadoClass}">${estado}</div>
+
+      <div class="info-block"><strong>🧠 Roles WL:</strong><br>${(row['Roles WL'] || '').replace(/\n|<br\s*\/?>/gi, '<br>')}</div>
+
+      ${row['Pase WL Directo'] ? `
+        <div class="info-block"><strong>🏅 Pase WL Directo:</strong><br>${row['Pase WL Directo']}<br>${costoDirecto}
+        ${row['Link Pase Directo'] ? `<br><a href="${row['Link Pase Directo']}" target="_blank" class="buy-button"><i class="fas fa-shopping-cart"></i> Comprar</a>` : ''}</div>
+      ` : ''}
+
+      ${row['NFT Acumulativo'] ? `
+        <div class="info-block"><strong>📦 NFT Acumulativo:</strong><br>${row['NFT Acumulativo']}<br>${beneficiosAcumulativos}
+        ${row['Link NFT Acumulativo'] ? `<br><a href="${row['Link NFT Acumulativo']}" target="_blank" class="buy-button"><i class="fas fa-shopping-cart"></i> Comprar</a>` : ''}</div>
+      ` : ''}
+
+      <div class="info-block"><strong>📎 Notas:</strong><br>${row['Notas'] || ''}</div>
+
+      <div class="icons" style="margin-top: 1rem;">
+        ${row['Link X'] ? `<a href="${row['Link X']}" target="_blank"><i class="fab fa-twitter"></i></a>` : ''}
+        ${row['Link Discord'] ? `<a href="${row['Link Discord']}" target="_blank"><i class="fab fa-discord"></i></a>` : ''}
+        ${row['Link Web'] ? `<a href="${row['Link Web']}" target="_blank"><i class="fas fa-globe"></i></a>` : ''}
+      </div>
+    `;
+  }
+
+  function render(data) {
+    cardGrid.innerHTML = '';
+    data.forEach(row => {
       const estado = row['Estado Testnet'] || 'Desconocido';
       const estadoClass = /abierto/i.test(estado) ? 'Abierto'
                         : /cerrado/i.test(estado) ? 'Cerrado'
                         : /pendiente/i.test(estado) ? 'Pendiente'
                         : 'Otro';
 
-      const floorDirecto = parseFloat(row['Floor Price Pase Directo (MON)']) || 0;
-      const floorAcumulativo = parseFloat(row['Floor Price NFT Acumulativo (MON)']) || 0;
-
-      const costoDirecto = row['Beneficio WL Directo'] && floorDirecto
-        ? `${row['Beneficio WL Directo']} ≈ ${parseInt(row['Beneficio WL Directo']) * floorDirecto} MON` 
-        : row['Beneficio WL Directo'] || '';
-
-      const beneficiosAcumulativos = (row['Beneficios Acumulativos'] || '').split(/\n|<br\s*\/?>/i).map(line => {
-        const match = line.match(/(\d+)\s*=\s*WL\s*(GTD|FCFS)?/i);
-        if (match && floorAcumulativo) {
-          const qty = parseInt(match[1]);
-          const tipo = match[2] || '';
-          const total = qty * floorAcumulativo;
-          return `${qty} NFTs → WL ${tipo} ≈ ${total} MON`;
-        }
-        return line;
-      }).join('<br>');
-
-      modal.style.display = 'flex';
-      modalDetails.innerHTML = `
+      const card = document.createElement('div');
+      card.className = `card ${getTierClass(row['Tier'])}`;
+      const tierBadge = `<div class="tier-badge ${getTierBadge(row['Tier'])}">Tier ${row['Tier']}</div>`;
+      card.innerHTML = `
         ${row['Logo'] ? `<img src="${row['Logo']}" class="logo" alt="logo">` : ''}
-        <h2>${row['Proyecto']}</h2>
+        <h3>${row['Proyecto']}</h3>
         <div class="tag ${estadoClass}">${estado}</div>
-        <div class="info-block"><strong>Roles WL:</strong><br>${(row['Roles WL'] || '').replace(/\n|<br\s*\/?>/gi, '<br>')}</div>
-        ${row['Pase WL Directo'] ? `
-          <div class="info-block"><strong>Pase WL Directo:</strong><br>${row['Pase WL Directo']}<br>${costoDirecto}
-          ${row['Link Pase Directo'] ? `<br><a href="${row['Link Pase Directo']}" target="_blank" class="copy-btn">Comprar</a>` : ''}</div>
-        ` : ''}
-        ${row['NFT Acumulativo'] ? `
-          <div class="info-block"><strong>NFT Acumulativo:</strong><br>${row['NFT Acumulativo']}<br>${beneficiosAcumulativos}
-          ${row['Link NFT Acumulativo'] ? `<br><a href="${row['Link NFT Acumulativo']}" target="_blank" class="copy-btn">Comprar</a>` : ''}</div>
-        ` : ''}
-        <div class="icons">
-          ${row['Link X'] ? `<a href="${row['Link X']}" target="_blank"><i class="fab fa-twitter"></i></a>` : ''}
-          ${row['Link Discord'] ? `<a href="${row['Link Discord']}" target="_blank"><i class="fab fa-discord"></i></a>` : ''}
-          ${row['Link Web'] ? `<a href="${row['Link Web']}" target="_blank"><i class="fas fa-globe"></i></a>` : ''}
-        </div>
-        <div class="info-block"><strong>Notas:</strong><br>${row['Notas'] || ''}</div>
+        ${tierBadge}
+        <button class="copy-btn" onclick="showModalFromCard(event, ${JSON.stringify(row).replace(/"/g, '&quot;')})">Ver detalles</button>
       `;
-    }
-
-    function render(data) {
-      cardGrid.innerHTML = '';
-      data.forEach(row => {
-        const estado = row['Estado Testnet'] || 'Desconocido';
-        const estadoClass = /abierto/i.test(estado) ? 'Abierto'
-                          : /cerrado/i.test(estado) ? 'Cerrado'
-                          : /pendiente/i.test(estado) ? 'Pendiente'
-                          : 'Otro';
-
-        const card = document.createElement('div');
-        card.className = `card ${getTierClass(row['Tier'])}`;
-        card.innerHTML = `
-          ${row['Logo'] ? `<img src="${row['Logo']}" class="logo" alt="logo">` : ''}
-          <h3>${row['Proyecto']}</h3>
-          <div class="tag ${estadoClass}">${estado}</div>
-          <div class="info-block"><strong>Tier:</strong> ${row['Tier']}</div>
-          <button class="copy-btn" onclick="showModalFromCard(event, ${JSON.stringify(row).replace(/"/g, '&quot;')})">Ver detalles</button>
-        `;
-        cardGrid.appendChild(card);
-      });
-    }
-
-    function applyFilters() {
-      const nameQ = projectFilter.value.toLowerCase();
-      const tierQ = tierFilter.value;
-      const estadoQ = estadoFilter.value;
-      const filtered = allData.filter(r =>
-        r['Proyecto'].toLowerCase().includes(nameQ) &&
-        (tierQ === '' || r['Tier'] === tierQ) &&
-        (estadoQ === '' || r['Estado Testnet'] === estadoQ)
-      );
-      render(filtered);
-    }
-
-    Papa.parse(SHEET_CSV, {
-      download: true,
-      header: true,
-      complete: results => {
-        allData = results.data.filter(r => r['Proyecto']);
-        [...new Set(allData.map(r => r['Tier']).filter(Boolean))].forEach(tier => {
-          const opt = document.createElement('option');
-          opt.value = tier;
-          opt.textContent = tier;
-          tierFilter.appendChild(opt);
-        });
-        [...new Set(allData.map(r => r['Estado Testnet']).filter(Boolean))].forEach(est => {
-          const opt = document.createElement('option');
-          opt.value = est;
-          opt.textContent = est;
-          estadoFilter.appendChild(opt);
-        });
-        render(allData);
-        fechaSpan.textContent = new Date().toLocaleDateString('es-AR');
-      }
+      cardGrid.appendChild(card);
     });
+  }
 
-    projectFilter.addEventListener('input', applyFilters);
-    tierFilter.addEventListener('change', applyFilters);
-    estadoFilter.addEventListener('change', applyFilters);
-    window.onclick = e => { if (e.target == modal) modal.style.display = 'none'; };
-  </script>
+  function applyFilters() {
+    const nameQ = projectFilter.value.toLowerCase();
+    const tierQ = tierFilter.value;
+    const estadoQ = estadoFilter.value;
+    const filtered = allData.filter(r =>
+      r['Proyecto'].toLowerCase().includes(nameQ) &&
+      (tierQ === '' || r['Tier'] === tierQ) &&
+      (estadoQ === '' || r['Estado Testnet'] === estadoQ)
+    );
+    render(filtered);
+  }
+
+  Papa.parse(SHEET_CSV, {
+    download: true,
+    header: true,
+    complete: results => {
+      allData = results.data.filter(r => r['Proyecto']);
+      [...new Set(allData.map(r => r['Tier']).filter(Boolean))].forEach(tier => {
+        const opt = document.createElement('option');
+        opt.value = tier;
+        opt.textContent = tier;
+        tierFilter.appendChild(opt);
+      });
+      [...new Set(allData.map(r => r['Estado Testnet']).filter(Boolean))].forEach(est => {
+        const opt = document.createElement('option');
+        opt.value = est;
+        opt.textContent = est;
+        estadoFilter.appendChild(opt);
+      });
+      render(allData);
+      fechaSpan.textContent = new Date().toLocaleDateString('es-AR');
+    }
+  });
+
+  projectFilter.addEventListener('input', applyFilters);
+  tierFilter.addEventListener('change', applyFilters);
+  estadoFilter.addEventListener('change', applyFilters);
+  window.onclick = e => { if (e.target == modal) modal.style.display = 'none'; };
+</script>
 </body>
 </html>
