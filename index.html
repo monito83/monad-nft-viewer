@@ -128,12 +128,16 @@ function showModal(index) {
 
     <div class="info-block"><strong>📎 Notas:</strong><br>${row['Notas'] || ''}</div>
 
-    ${(row['Link X'] || row['Link Discord'] || row['Link Web']) ? `
-      <div class="info-block"><strong>🌐 Enlaces:</strong><br>
-        ${row['Link X'] ? `<a href="${row['Link X']}" class="buy-button" target="_blank">X</a>` : ''}
-        ${row['Link Discord'] ? `<a href="${row['Link Discord']}" class="buy-button" target="_blank">Discord</a>` : ''}
-        ${row['Link Web'] ? `<a href="${row['Link Web']}" class="buy-button" target="_blank">Web</a>` : ''}
-      </div>` : ''}
+ ${(row['Link X'] || row['Link Discord'] || row['Link Web']) ? `
+  <div class="info-block">
+    <strong>🌐 Enlaces:</strong>
+    <div style="margin-top: 0.3rem;">
+      ${row['Link X'] ? `<a href="${row['Link X']}" class="buy-button" target="_blank" style="display:inline-block; margin-right: 0.5rem;"><i class="fab fa-twitter"></i> X</a>` : ''}
+      ${row['Link Discord'] ? `<a href="${row['Link Discord']}" class="buy-button" target="_blank" style="display:inline-block; margin-right: 0.5rem;"><i class="fab fa-discord"></i> Discord</a>` : ''}
+      ${row['Link Web'] ? `<a href="${row['Link Web']}" class="buy-button" target="_blank" style="display:inline-block;"><i class="fas fa-globe"></i> Web</a>` : ''}
+    </div>
+  </div>` : ''}
+
   `;
 }
 
