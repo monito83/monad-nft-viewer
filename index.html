@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -17,15 +16,15 @@
     .card {
       background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       padding: 1rem; display: flex; flex-direction: column; gap: .5rem;
-      border-left: 6px solid transparent; cursor: pointer;
+      border-left: 6px solid transparent;
     }
-    .card:hover { transform: scale(1.02); }
+    .card:hover { transform: scale(1.02); cursor: pointer; }
     .tier-1 { border-left-color: gold; }
     .tier-2 { border-left-color: silver; }
     .tier-3 { border-left-color: #cd7f32; }
     .tier-default { border-left-color: #a0aec0; }
-    .card h3 { margin: 0; color: #4c51bf; font-size: 1.25rem; }
-    .tag { display: inline-block; padding: 0.3rem 0.6rem; border-radius: 6px; color: white; font-size: 0.85rem; }
+    .card h3 { margin: 0; color: #4c51bf; font-size: 1.2rem; text-align: center; }
+    .tag { display: inline-block; padding: 0.3rem 0.6rem; border-radius: 6px; color: white; font-size: 0.85rem; margin: auto; }
     .Abierto { background: #38a169; }
     .Cerrado { background: #e53e3e; }
     .Pendiente, .Desconocido, .Otro { background: #718096; }
@@ -35,10 +34,13 @@
     .icons a:hover { opacity: 0.8; }
     .copy-btn {
       background: #4299e1; color: white; border: none;
-      border-radius: 4px; padding: 0.3rem 0.5rem; cursor: pointer;
-      font-size: 0.85rem; margin-top: 5px; display: inline-block; text-decoration: none;
+      border-radius: 4px; padding: 0.3rem 0.6rem; cursor: pointer;
+      font-size: 0.85rem; margin: 0.5rem auto 0 auto; display: block;
     }
-    .logo { max-height: 40px; margin-bottom: 0.5rem; }
+    .logo {
+      width: 60px; height: 60px; border-radius: 50%;
+      object-fit: cover; display: block; margin: 0 auto 0.5rem auto;
+    }
 
     .modal {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -93,68 +95,54 @@
     const modalDetails = document.getElementById('modalDetails');
     let allData = [];
 
-    function formatDate(str) {
+    const formatDate = str => {
       const date = new Date(str);
       return isNaN(date) ? str : date.toLocaleDateString('es-AR');
-    }
+    };
 
-    function getTierClass(tier) {
-      const normalized = (tier || '').toLowerCase();
-      if (normalized.includes('1')) return 'tier-1';
-      if (normalized.includes('2')) return 'tier-2';
-      if (normalized.includes('3')) return 'tier-3';
+    const getTierClass = tier => {
+      const t = (tier || '').toLowerCase();
+      if (t.includes('1')) return 'tier-1';
+      if (t.includes('2')) return 'tier-2';
+      if (t.includes('3')) return 'tier-3';
       return 'tier-default';
+    };
+
+    function showModalFromCard(e, row) {
+      e.stopPropagation();
+      showModal(row);
     }
 
-    function render(data) {
-      cardGrid.innerHTML = '';
-      data.forEach(row => {
-        const estado = row['Estado Testnet'] || 'Desconocido';
-        const estadoClass = /abierto/i.test(estado) ? 'Abierto'
-                          : /cerrado/i.test(estado) ? 'Cerrado'
-                          : /pendiente/i.test(estado) ? 'Pendiente'
-                          : 'Otro';
+    function showModal(row) {
+      const estado = row['Estado Testnet'] || 'Desconocido';
+      const estadoClass = /abierto/i.test(estado) ? 'Abierto'
+                        : /cerrado/i.test(estado) ? 'Cerrado'
+                        : /pendiente/i.test(estado) ? 'Pendiente'
+                        : 'Otro';
 
-        const floorDirecto = parseFloat(row['Floor Price Pase Directo (MON)']) || 0;
-        const floorAcumulativo = parseFloat(row['Floor Price NFT Acumulativo (MON)']) || 0;
+      const floorDirecto = parseFloat(row['Floor Price Pase Directo (MON)']) || 0;
+      const floorAcumulativo = parseFloat(row['Floor Price NFT Acumulativo (MON)']) || 0;
 
-        const costoDirecto = row['Beneficio WL Directo'] && floorDirecto
-          ? `${row['Beneficio WL Directo']} ≈ ${parseInt(row['Beneficio WL Directo']) * floorDirecto} MON` 
-          : row['Beneficio WL Directo'] || '';
+      const costoDirecto = row['Beneficio WL Directo'] && floorDirecto
+        ? `${row['Beneficio WL Directo']} ≈ ${parseInt(row['Beneficio WL Directo']) * floorDirecto} MON` 
+        : row['Beneficio WL Directo'] || '';
 
-        const beneficiosAcumulativos = (row['Beneficios Acumulativos'] || '').split(/\n|<br\s*\/?>/i).map(line => {
-          const match = line.match(/(\d+)\s*=\s*WL\s*(GTD|FCFS)?/i);
-          if (match && floorAcumulativo) {
-            const qty = parseInt(match[1]);
-            const tipo = match[2] || '';
-            const total = qty * floorAcumulativo;
-            return `${qty} NFTs → WL ${tipo} ≈ ${total} MON`;
-          }
-          return line;
-        }).join('\n');
+      const beneficiosAcumulativos = (row['Beneficios Acumulativos'] || '').split(/\n|<br\s*\/?>/i).map(line => {
+        const match = line.match(/(\d+)\s*=\s*WL\s*(GTD|FCFS)?/i);
+        if (match && floorAcumulativo) {
+          const qty = parseInt(match[1]);
+          const tipo = match[2] || '';
+          const total = qty * floorAcumulativo;
+          return `${qty} NFTs → WL ${tipo} ≈ ${total} MON`;
+        }
+        return line;
+      }).join('<br>');
 
-        const logo = row['Logo'] ? `<img src="${row['Logo']}" class="logo" alt="logo">` : '';
-
-        const card = document.createElement('div');
-        card.className = `card ${getTierClass(row['Tier'])}`;
-        card.onclick = () => showModal(row, estadoClass, beneficiosAcumulativos, costoDirecto);
-        card.innerHTML = `
-          ${logo}
-          <h3>${row['Proyecto']}</h3>
-          <div class="tag ${estadoClass}">${estado}</div>
-          <div class="info-block"><strong>Mint:</strong> ${formatDate(row['Fecha Mint Mainnet'])}</div>
-          <div class="info-block"><strong>Tier:</strong> ${row['Tier']}</div>
-        `;
-        cardGrid.appendChild(card);
-      });
-    }
-
-    function showModal(row, estadoClass, beneficiosAcumulativos, costoDirecto) {
       modal.style.display = 'flex';
       modalDetails.innerHTML = `
         ${row['Logo'] ? `<img src="${row['Logo']}" class="logo" alt="logo">` : ''}
         <h2>${row['Proyecto']}</h2>
-        <div class="tag ${estadoClass}">${row['Estado Testnet']}</div>
+        <div class="tag ${estadoClass}">${estado}</div>
         <div class="info-block"><strong>Roles WL:</strong><br>${(row['Roles WL'] || '').replace(/\n|<br\s*\/?>/gi, '<br>')}</div>
         ${row['Pase WL Directo'] ? `
           <div class="info-block"><strong>Pase WL Directo:</strong><br>${row['Pase WL Directo']}<br>${costoDirecto}
@@ -171,6 +159,28 @@
         </div>
         <div class="info-block"><strong>Notas:</strong><br>${row['Notas'] || ''}</div>
       `;
+    }
+
+    function render(data) {
+      cardGrid.innerHTML = '';
+      data.forEach(row => {
+        const estado = row['Estado Testnet'] || 'Desconocido';
+        const estadoClass = /abierto/i.test(estado) ? 'Abierto'
+                          : /cerrado/i.test(estado) ? 'Cerrado'
+                          : /pendiente/i.test(estado) ? 'Pendiente'
+                          : 'Otro';
+
+        const card = document.createElement('div');
+        card.className = `card ${getTierClass(row['Tier'])}`;
+        card.innerHTML = `
+          ${row['Logo'] ? `<img src="${row['Logo']}" class="logo" alt="logo">` : ''}
+          <h3>${row['Proyecto']}</h3>
+          <div class="tag ${estadoClass}">${estado}</div>
+          <div class="info-block"><strong>Tier:</strong> ${row['Tier']}</div>
+          <button class="copy-btn" onclick="showModalFromCard(event, ${JSON.stringify(row).replace(/"/g, '&quot;')})">Ver detalles</button>
+        `;
+        cardGrid.appendChild(card);
+      });
     }
 
     function applyFilters() {
