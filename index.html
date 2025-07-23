@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Proyectos NFT Monad – Tarjetas</title>
+  <title>Proyectos NFT Monad</title>
   <style>
     body { font-family: 'Segoe UI', sans-serif; background: #f0f0f0; margin: 0; padding: 0; color: #333; }
     header { background: #4c51bf; color: white; text-align: center; padding: 1rem; }
@@ -12,27 +12,21 @@
       padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px;
     }
     main { max-width: 1200px; margin: auto; padding: 1rem; }
-
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
     .card {
       background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       padding: 1rem; display: flex; flex-direction: column; gap: .5rem;
-      cursor: pointer; transition: transform 0.2s ease;
       border-left: 6px solid transparent;
     }
-    .card:hover { transform: scale(1.02); }
-
     .tier-1 { border-left-color: gold; }
     .tier-2 { border-left-color: silver; }
     .tier-3 { border-left-color: #cd7f32; }
     .tier-default { border-left-color: #a0aec0; }
-
     .card h3 { margin: 0; color: #4c51bf; font-size: 1.25rem; }
     .tag { display: inline-block; padding: 0.3rem 0.6rem; border-radius: 6px; color: white; font-size: 0.85rem; }
     .Abierto { background: #38a169; }
     .Cerrado { background: #e53e3e; }
     .Pendiente, .Desconocido, .Otro { background: #718096; }
-
     .info-block { font-size: 0.95rem; line-height: 1.4; white-space: pre-line; }
     .info-block strong { display: block; margin-bottom: 0.2rem; }
     .icons a { margin-right: 10px; font-size: 1.2rem; text-decoration: none; }
@@ -41,27 +35,6 @@
       background: #4299e1; color: white; border: none;
       border-radius: 4px; padding: 0.3rem 0.5rem; cursor: pointer;
       font-size: 0.85rem; margin-top: 5px; display: inline-block; text-decoration: none;
-    }
-
-    .modal {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center;
-    }
-    .modal-content {
-      background: white; padding: 2rem; border-radius: 12px; max-width: 600px;
-      max-height: 80vh; overflow-y: auto; position: relative;
-    }
-    .modal-close {
-      position: absolute; top: 10px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #333;
-    }
-
-    footer { text-align: center; padding: 1rem; font-size: 0.85rem; color: #666; }
-
-    @media (prefers-color-scheme: dark) {
-      body { background: #1a202c; color: #e2e8f0; }
-      .card, .modal-content { background: #2d3748; color: #e2e8f0; }
-      .copy-btn, .filters input, .filters select { color: #e2e8f0; background: #4a5568; border-color: #2d3748; }
-      .copy-btn:hover { background: #2b6cb0; }
     }
   </style>
   <script src="https://kit.fontawesome.com/ae2d2bcb43.js" crossorigin="anonymous"></script>
@@ -82,14 +55,7 @@
     <div class="grid" id="cardGrid"></div>
   </main>
 
-  <div class="modal" id="modal">
-    <div class="modal-content" id="modalContent">
-      <span class="modal-close" onclick="closeModal()">&times;</span>
-      <div id="modalDetails"></div>
-    </div>
-  </div>
-
-  <footer>🔧 Generado automáticamente desde Google Sheets</footer>
+  <footer style="text-align:center; padding:1rem; font-size:0.85rem; color:#666;">🔧 Generado desde Google Sheets</footer>
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script>
@@ -99,17 +65,11 @@
     const tierFilter = document.getElementById('tierFilter');
     const estadoFilter = document.getElementById('estadoFilter');
     const projectFilter = document.getElementById('projectFilter');
-    const modal = document.getElementById('modal');
-    const modalDetails = document.getElementById('modalDetails');
     let allData = [];
 
     const formatDate = str => {
       const date = new Date(str);
       return isNaN(date) ? str : date.toLocaleDateString('es-AR');
-    };
-
-    const copyText = text => {
-      navigator.clipboard.writeText(text).then(() => alert('📋 Copiado'));
     };
 
     const getTierClass = tier => {
@@ -128,67 +88,64 @@
                           : /cerrado/i.test(estado) ? 'Cerrado'
                           : /pendiente/i.test(estado) ? 'Pendiente'
                           : 'Otro';
-        const floor = parseFloat(row['Floor Price (MON)']) || 0;
-        const wlLines = (row['NFTs Tesnet / Beneficios WL'] || '').split(/\n|<br\s*\/?>/i);
-        const wlEstimates = wlLines.map(line => {
-          const match = line.match(/(\d+)\s*nft.*?=\s*wl.*?(fcfs|gtd)?/i);
-          if (match && floor) {
+
+        const floorDirecto = parseFloat(row['Floor Price Pase Directo (MON)']) || 0;
+        const floorAcumulativo = parseFloat(row['Floor Price NFT Acumulativo (MON)']) || 0;
+
+        let costoDirecto = '';
+        if (row['Beneficio WL Directo']) {
+          const match = row['Beneficio WL Directo'].match(/(\d+)/);
+          if (match && floorDirecto) {
+            const cantidad = parseInt(match[1]);
+            const total = cantidad * floorDirecto;
+            costoDirecto = `${row['Beneficio WL Directo']} ≈ ${total} MON`;
+          } else {
+            costoDirecto = row['Beneficio WL Directo'];
+          }
+        }
+
+        const beneficiosAcumulativos = (row['Beneficios Acumulativos'] || '').split(/\n|<br\s*\/?>/i).map(line => {
+          const match = line.match(/(\d+)\s*=\s*WL\s*(GTD|FCFS)?/i);
+          if (match && floorAcumulativo) {
             const qty = parseInt(match[1]);
-            const type = match[2]?.toUpperCase() || '';
-            const cost = qty * floor;
-            return `${qty} NFTs → WL ${type} ≈ ${cost} MON`;
+            const tipo = match[2] || '';
+            const total = qty * floorAcumulativo;
+            return `${qty} NFTs → WL ${tipo} ≈ ${total} MON`;
           }
           return line;
         }).join('\n');
 
-        const markets = (row['Link Mercado Secundario'] || '').split(/\n|<br\s*\/?>/i).map(link => {
-          const parts = link.split(':');
-          if (parts.length >= 2) {
-            const name = parts[0].trim();
-            const url = parts.slice(1).join(':').trim();
-            return `<a href="${url}" target="_blank" class="copy-btn">${name}</a>`;
-          }
-          return '';
-        }).join(' ');
-
         const card = document.createElement('div');
         card.className = `card ${getTierClass(row['Tier'])}`;
-        card.onclick = () => openModal(row);
         card.innerHTML = `
           <h3>${row['Proyecto']}</h3>
           <div class="tag ${estadoClass}">${estado}</div>
           <div class="info-block"><strong>Tier:</strong> ${row['Tier']}</div>
           <div class="info-block"><strong>Mint:</strong> ${formatDate(row['Fecha Mint Mainnet'])}</div>
           <div class="info-block"><strong>Roles WL:</strong><br>${(row['Roles WL'] || '').replace(/\n|<br\s*\/?>/gi, '<br>')}</div>
-          <div class="info-block"><strong>Beneficios NFT:</strong><br>${wlEstimates}</div>
-          <div class="info-block"><strong>Marketplaces:</strong><br>${markets}</div>
+
+          ${row['Pase WL Directo'] ? `
+          <div class="info-block"><strong>Pase WL Directo:</strong> ${row['Pase WL Directo']}
+            <br>${costoDirecto}
+            ${row['Link Pase Directo'] ? `<br><a href="${row['Link Pase Directo']}" target="_blank" class="copy-btn">Comprar</a>` : ''}
+          </div>` : ''}
+
+          ${row['NFT Acumulativo'] ? `
+          <div class="info-block"><strong>NFT Acumulativo:</strong> ${row['NFT Acumulativo']}
+            <br>${beneficiosAcumulativos}
+            ${row['Link NFT Acumulativo'] ? `<br><a href="${row['Link NFT Acumulativo']}" target="_blank" class="copy-btn">Comprar</a>` : ''}
+          </div>` : ''}
+
+          <div class="icons">
+            ${row['Link X'] ? `<a href="${row['Link X']}" target="_blank"><i class="fab fa-twitter"></i></a>` : ''}
+            ${row['Link Discord'] ? `<a href="${row['Link Discord']}" target="_blank"><i class="fab fa-discord"></i></a>` : ''}
+            ${row['Link Web'] ? `<a href="${row['Link Web']}" target="_blank"><i class="fas fa-globe"></i></a>` : ''}
+          </div>
+
+          <div class="info-block"><strong>Notas:</strong><br>${row['Notas'] || ''}</div>
         `;
         cardGrid.appendChild(card);
       });
-    }
-
-    function openModal(row) {
-      modalDetails.innerHTML = `
-        <h2>${row['Proyecto']}</h2>
-        <div class="tag">${row['Estado Testnet']}</div>
-        <div class="info-block"><strong>Tier:</strong> ${row['Tier']}</div>
-        <div class="info-block"><strong>Mint:</strong> ${formatDate(row['Fecha Mint Mainnet'])}</div>
-        <div class="info-block"><strong>Roles WL:</strong><br>${(row['Roles WL'] || '').replace(/\n|<br\s*\/?>/gi, '<br>')}</div>
-        <div class="info-block"><strong>Beneficios NFT:</strong><br>${(row['NFTs Tesnet / Beneficios WL'] || '').replace(/\n|<br\s*\/?>/gi, '<br>')}</div>
-        <div class="info-block"><strong>Floor Price:</strong> ${row['Floor Price (MON)']} MON</div>
-        <div class="info-block"><strong>Market:</strong><br>${(row['Link Mercado Secundario'] || '').replace(/\n|<br\s*\/?>/gi, '<br>')}</div>
-        <div class="icons">
-          <a href="${row['Link X']}" target="_blank"><i class="fab fa-twitter"></i></a>
-          <a href="${row['Link Discord']}" target="_blank"><i class="fab fa-discord"></i></a>
-          <a href="${row['Link Web']}" target="_blank"><i class="fas fa-globe"></i></a>
-        </div>
-        <div class="info-block"><strong>Notas:</strong><br>${row['Notas']}</div>
-      `;
-      modal.style.display = 'flex';
-    }
-
-    function closeModal() {
-      modal.style.display = 'none';
     }
 
     function applyFilters() {
@@ -228,7 +185,6 @@
     projectFilter.addEventListener('input', applyFilters);
     tierFilter.addEventListener('change', applyFilters);
     estadoFilter.addEventListener('change', applyFilters);
-    window.onclick = e => { if (e.target == modal) closeModal(); };
   </script>
 </body>
 </html>
