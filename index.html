@@ -24,7 +24,7 @@
 
     .tier-1 { border-left-color: gold; }
     .tier-2 { border-left-color: silver; }
-    .tier-3 { border-left-color: #cd7f32; } /* bronce */
+    .tier-3 { border-left-color: #cd7f32; }
     .tier-default { border-left-color: #a0aec0; }
 
     .card h3 { margin: 0; color: #4c51bf; font-size: 1.25rem; }
@@ -40,10 +40,9 @@
     .copy-btn {
       background: #4299e1; color: white; border: none;
       border-radius: 4px; padding: 0.3rem 0.5rem; cursor: pointer;
-      font-size: 0.85rem; margin-top: 5px;
+      font-size: 0.85rem; margin-top: 5px; display: inline-block; text-decoration: none;
     }
 
-    /* Modal */
     .modal {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center;
@@ -83,7 +82,6 @@
     <div class="grid" id="cardGrid"></div>
   </main>
 
-  <!-- Modal -->
   <div class="modal" id="modal">
     <div class="modal-content" id="modalContent">
       <span class="modal-close" onclick="closeModal()">&times;</span>
@@ -105,53 +103,53 @@
     const modalDetails = document.getElementById('modalDetails');
     let allData = [];
 
-    function formatDate(str) {
+    const formatDate = str => {
       const date = new Date(str);
       return isNaN(date) ? str : date.toLocaleDateString('es-AR');
-    }
+    };
 
-    function copyText(text) {
+    const copyText = text => {
       navigator.clipboard.writeText(text).then(() => alert('📋 Copiado'));
-    }
+    };
 
-    function getTierClass(tier) {
+    const getTierClass = tier => {
       const normalized = (tier || '').toLowerCase();
       if (normalized.includes('1')) return 'tier-1';
       if (normalized.includes('2')) return 'tier-2';
       if (normalized.includes('3')) return 'tier-3';
       return 'tier-default';
-    }
-
-    function openModal(row) {
-      modalDetails.innerHTML = `
-        <h2>${row['Proyecto']}</h2>
-        <div class="tag">${row['Estado Tesnet']}</div>
-        <div class="info-block"><strong>Tier:</strong> ${row['Tier']}</div>
-        <div class="info-block"><strong>Fecha Mint:</strong> ${formatDate(row['Fecha Mint Mainnet'])}</div>
-        <div class="info-block"><strong>Requisitos WL:</strong><br>${row['Requerimientos WL']}</div>
-        <div class="info-block"><strong>NFT Testnet / WL:</strong><br>${row['Nft Testnet / WL Mainnet']}</div>
-        <div class="info-block"><strong>Notas:</strong><br>${row['Notas']}</div>
-        <div class="icons">
-          <a href="${row['Link X']}" target="_blank"><i class="fab fa-twitter"></i></a>
-          <a href="${row['Link Discord']}" target="_blank"><i class="fab fa-discord"></i></a>
-          <a href="${row['Link Web']}" target="_blank"><i class="fas fa-globe"></i></a>
-        </div>
-      `;
-      modal.style.display = 'flex';
-    }
-
-    function closeModal() {
-      modal.style.display = 'none';
-    }
+    };
 
     function render(data) {
       cardGrid.innerHTML = '';
       data.forEach(row => {
-        const estado = row['Estado Tesnet'] || 'Desconocido';
-        const estadoClass = estado.match(/abierto/i) ? 'Abierto'
-                          : estado.match(/cerrado/i) ? 'Cerrado'
-                          : estado.match(/pendiente/i) ? 'Pendiente'
+        const estado = row['Estado Testnet'] || 'Desconocido';
+        const estadoClass = /abierto/i.test(estado) ? 'Abierto'
+                          : /cerrado/i.test(estado) ? 'Cerrado'
+                          : /pendiente/i.test(estado) ? 'Pendiente'
                           : 'Otro';
+        const floor = parseFloat(row['Floor Price (MON)']) || 0;
+        const wlLines = (row['NFTs Tesnet / Beneficios WL'] || '').split(/\n|<br\s*\/?>/i);
+        const wlEstimates = wlLines.map(line => {
+          const match = line.match(/(\d+)\s*nft.*?=\s*wl.*?(fcfs|gtd)?/i);
+          if (match && floor) {
+            const qty = parseInt(match[1]);
+            const type = match[2]?.toUpperCase() || '';
+            const cost = qty * floor;
+            return `${qty} NFTs → WL ${type} ≈ ${cost} MON`;
+          }
+          return line;
+        }).join('\n');
+
+        const markets = (row['Link Mercado Secundario'] || '').split(/\n|<br\s*\/?>/i).map(link => {
+          const parts = link.split(':');
+          if (parts.length >= 2) {
+            const name = parts[0].trim();
+            const url = parts.slice(1).join(':').trim();
+            return `<a href="${url}" target="_blank" class="copy-btn">${name}</a>`;
+          }
+          return '';
+        }).join(' ');
 
         const card = document.createElement('div');
         card.className = `card ${getTierClass(row['Tier'])}`;
@@ -161,11 +159,36 @@
           <div class="tag ${estadoClass}">${estado}</div>
           <div class="info-block"><strong>Tier:</strong> ${row['Tier']}</div>
           <div class="info-block"><strong>Mint:</strong> ${formatDate(row['Fecha Mint Mainnet'])}</div>
-          <div class="info-block"><strong>WL:</strong><br>${row['Requerimientos WL']}</div>
-          <div class="info-block"><strong>NFT WL:</strong><br>${row['Nft Testnet / WL Mainnet']}</div>
+          <div class="info-block"><strong>Roles WL:</strong><br>${(row['Roles WL'] || '').replace(/\n|<br\s*\/?>/gi, '<br>')}</div>
+          <div class="info-block"><strong>Beneficios NFT:</strong><br>${wlEstimates}</div>
+          <div class="info-block"><strong>Marketplaces:</strong><br>${markets}</div>
         `;
         cardGrid.appendChild(card);
       });
+    }
+
+    function openModal(row) {
+      modalDetails.innerHTML = `
+        <h2>${row['Proyecto']}</h2>
+        <div class="tag">${row['Estado Testnet']}</div>
+        <div class="info-block"><strong>Tier:</strong> ${row['Tier']}</div>
+        <div class="info-block"><strong>Mint:</strong> ${formatDate(row['Fecha Mint Mainnet'])}</div>
+        <div class="info-block"><strong>Roles WL:</strong><br>${(row['Roles WL'] || '').replace(/\n|<br\s*\/?>/gi, '<br>')}</div>
+        <div class="info-block"><strong>Beneficios NFT:</strong><br>${(row['NFTs Tesnet / Beneficios WL'] || '').replace(/\n|<br\s*\/?>/gi, '<br>')}</div>
+        <div class="info-block"><strong>Floor Price:</strong> ${row['Floor Price (MON)']} MON</div>
+        <div class="info-block"><strong>Market:</strong><br>${(row['Link Mercado Secundario'] || '').replace(/\n|<br\s*\/?>/gi, '<br>')}</div>
+        <div class="icons">
+          <a href="${row['Link X']}" target="_blank"><i class="fab fa-twitter"></i></a>
+          <a href="${row['Link Discord']}" target="_blank"><i class="fab fa-discord"></i></a>
+          <a href="${row['Link Web']}" target="_blank"><i class="fas fa-globe"></i></a>
+        </div>
+        <div class="info-block"><strong>Notas:</strong><br>${row['Notas']}</div>
+      `;
+      modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+      modal.style.display = 'none';
     }
 
     function applyFilters() {
@@ -175,7 +198,7 @@
       const filtered = allData.filter(r =>
         r['Proyecto'].toLowerCase().includes(nameQ) &&
         (tierQ === '' || r['Tier'] === tierQ) &&
-        (estadoQ === '' || r['Estado Tesnet'] === estadoQ)
+        (estadoQ === '' || r['Estado Testnet'] === estadoQ)
       );
       render(filtered);
     }
@@ -185,21 +208,18 @@
       header: true,
       complete: results => {
         allData = results.data.filter(r => r['Proyecto']);
-
         [...new Set(allData.map(r => r['Tier']).filter(Boolean))].forEach(tier => {
           const opt = document.createElement('option');
           opt.value = tier;
           opt.textContent = tier;
           tierFilter.appendChild(opt);
         });
-
-        [...new Set(allData.map(r => r['Estado Tesnet']).filter(Boolean))].forEach(est => {
+        [...new Set(allData.map(r => r['Estado Testnet']).filter(Boolean))].forEach(est => {
           const opt = document.createElement('option');
           opt.value = est;
           opt.textContent = est;
           estadoFilter.appendChild(opt);
         });
-
         render(allData);
         fechaSpan.textContent = new Date().toLocaleDateString('es-AR');
       }
