@@ -3,77 +3,73 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Proyectos NFT Monad – WL Dashboard</title>
+  <title>Proyectos NFT Monad – Tarjetas</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f5f5f5; color: #333; margin: 0; padding: 0; }
-    header { background: #4c51bf; color: white; padding: 1rem; text-align: center; }
-    main { padding: 1rem; max-width: 1200px; margin: auto; }
-    .filters { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f9f9f9; margin: 0; padding: 0; color: #333; }
+    header { background: #4c51bf; color: white; text-align: center; padding: 1rem; }
+    .filters { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; padding: 1rem; }
     .filters input, .filters select {
       padding: 0.5rem; font-size: 1rem;
-      border: 1px solid #ccc; border-radius: 4px;
+      border: 1px solid #ccc; border-radius: 6px;
     }
-    table { width: 100%; border-collapse: collapse; background: white; }
-    th, td { padding: 0.75rem; border-bottom: 1px solid #ddd; text-align: left; vertical-align: top; }
-    th { background: #e2e8f0; position: sticky; top: 0; }
-    tr:hover { background: #edf2f7; }
-    .tag { padding: 0.2rem 0.5rem; border-radius: 0.25rem; font-size: 0.85rem; color: white; display: inline-block; }
+    main { max-width: 1200px; margin: auto; padding: 1rem; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+    .card {
+      background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 1rem; display: flex; flex-direction: column; gap: .5rem;
+    }
+    .card h3 { margin: 0; color: #4c51bf; font-size: 1.25rem; }
+    .tag { display: inline-block; padding: 0.3rem 0.6rem; border-radius: 6px; color: white; font-size: 0.85rem; }
     .Abierto { background: #38a169; }
     .Cerrado { background: #e53e3e; }
     .Pendiente, .Desconocido, .Otro { background: #718096; }
-    button.copy-btn {
-      padding: 0.3rem 0.6rem; font-size: 0.85rem; margin-top: 5px;
-      background: #4299e1; color: white; border: none; border-radius: 4px; cursor: pointer;
+
+    .info-block { font-size: 0.95rem; line-height: 1.4; }
+    .info-block strong { display: block; margin-bottom: 0.2rem; }
+    .icons a {
+      margin-right: 10px;
+      font-size: 1.2rem;
+      text-decoration: none;
     }
-    button.copy-btn:hover { background: #2b6cb0; }
-    a { color: #3182ce; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .info-block { margin-bottom: .5rem; }
+    .icons a:hover { opacity: 0.8; }
+    .copy-btn {
+      background: #4299e1; color: white; border: none;
+      border-radius: 4px; padding: 0.3rem 0.5rem; cursor: pointer;
+      font-size: 0.85rem; margin-top: 5px;
+    }
+
+    footer { text-align: center; padding: 1rem; font-size: 0.85rem; color: #666; }
+
     @media (prefers-color-scheme: dark) {
       body { background: #1a202c; color: #e2e8f0; }
-      table { background: #2d3748; }
-      th { background: #4a5568; }
-      tr:hover { background: #2f855a; }
+      .card { background: #2d3748; }
+      .info-block, .copy-btn, .filters input, .filters select { color: #e2e8f0; background: #4a5568; border-color: #2d3748; }
+      .copy-btn:hover { background: #2b6cb0; }
     }
   </style>
+  <!-- Font Awesome para íconos -->
+  <script src="https://kit.fontawesome.com/ae2d2bcb43.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <header>
-    <h1>Proyectos NFT en Monad – WL Dashboard</h1>
+    <h1>Proyectos NFT en Monad</h1>
     <p>Actualizado: <span id="fecha"></span></p>
   </header>
+  <div class="filters">
+    <input type="text" id="projectFilter" placeholder="Buscar proyecto...">
+    <select id="tierFilter"><option value="">Todos los Tiers</option></select>
+    <select id="estadoFilter"><option value="">Todos los Estados</option></select>
+  </div>
   <main>
-    <div class="filters">
-      <input type="text" id="projectFilter" placeholder="Filtrar por proyecto...">
-      <select id="tierFilter">
-        <option value="">Todos los Tiers</option>
-      </select>
-      <select id="estadoFilter">
-        <option value="">Todos los estados</option>
-      </select>
-    </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Proyecto</th>
-          <th>Tier</th>
-          <th>Estado Testnet</th>
-          <th>Fecha Mint</th>
-          <th>Info WL</th>
-          <th>Link X</th>
-          <th>Discord</th>
-          <th>Web</th>
-          <th>Notas</th>
-        </tr>
-      </thead>
-      <tbody id="nftTableBody"></tbody>
-    </table>
+    <div class="grid" id="cardGrid"></div>
   </main>
+  <footer>🔧 Generado automáticamente desde Google Sheets</footer>
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script>
     const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
-    const tbody = document.getElementById('nftTableBody');
+    const cardGrid = document.getElementById('cardGrid');
     const fechaSpan = document.getElementById('fecha');
     const tierFilter = document.getElementById('tierFilter');
     const estadoFilter = document.getElementById('estadoFilter');
@@ -90,7 +86,7 @@
     }
 
     function render(data) {
-      tbody.innerHTML = '';
+      cardGrid.innerHTML = '';
       data.forEach(row => {
         const estado = row['Estado Tesnet'] || 'Desconocido';
         const estadoClass = estado.match(/abierto/i) ? 'Abierto'
@@ -98,25 +94,25 @@
                           : estado.match(/pendiente/i) ? 'Pendiente'
                           : 'Otro';
 
-        const infoBlock = `
-          <div class="info-block"><strong>Requisitos WL:</strong><br>${row['Requerimientos WL']}<br>
-          <button class="copy-btn" onclick="copyText(\`${row['Requerimientos WL']}\`)">Copiar</button></div>
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h3>${row['Proyecto']}</h3>
+          <div class="tag ${estadoClass}">${estado}</div>
+          <div class="info-block"><strong>Tier:</strong> ${row['Tier']}</div>
+          <div class="info-block"><strong>Fecha Mint:</strong> ${formatDate(row['Fecha Mint Mainnet'])}</div>
+          <div class="info-block"><strong>Requisitos WL:</strong><br>${row['Requerimientos WL']}
+            <br><button class="copy-btn" onclick="copyText(\`${row['Requerimientos WL']}\`)">Copiar</button>
+          </div>
           <div class="info-block"><strong>NFT Testnet / WL:</strong><br>${row['Nft Testnet / WL Mainnet']}</div>
+          <div class="icons">
+            <a href="${row['Link X']}" target="_blank"><i class="fab fa-twitter"></i></a>
+            <a href="${row['Link Discord']}" target="_blank"><i class="fab fa-discord"></i></a>
+            <a href="${row['Link Web']}" target="_blank"><i class="fas fa-globe"></i></a>
+          </div>
+          <div class="info-block"><strong>Notas:</strong><br>${row['Notas']}</div>
         `;
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${row['Proyecto']}</td>
-          <td>${row['Tier']}</td>
-          <td><span class="tag ${estadoClass}">${estado}</span></td>
-          <td>${formatDate(row['Fecha Mint Mainnet'])}</td>
-          <td>${infoBlock}</td>
-          <td><a href="${row['Link X']}" target="_blank">X</a></td>
-          <td><a href="${row['Link Discord']}" target="_blank">Discord</a></td>
-          <td><a href="${row['Link Web']}" target="_blank">Web</a></td>
-          <td>${row['Notas']}</td>
-        `;
-        tbody.appendChild(tr);
+        cardGrid.appendChild(card);
       });
     }
 
@@ -124,7 +120,6 @@
       const nameQ = projectFilter.value.toLowerCase();
       const tierQ = tierFilter.value;
       const estadoQ = estadoFilter.value;
-
       const filtered = allData.filter(r =>
         r['Proyecto'].toLowerCase().includes(nameQ) &&
         (tierQ === '' || r['Tier'] === tierQ) &&
@@ -139,16 +134,14 @@
       complete: results => {
         allData = results.data.filter(r => r['Proyecto']);
 
-        const uniqueTiers = [...new Set(allData.map(r => r['Tier']).filter(Boolean))];
-        uniqueTiers.forEach(tier => {
+        [...new Set(allData.map(r => r['Tier']).filter(Boolean))].forEach(tier => {
           const opt = document.createElement('option');
           opt.value = tier;
           opt.textContent = tier;
           tierFilter.appendChild(opt);
         });
 
-        const uniqueEstados = [...new Set(allData.map(r => r['Estado Tesnet']).filter(Boolean))];
-        uniqueEstados.forEach(est => {
+        [...new Set(allData.map(r => r['Estado Tesnet']).filter(Boolean))].forEach(est => {
           const opt = document.createElement('option');
           opt.value = est;
           opt.textContent = est;
