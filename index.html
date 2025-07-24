@@ -61,6 +61,39 @@
     .info-block strong { display: block; margin-bottom: 0.2rem; }
     .icons a { margin-right: 10px; font-size: 1.2rem; text-decoration: none; }
     footer { text-align: center; padding: 1rem; font-size: 0.85rem; color: #666; }
+    /* Tarjetas con fondo por tier */
+.card.tier-1 { background: #fffaf0; }
+.card.tier-2 { background: #f0f4ff; }
+.card.tier-3 { background: #f7f0ff; }
+
+/* Sombra y elevación al hover */
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+/* Estado borde y texto refinados */
+.tag {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.9rem;
+  border-radius: 4px;
+}
+.tag.Abierto { background: #2f855a; }
+.tag.Cerrado { background: #c53030; }
+.tag.Pendiente, .tag.Otro {
+  background: #718096;
+}
+
+/* Tier badge refinado */
+.tier-badge {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+}
+
   </style>
   <script src="https://kit.fontawesome.com/ae2d2bcb43.js" crossorigin="anonymous"></script>
 </head>
@@ -138,8 +171,6 @@ ${(row['Link X'] || row['Link Discord'] || row['Link Web']) ? `
   </div>` : ''}
   `;
 }
-
-
     function render(data) {
       cardGrid.innerHTML = '';
       data.forEach((row, i) => {
