@@ -9,115 +9,77 @@
     header { background: #4c51bf; color: white; text-align: center; padding: 1.5rem 1rem; }
     header h1 { margin: 0; font-size: 1.8rem; }
     .filters { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; padding: 1rem; }
-    .filters input, .filters select {
-      padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px;
-    }
+    .filters input, .filters select { padding: .5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px; }
     main { max-width: 1200px; margin: auto; padding: 1rem; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+
     .card {
-      background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       padding: 1rem; display: flex; flex-direction: column; align-items: center; gap: .5rem;
-      border-left: 6px solid transparent; transition: transform 0.2s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .card:hover { transform: scale(1.02); cursor: pointer; }
-    .tier-1 { border-left-color: gold; }
-    .tier-2 { border-left-color: silver; }
-    .tier-3 { border-left-color: #cd7f32; }
-    .tier-default { border-left-color: #a0aec0; }
-    .card h3 { margin: 0; color: #4c51bf; font-size: 1.2rem; text-align: center; }
-    .tag, .tier-badge {
-      display: inline-block; padding: 0.4rem 0.8rem; border-radius: 6px; color: white; font-size: 1rem; margin: 0.2rem;
-      font-weight: bold;
-    }
-    .Abierto { background: #38a169; }
-    .Cerrado { background: #e53e3e; }
-    .Pendiente, .Desconocido, .Otro { background: #718096; }
-    .tier-badge { background: #805ad5; }
-    .tier-1-badge { background: #d69e2e; }
-    .tier-2-badge { background: #a0aec0; }
-    .tier-3-badge { background: #cd7f32; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+
+    /* Color según tier (degradado verde → rojo) */
+    .card.tier-1 { background: #e6fffa; } /* verde claro */
+    .card.tier-2 { background: #def7ec; }
+    .card.tier-3 { background: #f0f5ff; }
+    .card.tier-4 { background: #FFF5F7; }
+    .card.tier-5 { background: #ffe6e6; }
+
     .logo {
-      width: 60px; height: 60px; border-radius: 50%;
-      object-fit: cover; display: block; margin: 0 auto 0.5rem auto;
+      width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-bottom: .5rem;
     }
+    .tag, .tier-badge {
+      display: inline-block; color: white; font-weight: bold;
+      padding: .3rem .6rem; border-radius: 4px; font-size: .9rem;
+    }
+    .tag.Abierto { background: #2f855a; }
+    .tag.Cerrado { background: #c53030; }
+    .tag.Pendiente, .tag.Otro { background: #718096; }
+
+    /* Badge tier con ícono y color */
+    .tier-badge { margin-top: .2rem; }
+    .tier-1-badge { background: gold; color: #333; }
+    .tier-2-badge { background: silver; color: #333; }
+    .tier-3-badge, .tier-4-badge, .tier-5-badge { background: #cd7f32; } /* bronce */
+
     .copy-btn, .buy-button {
-      background: #4299e1; color: white; border: none;
-      border-radius: 6px; padding: 0.4rem 0.8rem; cursor: pointer;
-      font-size: 0.9rem; margin-top: 0.5rem; text-decoration: none; font-weight: bold;
+      background: #4299e1; color: white; border: none; border-radius: 6px;
+      padding: .4rem .8rem; cursor: pointer; font-size: .9rem; text-decoration: none;
     }
     .buy-button i { margin-right: 5px; }
-    .modal {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+
+    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center;
     }
-    .modal-content {
-      background: white; padding: 2rem; border-radius: 12px; max-width: 600px;
+    .modal-content { background: white; padding: 2rem; border-radius: 12px; max-width: 600px;
       max-height: 85vh; overflow-y: auto; position: relative;
     }
-    .modal-close {
-      position: absolute; top: 10px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #333;
-    }
-    .info-block { font-size: 0.95rem; line-height: 1.5; white-space: pre-line; margin-top: 1rem; }
-    .info-block strong { display: block; margin-bottom: 0.2rem; }
-    .icons a { margin-right: 10px; font-size: 1.2rem; text-decoration: none; }
-    footer { text-align: center; padding: 1rem; font-size: 0.85rem; color: #666; }
-    /* Tarjetas con fondo por tier */
-.card.tier-1 { background: #fffaf0; }
-.card.tier-2 { background: #f0f4ff; }
-.card.tier-3 { background: #f7f0ff; }
+    .modal-close { position: absolute; top: 10px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #333; }
+    .info-block { font-size: .95rem; line-height: 1.5; white-space: pre-line; margin-top: 1rem; }
+    .info-block strong { display: block; margin-bottom: .2rem; }
 
-/* Sombra y elevación al hover */
-.card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-}
-
-/* Estado borde y texto refinados */
-.tag {
-  padding: 0.3rem 0.6rem;
-  font-size: 0.9rem;
-  border-radius: 4px;
-}
-.tag.Abierto { background: #2f855a; }
-.tag.Cerrado { background: #c53030; }
-.tag.Pendiente, .tag.Otro {
-  background: #718096;
-}
-
-/* Tier badge refinado */
-.tier-badge {
-  font-size: 0.85rem;
-  padding: 0.3rem 0.6rem;
-  border-radius: 4px;
-}
-
+    footer { text-align: center; padding: 1rem; font-size: .85rem; color: #666; }
   </style>
   <script src="https://kit.fontawesome.com/ae2d2bcb43.js" crossorigin="anonymous"></script>
 </head>
 <body>
-  <header>
-    <h1>Proyectos NFT en Monad</h1>
-    <p>Actualizado: <span id="fecha"></span></p>
-  </header>
+  <header><h1>Proyectos NFT en Monad</h1><p>Actualizado: <span id="fecha"></span></p></header>
   <div class="filters">
     <input type="text" id="projectFilter" placeholder="Buscar proyecto...">
     <select id="tierFilter"><option value="">Todos los Tiers</option></select>
     <select id="estadoFilter"><option value="">Todos los Estados</option></select>
   </div>
   <main><div class="grid" id="cardGrid"></div></main>
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <span class="modal-close" onclick="modal.style.display='none'">&times;</span>
-      <div id="modalDetails"></div>
-    </div>
-  </div>
+  <div class="modal" id="modal"><div class="modal-content">
+    <span class="modal-close" onclick="modal.style.display='none'">&times;</span>
+    <div id="modalDetails"></div>
+  </div></div>
   <footer>🔧 Generado desde Google Sheets</footer>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script>
-        const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
+    const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKIIdeHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
     const cardGrid = document.getElementById('cardGrid');
     const fechaSpan = document.getElementById('fecha');
     const tierFilter = document.getElementById('tierFilter');
@@ -127,134 +89,107 @@
     const modalDetails = document.getElementById('modalDetails');
     let allData = [];
 
-function showModal(index) {
-  const row = allData[index];
-  const estado = row['Estado Testnet'] || 'Desconocido';
-  const estadoClass = /abierto/i.test(estado) ? 'Abierto'
-                      : /cerrado/i.test(estado) ? 'Cerrado'
-                      : /pendiente/i.test(estado) ? 'Pendiente'
-                      : 'Otro';
+    function getTierBadge(tier) {
+      const t=(tier||'').toLowerCase();
+      if(t.includes('1')) return 'tier-1-badge';
+      if(t.includes('2')) return 'tier-2-badge';
+      if(t.includes('3')) return 'tier-3-badge';
+      if(t.includes('4')) return 'tier-3-badge';
+      if(t.includes('5')) return 'tier-3-badge';
+      return '';
+    }
 
-  const floorDirecto = row['Floor Price Pase Directo (MON)'];
-  const floorAcumulativo = row['Floor Price NFT Acumulativo (MON)'];
+    function showModal(index) {
+      const row = allData[index];
+      const estado = row['Estado Testnet']||'Desconocido';
+      const estadoClass = /abierto/i.test(estado)?'Abierto': /cerrado/i.test(estado)?'Cerrado': /pendiente/i.test(estado)?'Pendiente':'Otro';
+      const floorD = row['Floor Price Pase Directo (MON)'];
+      const floorA = row['Floor Price NFT Acumulativo (MON)'];
 
-  modal.style.display = 'flex';
-  modalDetails.innerHTML = `
-    ${row['Logo'] ? `<img src="${row['Logo']}" class="logo" alt="logo">` : ''}
-    <h2>${row['Proyecto']}</h2>
-    <div class="tag ${estadoClass}">${estado}</div>
+      modal.style.display='flex';
+      modalDetails.innerHTML = `
+        ${row['Logo']?`<img src="${row['Logo']}" class="logo" alt="logo">`:''}
+        <h2>${row['Proyecto']}</h2>
+        <div class="tag ${estadoClass}">${estado}</div>
+        <div class="tier-badge ${getTierBadge(row['Tier'])}">🏅 Tier ${row['Tier']}</div>
+        <div class="info-block"><strong>🧠 Roles WL:</strong><br>${(row['Roles WL']||'').replace(/\n/g,'<br>')}</div>
+        ${(row['Pase WL Directo'])?`<div class="info-block"><strong>🏅 Pase WL Directo:</strong><br>${row['Pase WL Directo'].replace(/\n/g,'<br>')}
+        ${(floorD?`<br><strong>💰 Floor:</strong> ${floorD} MON`:'')}
+        ${(row['Link Pase Directo']?`<br><a href="${row['Link Pase Directo']}" target="_blank" class="buy-button"><i class="fas fa-shopping-cart"></i> Comprar</a>`:'')}
+        </div>`:''}
+        ${(row['NFT Acumulativo'])?`<div class="info-block"><strong>📦 NFT Acumulativo:</strong><br>${row['NFT Acumulativo'].replace(/\n/g,'<br>')}
+        ${((row['Beneficios Acumulativos'])?`<br>${row['Beneficios Acumulativos'].replace(/\n/g,'<br>')}`:'')}
+        ${(floorA?`<br><strong>💰 Floor:</strong> ${floorA} MON`:'')}
+        ${(row['Link NFT Acumulativo']?`<br><a href="${row['Link NFT Acumulativo']}" target="_blank" class="buy-button"><i class="fas fa-shopping-cart"></i> Comprar</a>`:'')}
+        </div>`:''}
+        <div class="info-block"><strong>📎 Notas:</strong><br>${row['Notas']||''}</div>
+        ${(row['Link X']||row['Link Discord']||row['Link Web'])?`<div class="info-block"><strong>🌐 Enlaces:</strong><br>
+          ${(row['Link X']?`<a href="${row['Link X']}" class="buy-button" target="_blank"><i class="fab fa-x-twitter"></i> X</a>`:'')}
+          ${(row['Link Discord']?`<a href="${row['Link Discord']}" class="buy-button" target="_blank"><i class="fab fa-discord"></i> Discord</a>`:'')}
+          ${(row['Link Web']?`<a href="${row['Link Web']}" class="buy-button" target="_blank"><i class="fas fa-globe"></i> Web</a>`:'')}
+        </div>`:''}
+      `;
+    }
 
-    <div class="info-block"><strong>🧠 Roles WL:</strong><br>${(row['Roles WL'] || '').replace(/\n|<br\s*\/?>/gi, '<br>')}</div>
-
-    ${row['Pase WL Directo'] ? `
-      <div class="info-block"><strong>🏅 Pase WL Directo:</strong><br>${row['Pase WL Directo'].replace(/\n/g, '<br>')}
-      ${floorDirecto ? `<br><strong>💰 Floor:</strong> ${floorDirecto} MON` : ''}
-      ${row['Link Pase Directo'] ? `<br><a href="${row['Link Pase Directo']}" target="_blank" class="buy-button"><i class="fas fa-shopping-cart"></i> Comprar</a>` : ''}
-      </div>` : ''}
-
-    ${row['NFT Acumulativo'] ? `
-      <div class="info-block"><strong>📦 NFT Acumulativo:</strong><br>${row['NFT Acumulativo'].replace(/\n/g, '<br>')}
-      ${row['Beneficios Acumulativos'] ? `<br>${row['Beneficios Acumulativos'].replace(/\n/g, '<br>')}` : ''}
-      ${floorAcumulativo ? `<br><strong>💰 Floor:</strong> ${floorAcumulativo} MON` : ''}
-      ${row['Link NFT Acumulativo'] ? `<br><a href="${row['Link NFT Acumulativo']}" target="_blank" class="buy-button"><i class="fas fa-shopping-cart"></i> Comprar</a>` : ''}
-      </div>` : ''}
-
-    <div class="info-block"><strong>📎 Notas:</strong><br>${row['Notas'] || ''}</div>
-${(row['Link X'] || row['Link Discord'] || row['Link Web']) ? `
-  <div class="info-block">
-    <strong>🌐 Enlaces:</strong>
-    <div style="margin-top: 0.2rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-      ${row['Link X'] ? `<a href="${row['Link X']}" class="buy-button" target="_blank" style="background:#1a1a1a;"><i class="fab fa-x-twitter"></i> X</a>` : ''}
-      ${row['Link Discord'] ? `<a href="${row['Link Discord']}" class="buy-button" target="_blank" style="background:#5865F2;"><i class="fab fa-discord"></i> Discord</a>` : ''}
-      ${row['Link Web'] ? `<a href="${row['Link Web']}" class="buy-button" target="_blank" style="background:#4a5568;"><i class="fas fa-globe"></i> Web</a>` : ''}
-    </div>
-  </div>` : ''}
-  `;
-}
     function render(data) {
-      cardGrid.innerHTML = '';
-      data.forEach((row, i) => {
-        const estado = row['Estado Testnet'] || 'Desconocido';
-        const estadoClass = /abierto/i.test(estado) ? 'Abierto'
-                            : /cerrado/i.test(estado) ? 'Cerrado'
-                            : /pendiente/i.test(estado) ? 'Pendiente'
-                            : 'Otro';
-        const card = document.createElement('div');
-        const tierClass = getTierBadge(row['Tier']);
-        card.className = `card ${tierClass}`;
-        card.dataset.index = i;
-        const tierBadge = `<div class="tier-badge ${tierClass}">🏅 Tier ${row['Tier']}</div>`;
-        card.innerHTML = `
-          ${row['Logo'] ? `<img src="${row['Logo']}" class="logo" alt="logo">` : ''}
+      cardGrid.innerHTML='';
+      data.forEach((row,i)=>{
+        const estado=row['Estado Testnet']||'Desconocido';
+        const estadoClass=/abierto/i.test(estado)?'Abierto': /cerrado/i.test(estado)?'Cerrado': /pendiente/i.test(estado)?'Pendiente':'Otro';
+        const tierClass=getTierBadge(row['Tier']);
+        const card=document.createElement('div');
+        card.className=`card tier-${row['Tier']||'default'}`;
+        card.dataset.index=i;
+        card.innerHTML=`
+          ${row['Logo']?`<img src="${row['Logo']}" class="logo" alt="logo">`:''}
           <h3>${row['Proyecto']}</h3>
           <div class="tag ${estadoClass}">${estado}</div>
-          ${tierBadge}
+          <div class="tier-badge ${tierClass}">🏅 Tier ${row['Tier']}</div>
           <button class="copy-btn">Ver detalles</button>
         `;
-        card.querySelector('button').addEventListener('click', e => {
-          e.stopPropagation();
-          showModal(i);
-        });
+        card.querySelector('button').addEventListener('click',e=>{e.stopPropagation(); showModal(i)});
         cardGrid.appendChild(card);
       });
     }
 
-    function getTierBadge(tier) {
-      const t = (tier || '').toLowerCase();
-      if (t.includes('1')) return 'tier-1-badge';
-      if (t.includes('2')) return 'tier-2-badge';
-      if (t.includes('3')) return 'tier-3-badge';
-      return '';
-    }
-
-    function applyFilters() {
-      const nameQ = projectFilter.value.toLowerCase();
-      const tierQ = tierFilter.value;
-      const estadoQ = estadoFilter.value;
-      const filtered = allData.filter(r =>
+    function applyFilters(){
+      const nameQ=projectFilter.value.toLowerCase();
+      const tierQ=tierFilter.value;
+      const estadoQ=estadoFilter.value;
+      const filtered=allData.filter(r=>
         r['Proyecto'].toLowerCase().includes(nameQ) &&
-        (tierQ === '' || r['Tier'] === tierQ) &&
-        (estadoQ === '' || r['Estado Testnet'] === estadoQ)
+        (tierQ==='' || r['Tier']===tierQ) &&
+        (estadoQ===''||r['Estado Testnet']===estadoQ)
       );
       render(filtered);
     }
 
-    Papa.parse(SHEET_CSV, {
-      download: true,
-      header: true,
-      complete: results => {
-        // 🧼 Normalizar claves
-        results.data = results.data.map(row => {
-          const cleaned = {};
-          for (const key in row) {
-            const newKey = key.trim().replace(/\s+/g, ' ');
-            cleaned[newKey] = row[key];
+    Papa.parse(SHEET_CSV,{
+      download:true, header:true,
+      complete:results=>{
+        results.data=results.data.map(row=>{
+          const cleaned={};
+          for(const k in row){
+            cleaned[k.trim().replace(/\s+/g,' ')]=row[k];
           }
           return cleaned;
         });
-
-        allData = results.data.filter(r => r['Proyecto']);
-        [...new Set(allData.map(r => r['Tier']).filter(Boolean))].forEach(tier => {
-          const opt = document.createElement('option');
-          opt.value = tier;
-          opt.textContent = tier;
-          tierFilter.appendChild(opt);
+        allData=results.data.filter(r=>r['Proyecto']);
+        [...new Set(allData.map(r=>r['Tier']).filter(Boolean))].forEach(t=>{
+          const opt=document.createElement('option'); opt.value=t; opt.textContent=t; tierFilter.appendChild(opt);
         });
-        [...new Set(allData.map(r => r['Estado Testnet']).filter(Boolean))].forEach(est => {
-          const opt = document.createElement('option');
-          opt.value = est;
-          opt.textContent = est;
-          estadoFilter.appendChild(opt);
+        [...new Set(allData.map(r=>r['Estado Testnet']).filter(Boolean))].forEach(e=>{
+          const opt=document.createElement('option'); opt.value=e; opt.textContent=e; estadoFilter.appendChild(opt);
         });
         render(allData);
-        fechaSpan.textContent = new Date().toLocaleDateString('es-AR');
+        fechaSpan.textContent=new Date().toLocaleDateString('es-AR');
       }
     });
 
-    projectFilter.addEventListener('input', applyFilters);
-    tierFilter.addEventListener('change', applyFilters);
-    estadoFilter.addEventListener('change', applyFilters);
-    window.onclick = e => { if (e.target == modal) modal.style.display = 'none'; };
+    projectFilter.addEventListener('input',applyFilters);
+    tierFilter.addEventListener('change',applyFilters);
+    estadoFilter.addEventListener('change',applyFilters);
+    window.onclick=e=>{if(e.target==modal) modal.style.display='none'};
   </script>
 </body>
 </html>
