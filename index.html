@@ -9,124 +9,190 @@
     header { background: #4c51bf; color: white; text-align: center; padding: 1.5rem 1rem; }
     header h1 { margin: 0; font-size: 1.8rem; }
     .filters { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; padding: 1rem; }
-    .filters input, .filters select { padding: .5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px; }
+    .filters input, .filters select {
+      padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px;
+    }
     main { max-width: 1200px; margin: auto; padding: 1rem; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-
     .card {
-      border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       padding: 1rem; display: flex; flex-direction: column; align-items: center; gap: .5rem;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border-left: 6px solid transparent; transition: transform 0.2s ease;
     }
-    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
-
-    /* Color según tier (degradado verde → rojo) */
-    .card.tier-1 { background: #e6fffa; } /* verde claro */
-    .card.tier-2 { background: #def7ec; }
-    .card.tier-3 { background: #f0f5ff; }
-    .card.tier-4 { background: #FFF5F7; }
-    .card.tier-5 { background: #ffe6e6; }
-
+    .card:hover { transform: scale(1.02); cursor: pointer; }
     .logo {
-      width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-bottom: .5rem;
+      width: 60px; height: 60px; border-radius: 50%; object-fit: cover; display: block;
     }
     .tag, .tier-badge {
-      display: inline-block; color: white; font-weight: bold;
-      padding: .3rem .6rem; border-radius: 4px; font-size: .9rem;
+      display: inline-block; padding: 0.4rem 0.8rem; border-radius: 6px; color: white;
+      font-size: 1rem; margin: 0.2rem; font-weight: bold;
     }
-    .tag.Abierto { background: #2f855a; }
-    .tag.Cerrado { background: #c53030; }
-    .tag.Pendiente, .tag.Otro { background: #718096; }
-
-    /* Badge tier con ícono y color */
-    .tier-badge { margin-top: .2rem; }
-    .tier-1-badge { background: gold; color: #333; }
-    .tier-2-badge { background: silver; color: #333; }
-    .tier-3-badge, .tier-4-badge, .tier-5-badge { background: #cd7f32; } /* bronce */
-
+    .Abierto { background: #38a169; }
+    .Cerrado { background: #e53e3e; }
+    .Pendiente, .Desconocido, .Otro { background: #718096; }
+    .tier-badge { background: #805ad5; }
     .copy-btn, .buy-button {
-      background: #4299e1; color: white; border: none; border-radius: 6px;
-      padding: .4rem .8rem; cursor: pointer; font-size: .9rem; text-decoration: none;
+      background: #4299e1; color: white; border: none;
+      border-radius: 6px; padding: 0.4rem 0.8rem; cursor: pointer;
+      font-size: 0.9rem; margin-top: 0.5rem; text-decoration: none; font-weight: bold;
     }
     .buy-button i { margin-right: 5px; }
-
-    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    .modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center;
     }
-    .modal-content { background: white; padding: 2rem; border-radius: 12px; max-width: 600px;
+    .modal-content {
+      background: white; padding: 2rem; border-radius: 12px; max-width: 600px;
       max-height: 85vh; overflow-y: auto; position: relative;
     }
-    .modal-close { position: absolute; top: 10px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #333; }
-    .info-block { font-size: .95rem; line-height: 1.5; white-space: pre-line; margin-top: 1rem; }
-    .info-block strong { display: block; margin-bottom: .2rem; }
-
-    footer { text-align: center; padding: 1rem; font-size: .85rem; color: #666; }
+    .modal-close {
+      position: absolute; top: 10px; right: 20px; font-size: 1.5rem;
+      cursor: pointer; color: #333;
+    }
+    .info-block { font-size: 0.95rem; line-height: 1.5; white-space: pre-line; margin-top: 1rem; }
+    .info-block strong { display: block; margin-bottom: 0.2rem; }
+    footer { text-align: center; padding: 1rem; font-size: 0.85rem; color: #666; }
   </style>
   <script src="https://kit.fontawesome.com/ae2d2bcb43.js" crossorigin="anonymous"></script>
 </head>
 <body>
-  <header><h1>Proyectos NFT en Monad</h1><p>Actualizado: <span id="fecha"></span></p></header>
+  <header>
+    <h1>Proyectos NFT en Monad</h1>
+    <p>Actualizado: <span id="fecha"></span></p>
+  </header>
+
   <div class="filters">
     <input type="text" id="projectFilter" placeholder="Buscar proyecto...">
     <select id="tierFilter"><option value="">Todos los Tiers</option></select>
     <select id="estadoFilter"><option value="">Todos los Estados</option></select>
   </div>
-  <main><div class="grid" id="cardGrid"></div></main>
-  <div class="modal" id="modal"><div class="modal-content">
-    <span class="modal-close" onclick="modal.style.display='none'">&times;</span>
-    <div id="modalDetails"></div>
-  </div></div>
+
+  <main>
+    <div class="grid" id="cardGrid"></div>
+  </main>
+
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="modal.style.display='none'">&times;</span>
+      <div id="modalDetails"></div>
+    </div>
+  </div>
+
   <footer>🔧 Generado desde Google Sheets</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script>
-  const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKIIdeHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
-  let allData = [];
+    const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKIIdeHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
+    const cardGrid = document.getElementById('cardGrid');
+    const fechaSpan = document.getElementById('fecha');
+    const tierFilter = document.getElementById('tierFilter');
+    const estadoFilter = document.getElementById('estadoFilter');
+    const projectFilter = document.getElementById('projectFilter');
+    const modal = document.getElementById('modal');
+    const modalDetails = document.getElementById('modalDetails');
+    let allData = [];
 
-  Papa.parse(SHEET_CSV, {
-    download: true,
-    header: true,
-    complete: results => {
-      results.data = results.data.map(row => {
-        const cleaned = {};
-        for (const key in row) {
-          const nk = key.trim().replace(/\s+/g, ' ');
-          cleaned[nk] = row[key];
-        }
-        return cleaned;
-      });
-      allData = results.data.filter(r => r['Proyecto']);
-      render(allData);
-      fechaSpan.textContent = new Date().toLocaleDateString('es-AR');
+    function formatDate(str) {
+      const date = new Date(str);
+      return isNaN(date) ? str : date.toLocaleDateString('es-AR');
     }
-  });
 
-  function render(data) {
-    cardGrid.innerHTML = '';
-    data.forEach((row, i) => {
-      const card = document.createElement('div');
-      card.className = `card ${getTierBadge(row['Tier'])}`;
-      card.dataset.index = i;
-      card.innerHTML = `
-        ${row['Logo'] ? `<img src="${row['Logo']}" class="logo">` : ''}
-        <h3>${row['Proyecto']}</h3>
+    function getTierBadge(tier) {
+      const t = (tier || '').toLowerCase();
+      if (t.includes('1')) return 'tier-1-badge';
+      if (t.includes('2')) return 'tier-2-badge';
+      if (t.includes('3')) return 'tier-3-badge';
+      return '';
+    }
+
+    function getEstadoClass(estado) {
+      return /abierto/i.test(estado) ? 'Abierto'
+           : /cerrado/i.test(estado) ? 'Cerrado'
+           : /pendiente/i.test(estado) ? 'Pendiente'
+           : 'Otro';
+    }
+
+    function showModal(index) {
+      const row = allData[index];
+      const floorD = row['Floor Price Pase Directo (MON)'] || '';
+      const floorA = row['Floor Price NFT Acumulativo (MON)'] || '';
+      modal.style.display = 'flex';
+      modalDetails.innerHTML = `
+        ${row['Logo'] ? `<img src="${row['Logo']}" class="logo" alt="logo">` : ''}
+        <h2>${row['Proyecto']}</h2>
         <div class="tag ${getEstadoClass(row['Estado Testnet'])}">${row['Estado Testnet']}</div>
         <div class="tier-badge ${getTierBadge(row['Tier'])}">Tier ${row['Tier']}</div>
-        <button class="copy-btn">Ver detalles</button>
+        <div class="info-block"><strong>💰 Floor Directo:</strong> ${floorD} MON</div>
+        <div class="info-block"><strong>💰 Floor Acumulativo:</strong> ${floorA} MON</div>
       `;
-      card.querySelector('button').addEventListener('click', e => { e.stopPropagation(); showModal(i); });
-      cardGrid.appendChild(card);
+    }
+
+    function render(data) {
+      cardGrid.innerHTML = '';
+      data.forEach((row, i) => {
+        const card = document.createElement('div');
+        card.className = `card ${getTierBadge(row['Tier'])}`;
+        card.dataset.index = i;
+        card.innerHTML = `
+          ${row['Logo'] ? `<img src="${row['Logo']}" class="logo" alt="logo">` : ''}
+          <h3>${row['Proyecto']}</h3>
+          <div class="tag ${getEstadoClass(row['Estado Testnet'])}">${row['Estado Testnet']}</div>
+          <div class="tier-badge ${getTierBadge(row['Tier'])}">Tier ${row['Tier']}</div>
+          <button class="copy-btn">Ver detalles</button>
+        `;
+        card.querySelector('button').addEventListener('click', e => {
+          e.stopPropagation();
+          showModal(i);
+        });
+        cardGrid.appendChild(card);
+      });
+    }
+
+    function applyFilters() {
+      const nameQ = projectFilter.value.toLowerCase();
+      const tQ = tierFilter.value;
+      const eQ = estadoFilter.value;
+      const filtered = allData.filter(r =>
+        r['Proyecto'].toLowerCase().includes(nameQ) &&
+        (tQ === '' || r['Tier'] === tQ) &&
+        (eQ === '' || r['Estado Testnet'] === eQ)
+      );
+      render(filtered);
+    }
+
+    Papa.parse(SHEET_CSV, {
+      download: true,
+      header: true,
+      complete: results => {
+        results.data = results.data.map(row => {
+          const cleaned = {};
+          for (const k in row) {
+            cleaned[k.trim().replace(/\s+/g, ' ')] = row[k];
+          }
+          return cleaned;
+        });
+        allData = results.data.filter(r => r['Proyecto']);
+        [...new Set(allData.map(r => r['Tier']).filter(Boolean))].forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t;
+          opt.textContent = t;
+          tierFilter.appendChild(opt);
+        });
+        [...new Set(allData.map(r => r['Estado Testnet']).filter(Boolean))].forEach(e => {
+          const opt = document.createElement('option');
+          opt.value = e;
+          opt.textContent = e;
+          estadoFilter.appendChild(opt);
+        });
+        render(allData);
+        fechaSpan.textContent = new Date().toLocaleDateString('es-AR');
+      }
     });
-  }
 
-  function showModal(index) {
-    const row = allData[index];
-    modal.style.display = 'flex';
-    modalDetails.innerHTML = `
-      <h2>${row['Proyecto']}</h2>
-      <div>${row['Floor Price Pase Directo (MON)'] || ''} ${row['Floor Price NFT Acumulativo (MON)'] || ''} MON</div>
-      <!-- resto del contenido modal... -->
-    `;
-  }
-</script>
-
+    projectFilter.addEventListener('input', applyFilters);
+    tierFilter.addEventListener('change', applyFilters);
+    estadoFilter.addEventListener('change', applyFilters);
+    window.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
+  </script>
 </body>
 </html>
