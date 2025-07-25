@@ -14,23 +14,24 @@
     }
     main { max-width: 1200px; margin: auto; padding: 1rem; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+
     .card {
       background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       padding: 1rem; display: flex; flex-direction: column; align-items: center; gap: .5rem;
-      border-left: 6px solid transparent; transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border-left: 6px solid transparent;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); cursor: pointer; }
 
-    /* Fondo degradado por tier (tier 1 a 5) */
+    /* Fondo por tier */
     .card.tier-1-badge { background: #e6fffa; }
     .card.tier-2-badge { background: #f0fff4; }
     .card.tier-3-badge { background: #fffbea; }
     .card.tier-4-badge { background: #fff5f5; }
     .card.tier-5-badge { background: #ffe6e6; }
 
-    .logo {
-      width: 60px; height: 60px; border-radius: 50%; object-fit: cover; display: block;
-    }
+    .logo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; display: block; }
+
     .tag, .tier-badge {
       display: inline-block; padding: 0.4rem 0.8rem; border-radius: 6px; color: white;
       font-size: 1rem; margin: 0.2rem; font-weight: bold;
@@ -45,7 +46,8 @@
 
     .copy-btn, .buy-button {
       background: #4299e1; color: white; border: none; border-radius: 6px;
-      padding: 0.4rem 0.8rem; cursor: pointer; font-size: 0.9rem; text-decoration: none;
+      padding: 0.4rem 0.8rem; cursor: pointer; font-size: 0.9rem;
+      text-decoration: none; font-weight: bold;
     }
 
     .modal {
@@ -64,7 +66,7 @@
     .info-block strong { display: block; margin-bottom: 0.2rem; }
     footer { text-align: center; padding: 1rem; font-size: 0.85rem; color: #666; }
 
-    /* Estilo de secciones y espaciado en modal */
+    /* Estilo de secciones internas del modal */
     .modal-content .section { margin-bottom: 1rem; }
     .modal-content hr { border: none; border-top: 1px solid #e2e8f0; margin: 1rem 0; }
     .modal-content pre {
@@ -113,18 +115,13 @@
     const modalDetails = document.getElementById('modalDetails');
     let allData = [];
 
-    function formatDate(str) {
-      const date = new Date(str);
-      return isNaN(date) ? str : date.toLocaleDateString('es-AR');
-    }
-
     function getTierBadge(tier) {
-      const t = (tier || '').toLowerCase();
-      if (t.includes('1')) return 'tier-1-badge';
-      if (t.includes('2')) return 'tier-2-badge';
-      if (t.includes('3')) return 'tier-3-badge';
-      if (t.includes('4')) return 'tier-3-badge';
-      if (t.includes('5')) return 'tier-3-badge';
+      const t = (tier || '').toString();
+      if (t === '1') return 'tier-1-badge';
+      if (t === '2') return 'tier-2-badge';
+      if (t === '3') return 'tier-3-badge';
+      if (t === '4') return 'tier-4-badge';
+      if (t === '5') return 'tier-5-badge';
       return '';
     }
 
@@ -138,12 +135,9 @@
     function showModal(index) {
       const row = allData[index];
       const estado = row['Estado Testnet'] || 'Desconocido';
-      const estadoClass = /abierto/i.test(estado) ? 'Abierto'
-                          : /cerrado/i.test(estado) ? 'Cerrado'
-                          : /pendiente/i.test(estado) ? 'Pendiente'
-                          : 'Otro';
-      const floorDirecto = row['Floor Price Pase Directo (MON)'];
-      const floorAcumulativo = row['Floor Price NFT Acumulativo (MON)'];
+      const estadoClass = getEstadoClass(estado);
+      const floorDirecto = row['Floor Price Pase Directo (MON)'] || '';
+      const floorAcumulativo = row['Floor Price NFT Acumulativo (MON)'] || '';
 
       modal.style.display = 'flex';
       modalDetails.innerHTML = `
@@ -157,7 +151,7 @@
         <div class="info-block section">
           <strong>🧠 Roles WL</strong>
           <pre style="white-space: pre-wrap;">${row['Roles WL'] || '—'}</pre>
-          ${row['Roles WL'] ? `<button class="copy-btn" style="margin-top:5px;" onclick="navigator.clipboard.writeText(\`${row['Roles WL'].replace(/`/g,'\\\`')}\`).then(()=>alert('Roles copiados 📋'))">Copiar roles</button>` : ''}
+          ${row['Roles WL'] ? `<button class="copy-btn" onclick="navigator.clipboard.writeText(\`${row['Roles WL'].replace(/`/g,'\\\`')}\`).then(() => alert('Roles copiados 📋'))">Copiar roles</button>` : ''}
         </div>
         <hr>
 
@@ -180,13 +174,13 @@
           <strong>📎 Notas</strong><br>${row['Notas'] || '—'}
         </div>
 
-        ${(row['Link X']||row['Link Discord']||row['Link Web']) ? `
+        ${(row['Link X'] || row['Link Discord'] || row['Link Web']) ? `
           <div class="info-block section">
             <strong>🌐 Enlaces</strong><br>
-            ${row['Link X'] ? `<a href="${row['Link X']}" class="buy-button" target="_blank">X</a>` : ''}
-            ${row['Link Discord'] ? `<a href="${row['Link Discord']}" class="buy-button" target="_blank" style="background:#5865F2;">Discord</a>` : ''}
-            ${row['Link Web'] ? `<a href="${row['Link Web']}" class="buy-button" target="_blank" style="background:#4a5568;">Web</a>` : ''}
-          </div>` : ''}
+            ${row['Link X'] ? `<a href="${row['Link X']}" class="buy-button" style="background:#1a1a1a;" target="_blank">X</a>` : ''}
+            ${row['Link Discord'] ? `<a href="${row['Link Discord']}" class="buy-button" style="background:#5865F2;" target="_blank">Discord</a>` : ''}
+            ${row['Link Web'] ? `<a href="${row['Link Web']}" class="buy-button" style="background:#4a5568;" target="_blank">Web</a>` : ''}
+          </div>` : ''}  
       `;
     }
 
@@ -194,14 +188,14 @@
       cardGrid.innerHTML = '';
       data.forEach((row, i) => {
         const card = document.createElement('div');
-        const tierClass = getTierBadge(row['Tier']);
-        card.className = `card ${tierClass}`;
+        const badgeClass = getTierBadge(row['Tier']);
+        card.className = `card ${badgeClass}`;
         card.dataset.index = i;
         card.innerHTML = `
           ${row['Logo'] ? `<img src="${row['Logo']}" class="logo" alt="logo">` : ''}
           <h3>${row['Proyecto']}</h3>
           <div class="tag ${getEstadoClass(row['Estado Testnet'])}">${row['Estado Testnet']}</div>
-          <div class="tier-badge ${tierClass}">Tier ${row['Tier']}</div>
+          <div class="tier-badge ${badgeClass}">Tier ${row['Tier']}</div>
           <button class="copy-btn">Ver detalles</button>
         `;
         card.querySelector('button').addEventListener('click', e => {
@@ -231,22 +225,21 @@
         results.data = results.data.map(row => {
           const cleaned = {};
           for (const key in row) {
-            const newKey = key.trim().replace(/\s+/g, ' ');
-            cleaned[newKey] = row[key];
+            cleaned[key.trim().replace(/\s+/g, ' ')] = row[key];
           }
           return cleaned;
         });
         allData = results.data.filter(r => r['Proyecto']);
-        [...new Set(allData.map(r => r['Tier']).filter(Boolean))].forEach(tier => {
+        [...new Set(allData.map(r => r['Tier']).filter(Boolean))].forEach(t => {
           const opt = document.createElement('option');
-          opt.value = tier;
-          opt.textContent = tier;
+          opt.value = t;
+          opt.textContent = t;
           tierFilter.appendChild(opt);
         });
-        [...new Set(allData.map(r => r['Estado Testnet']).filter(Boolean))].forEach(est => {
+        [...new Set(allData.map(r => r['Estado Testnet']).filter(Boolean))].forEach(e => {
           const opt = document.createElement('option');
-          opt.value = est;
-          opt.textContent = est;
+          opt.value = e;
+          opt.textContent = e;  
           estadoFilter.appendChild(opt);
         });
         render(allData);
