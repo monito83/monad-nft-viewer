@@ -10,10 +10,9 @@
     header h1 { margin:0; font-size:1.8rem; }
     .filters { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; padding:1rem; }
     .filters input, .filters select { padding:.5rem; font-size:1rem; border-radius:6px; border:1px solid #ccc; }
-
     main { max-width:1200px; margin:auto; padding:1rem; }
     .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap:1.5rem; }
-    .card { background:white; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.1); padding:1rem; display:flex; flex-direction:column; align-items:center; gap:.5rem; border-left:6px solid transparent; transition:transform .2s ease, box-shadow .2s ease; }
+    .card { background:white; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.1); padding:1rem; display:flex; flex-direction:column; align-items:center; gap:.5rem; border-left:6px solid transparent; transition:transform .2s ease; }
     .card:hover { transform:translateY(-4px); box-shadow:0 8px 20px rgba(0,0,0,0.12); cursor:pointer; }
 
     .card.tier-1-badge { background:#e6fffa; }
@@ -24,9 +23,7 @@
 
     .logo { width:60px; height:60px; border-radius:50%; object-fit:cover; }
 
-    .tag, .tier-badge {
-      display:inline-block; padding:.4rem .8rem; border-radius:6px; color:white; font-size:1rem; margin:.2rem; font-weight:bold;
-    }
+    .tag, .tier-badge { display:inline-block; padding:.4rem .8rem; border-radius:6px; color:white; font-size:1rem; margin:.2rem; font-weight:bold; }
     .Abierto { background:#38a169; }
     .Cerrado { background:#e53e3e; }
     .Pendiente, .Desconocido, .Otro { background:#718096; }
@@ -35,21 +32,21 @@
     .tier-2-badge { background:silver; }
     .tier-3-badge, .tier-4-badge, .tier-5-badge { background:#cd7f32; }
 
-    .copy-btn, .buy-button {
-      background:#4299e1; color:white; border:none; border-radius:6px; padding:.4rem .8rem; font-size:.9rem; font-weight:bold; cursor:pointer; text-decoration:none;
-    }
+    .copy-btn, .buy-button { background:#4299e1; color:white; border:none; border-radius:6px; padding:.4rem .8rem; font-size:.9rem; font-weight:bold; cursor:pointer; text-decoration:none; }
 
-    .modal {
-      position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center;
-    }
-    .modal-content {
-      background:white; padding:2rem; border-radius:12px; max-width:600px; max-height:85vh; overflow-y:auto; position:relative;
-    }
+    .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; }
+    .modal-content { background:white; padding:2rem; border-radius:12px; max-width:600px; max-height:85vh; overflow-y:auto; position:relative; }
     .modal-close { position:absolute; top:10px; right:20px; font-size:1.5rem; cursor:pointer; color:#333; }
-    .info-block { margin-top:1rem; font-size:.95rem; line-height:1.5; white-space:pre-line; }
+    .info-block { font-size:.95rem; line-height:1.5; white-space:pre-line; margin-top:.8rem; }
     .info-block strong { display:block; margin-bottom:.3rem; }
-    .section { margin-bottom:1.2rem; }
-    hr { border:none; border-top:1px solid #e2e8f0; margin:1rem 0; }
+    .section { margin-bottom:1.5rem; padding:1rem; border:1px solid #e2e8f0; border-radius:8px; box-shadow:0 1px 4px rgba(0,0,0,0.05); }
+    .section h3 { margin-top:0; }
+    .external-links a { margin-right:0.5rem; text-decoration:none; color:white; padding:.3rem .6rem; border-radius:6px; font-size:.9rem; display:inline-block; }
+
+    .external-links a.x { background:#1A1A1A; }
+    .external-links a.discord { background:#5865F2; }
+    .external-links a.web { background:#4A5568; }
+
     footer { text-align:center; padding:1rem; font-size:.85rem; color:#666; }
   </style>
 </head>
@@ -67,12 +64,10 @@
 
   <main><div class="grid" id="cardGrid"></div></main>
 
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <span class="modal-close" onclick="modal.style.display='none'">&times;</span>
-      <div id="modalDetails"></div>
-    </div>
-  </div>
+  <div class="modal" id="modal"><div class="modal-content">
+    <span class="modal-close" onclick="modal.style.display='none'">&times;</span>
+    <div id="modalDetails"></div>
+  </div></div>
 
   <footer>🔧 Generado desde Google Sheets</footer>
 
@@ -98,58 +93,73 @@
     }
 
     function getEstadoClass(est) {
-      return /abierto/i.test(est) ? 'Abierto' :
-             /cerrado/i.test(est) ? 'Cerrado' :
-             /pendiente/i.test(est) ? 'Pendiente' : 'Otro';
+      return /abierto/i.test(est) ? 'Abierto'
+           : /cerrado/i.test(est) ? 'Cerrado'
+           : /pendiente/i.test(est) ? 'Pendiente'
+           : 'Otro';
     }
 
-    function showModal(idx) {
-      const row = allData[idx];
-      const estado = row['Estado Testnet'] || 'Desconocido';
-      const floorD = row['Floor Price Pase Directo (MON)'] || '—';
-      const floorA = row['Floor Price NFT Acumulativo (MON)'] || '—';
+    function showModal(i) {
+      const r = allData[i];
+      const estado = r['Estado Testnet'] || 'Desconocido';
+      const floorD = r['Floor Price Pase Directo (MON)'] || '—';
+      const floorA = r['Floor Price NFT Acumulativo (MON)'] || '—';
 
       modal.style.display = 'flex';
       modalDetails.innerHTML = `
-        <div class="section" style="text-align:center;">
-          ${row['Logo'] ? `<img src="${row['Logo']}" class="logo" style="width:80px;height:80px;">` : ''}
-          <h2 style="margin: .5rem 0;">${row['Proyecto']}</h2>
-          <div class="tag ${getEstadoClass(estado)}">${estado}</div>
-          <div style="margin-top: .5rem;">
-            <span class="tier-badge ${getTierBadge(row['Tier'])}">🏅 Tier ${row['Tier']}</span>
+        <div class="section">
+          <div style="text-align:center;">
+            ${r['Logo'] ? `<img src="${r['Logo']}" class="logo" style="width:80px;height:80px;">` : ''}
+            <h2>${r['Proyecto']}</h2>
+            <div class="tag ${getEstadoClass(estado)}">${estado}</div>
+            <div style="margin-top:0.5rem;">
+              <span class="tier-badge ${getTierBadge(r['Tier'])}">🏅 Tier ${r['Tier']}</span>
+            </div>
           </div>
         </div>
-        <hr>
-        <div class="section info-block"><strong>💰 Floor Directo:</strong> ${floorD} MON</div>
-        <div class="section info-block"><strong>💰 Floor Acumulativo:</strong> ${floorA} MON</div>
-        <div class="section info-block"><strong>🧠 Roles WL:</strong><br>${row['Roles WL'] || '—'}</div>
-        <div class="section info-block"><strong>📦 Pase WL Directo:</strong><br>${row['Pase WL Directo'] || '—'}</div>
-        <div class="section info-block"><strong>📄 Beneficio WL Directo:</strong><br>${row['Beneficio WL Directo'] || '—'}</div>
-        <div class="section info-block"><strong>📦 NFT Acumulativo:</strong><br>${row['NFT Acumulativo'] || '—'}</div>
-        <div class="section info-block"><strong>📄 Beneficios Acumulativos:</strong><br>${row['Beneficios Acumulativos'] || '—'}</div>
-        <div class="section info-block"><strong>📎 Notas:</strong><br>${row['Notas'] || '—'}</div>
-        ${(row['Link X']||row['Link Discord']||row['Link Web']) ? `
-          <div class="section info-block"><strong>🌐 Enlaces:</strong><br>
-            ${row['Link X'] ? `<a href="${row['Link X']}" target="_blank" class="buy-button" style="background:#1A1A1A;">X</a>` : ''}
-            ${row['Link Discord'] ? `<a href="${row['Link Discord']}" target="_blank" class="buy-button" style="background:#5865F2;">Discord</a>` : ''}
-            ${row['Link Web'] ? `<a href="${row['Link Web']}" target="_blank" class="buy-button" style="background:#4A5568;">Web</a>` : ''}
-          </div>` : ''}
+
+        <div class="section"><h3>✅ Pase WL Directo</h3>
+          <div class="info-block">${r['Pase WL Directo'] || '—'}</div>
+          <div class="info-block"><strong>Beneficio:</strong><br>${r['Beneficio WL Directo'] || '—'}</div>
+          <div class="info-block"><strong>Floor:</strong> ${floorD} MON</div>
+          ${r['Link Pase Directo'] ? `<a href="${r['Link Pase Directo']}" target="_blank" class="buy-button">Comprar Pase</a>` : ''}
+        </div>
+
+        <div class="section"><h3>📦 NFT Acumulativo</h3>
+          <div class="info-block">${r['NFT Acumulativo'] || '—'}</div>
+          <div class="info-block"><strong>Beneficios:</strong><br>${r['Beneficios Acumulativos'] || '—'}</div>
+          <div class="info-block"><strong>Floor:</strong> ${floorA} MON</div>
+          ${r['Link NFT Acumulativo'] ? `<a href="${r['Link NFT Acumulativo']}" target="_blank" class="buy-button">Comprar NFT</a>` : ''}
+        </div>
+
+        <div class="section"><h3>📝 Notas</h3>
+          <div class="info-block">${r['Notas'] || '—'}</div>
+        </div>
+
+        ${(r['Link X']||r['Link Discord']||r['Link Web']) ? `
+        <div class="section">
+          <h3>🌐 Enlaces</h3>
+          <div class="external-links">
+            ${r['Link X'] ? `<a href="${r['Link X']}" target="_blank" class="x">X</a>` : ''}
+            ${r['Link Discord'] ? `<a href="${r['Link Discord']}" target="_blank" class="discord">Discord</a>` : ''}
+            ${r['Link Web'] ? `<a href="${r['Link Web']}" target="_blank" class="web">Web</a>` : ''}
+          </div>
+        </div>` : ''}
       `;
     }
 
     function render(data) {
       cardGrid.innerHTML = '';
-      data.forEach((row, i) => {
-        const badge = getTierBadge(row['Tier']);
+      data.forEach((r,i) => {
+        const badge = getTierBadge(r['Tier']);
         const card = document.createElement('div');
         card.className = `card ${badge}`;
         card.dataset.index = i;
-
         card.innerHTML = `
-          ${row['Logo'] ? `<img src="${row['Logo']}" class="logo">` : ''}
-          <h3>${row['Proyecto']}</h3>
-          <div class="tag ${getEstadoClass(row['Estado Testnet'])}">${row['Estado Testnet']}</div>
-          <div class="tier-badge ${badge}">Tier ${row['Tier']}</div>
+          ${r['Logo'] ? `<img src="${r['Logo']}" class="logo">` : ''}
+          <h3>${r['Proyecto']}</h3>
+          <div class="tag ${getEstadoClass(r['Estado Testnet'])}">${r['Estado Testnet']}</div>
+          <div class="tier-badge ${badge}">Tier ${r['Tier']}</div>
           <button class="copy-btn">Ver detalles</button>
         `;
         card.querySelector('button').addEventListener('click', e => { e.stopPropagation(); showModal(i); });
@@ -158,13 +168,13 @@
     }
 
     function applyFilters() {
-      const nameQ = projectFilter.value.toLowerCase();
-      const tQ = tierFilter.value;
-      const eQ = estadoFilter.value;
+      const nq = projectFilter.value.toLowerCase();
+      const tq = tierFilter.value;
+      const eq = estadoFilter.value;
       const filtered = allData.filter(r =>
-        r['Proyecto'].toLowerCase().includes(nameQ) &&
-        (tQ === '' || r['Tier'] === tQ) &&
-        (eQ === '' || r['Estado Testnet'] === eQ)
+        r['Proyecto'].toLowerCase().includes(nq) &&
+        (tq === '' || r['Tier'] === tq) &&
+        (eq === '' || r['Estado Testnet'] === eq)
       );
       render(filtered);
     }
@@ -175,12 +185,10 @@
       complete: results => {
         results.data = results.data.map(r => {
           const c = {};
-          for (const k in r) c[k.trim().replace(/\s+/g,' ')] = r[k];
+          Object.keys(r).forEach(k => c[k.trim().replace(/\s+/g,' ')] = r[k]);
           return c;
         });
         allData = results.data.filter(r => r['Proyecto']);
-        console.log('COLUMNAS CSV:', Object.keys(allData[0]));
-        console.log('PRIMER ROW:', allData[0]);
         render(allData);
         fechaSpan.textContent = new Date().toLocaleDateString('es-AR');
       }
