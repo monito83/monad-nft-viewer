@@ -5,57 +5,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Proyectos NFT en Monad</title>
   <style>
-    body { font-family: 'Segoe UI', sans-serif; background: #f0f0f0; margin:0; padding:0; color:#333; }
-    header { background:#4c51bf; color:white; text-align:center; padding:1.5rem; }
-    header h1 { margin:0; font-size:1.8rem; }
-    header .header-buttons { margin-top:0.5rem; }
-    header .header-buttons button {
-      background:transparent; border:1px solid white; color:white; border-radius:4px;
-      padding:0.3rem 0.7rem; margin:0 0.3rem; cursor:pointer; font-size:0.9rem;
-    }
-    header .header-buttons button:hover { background:rgba(255,255,255,0.2); }
-    .filters { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; padding:1rem; }
-    .filters input, .filters select { padding:0.5rem; font-size:1rem; border-radius:6px; border:1px solid #ccc; }
-    main { max-width:1200px; margin:auto; padding:1rem; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.5rem; }
-    .card { background:white; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.1); padding:1rem;
-      display:flex; flex-direction:column; align-items:center; gap:0.5rem; border-left:6px solid transparent;
-      transition:transform 0.2s ease; }
-    .card:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.12); cursor:pointer; }
-    .logo { width:60px; height:60px; border-radius:50%; object-fit:cover; margin-bottom:0.5rem; }
-    .tag, .tier-badge { display:inline-block; padding:0.35rem 0.7rem; border-radius:8px; font-size:0.9rem;
-      font-weight:bold; color:white; margin:0.2rem; }
-    .tag.Abierto { background:#38a169; }
-    .tag.Cerrado { background:#e53e3e; }
-    .tag.Pendiente, .tag.Desconocido, .tag.Otro { background:#718096; }
-    .tier-1-badge { background:#38a169; }
-    .tier-2-badge { background:#4299e1; }
-    .tier-3-badge { background:#d69e2e; }
-    .tier-4-badge { background:#ed8936; }
-    .tier-5-badge { background:#e53e3e; }
-    .copy-btn, .buy-button { background:#4299e1; color:white; border:none; border-radius:6px;
-      padding:0.35rem 0.8rem; font-size:0.85rem; font-weight:bold; text-decoration:none;
-      cursor:pointer; margin-top:0.3rem; transition:background 0.3s; display:inline-block; }
-    .buy-button:hover { background:#2b6cb0; }
-    .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5);
-      display:none; align-items:center; justify-content:center; padding:1rem; z-index:100; }
-    .modal-content { background:white; padding:2rem; border-radius:12px; width:100%; max-width:800px;
-      max-height:90vh; overflow-y:auto; position:relative; box-shadow:0 8px 24px rgba(0,0,0,0.2); }
-    .modal-close { position:absolute; top:15px; right:20px; font-size:1.6rem; cursor:pointer; color:white;
-      background:#e53e3e; border:none; border-radius:50%; width:36px; height:36px;
-      display:flex; align-items:center; justify-content:center; box-shadow:0 0 6px rgba(0,0,0,0.2); transition:background 0.2s; }
-    .modal-close:hover { background:#c53030; }
-    .section { margin-bottom:1.2rem; padding:1rem; border:1px solid #e2e8f0; border-radius:8px;
-      box-shadow:0 1px 4px rgba(0,0,0,0.05); line-height:1.4; }
-    .info-block { font-size:0.95rem; margin-top:0.4rem; }
-    .info-block strong { font-weight:600; }
-    .tooltip-icon { margin-left:0.3rem; cursor:help; }
-    .external-links a { margin-right:0.5rem; text-decoration:none; color:white;
-      padding:0.3rem 0.6rem; border-radius:6px; font-size:0.9rem; display:inline-block; }
-    .external-links a.x { background:#1a1a1a; }
-    .external-links a.discord { background:#5865F2; }
-    .external-links a.web { background:#4A5568; }
-    footer { text-align:center; padding:1rem; font-size:0.85rem; color:#666; }
+    body{font-family:'Segoe UI',sans-serif;background:#f0f0f0;margin:0;padding:0;color:#333}
+    header{background:#4c51bf;color:white;text-align:center;padding:1.5rem}
+    header h1{margin:0;font-size:1.8rem}
+    .header-buttons{margin-top:0.5rem}
+    .header-buttons button{background:transparent;border:1px solid white;color:white;border-radius:4px;padding:0.3rem 0.7rem;margin:0 0.3rem;cursor:pointer;font-size:0.9rem}
+    .header-buttons button:hover{background:rgba(255,255,255,0.2)}
+    .filters{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;padding:1rem}
+    .filters input,.filters select{padding:0.5rem;font-size:1rem;border-radius:6px;border:1px solid #ccc}
+    main{max-width:1200px;margin:auto;padding:1rem}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem}
+    .card{background:white;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.1);padding:1rem;display:flex;flex-direction:column;align-items:center;gap:0.5rem;border-left:6px solid transparent;transition:transform .2s ease}
+    .card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.12);cursor:pointer}
+    .logo{width:60px;height:60px;border-radius:50%;object-fit:cover;margin-bottom:0.5rem}
+    .tag,.tier-badge{display:inline-block;padding:0.35rem 0.7rem;border-radius:8px;font-size:0.9rem;font-weight:bold;color:white;margin:0.2rem}
+    .tag.Abierto{background:#38a169}
+    .tag.Cerrado{background:#e53e3e}
+    .tag.Pendiente,.tag.Desconocido,.tag.Otro{background:#718096}
+    .tier-1-badge{background:#38a169}
+    .tier-2-badge{background:#4299e1}
+    .tier-3-badge{background:#d69e2e}
+    .tier-4-badge{background:#ed8936}
+    .tier-5-badge{background:#e53e3e}
+    .copy-btn,.buy-button{background:#4299e1;color:white;border:none;border-radius:6px;padding:0.35rem 0.8rem;font-size:0.85rem;font-weight:bold;text-decoration:none;cursor:pointer;margin-top:0.3rem;transition:background .3s;display:inline-block}
+    .buy-button:hover{background:#2b6cb0}
+    .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;padding:1rem;z-index:100}
+    .modal-content{background:white;padding:2rem;border-radius:12px;width:100%;max-width:800px;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 8px 24px rgba(0,0,0,0.2)}
+    .modal-close{position:absolute;top:15px;right:20px;font-size:1.6rem;cursor:pointer;color:white;background:#e53e3e;border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 6px rgba(0,0,0,0.2);transition:background .2s;z-index:101}
+    .modal-close:hover{background:#c53030}
+    .section{margin-bottom:1.2rem;padding:1rem;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.05);line-height:1.4}
+    .info-block{font-size:0.95rem;margin-top:0.4rem}
+    .info-block strong{font-weight:600}
+    .tooltip-icon{margin-left:0.3rem;cursor:help}
+    .external-links a{margin-right:0.5rem;text-decoration:none;color:white;padding:0.3rem 0.6rem;border-radius:6px;font-size:0.9rem;display:inline-block}
+    .external-links a.x{background:#1a1a1a}
+    .external-links a.discord{background:#5865F2}
+    .external-links a.web{background:#4A5568}
+    footer{text-align:center;padding:1rem;font-size:0.85rem;color:#666}
   </style>
 </head>
 <body>
@@ -103,123 +89,107 @@
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script>
-    const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
+    const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wR4/export?format=csv';
     let allData = [];
 
-    function getTierBadge(t){
-      return ['','tier-1-badge','tier-2-badge','tier-3-badge','tier-4-badge','tier-5-badge'][parseInt(t)] || '';
-    }
-    function getEstadoClass(e){
-      return /abierto/i.test(e)?'Abierto':/cerrado/i.test(e)?'Cerrado':/pendiente/i.test(e)?'Pendiente':'Otro';
+    function getTierBadge(t){ return ['','tier-1-badge','tier-2-badge','tier-3-badge','tier-4-badge','tier-5-badge'][parseInt(t)]||''; }
+    function getEstadoClass(e){ return /abierto/i.test(e)?'Abierto':/cerrado/i.test(e)?'Cerrado':/pendiente/i.test(e)?'Pendiente':'Otro'; }
+    function parseImgTags(text){
+      if (!text) return '';
+      return text.replace(/\[img\](https?:\/\/\S+)/g, (_,url) => `<a href="${url}" target="_blank"><img src="${url}" style="max-width:100px; max-height:100px; margin:4px; vertical-align:middle; border-radius:6px;"></a>`);
     }
     function formatRolesWL(txt){
-      if (!txt) return '';
+      if(!txt) return '';
       const safe = txt.replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      return safe.replace(/\n{2,}/g,'<br><br>').replace(/\n/g,'<br>');
+      const withImgs = parseImgTags(safe);
+      return withImgs.replace(/\n{2,}/g,'<br><br>').replace(/\n/g,'<br>');
     }
 
     function showModal(i){
       const r = allData[i];
-      const floorD = r['Floor Price Pase Directo (MON)'] || '—';
-      const floorA = r['Floor Price NFT Acumulativo (MON)'] || '—';
-      const ttD = r['Tooltip Pase Directo'] ? ` <span class="tooltip-icon" title="${r['Tooltip Pase Directo']}">❓</span>` : '';
-      const ttA = r['Tooltip NFT Acumulativo'] ? ` <span class="tooltip-icon" title="${r['Tooltip NFT Acumulativo']}">❓</span>` : '';
-      modal.style.display = 'flex';
-      modalDetails.innerHTML = `
+      const floorD = r['Floor Price Pase Directo (MON)']||'—';
+      const floorA = r['Floor Price NFT Acumulativo (MON)']||'—';
+      const ttD = r['Tooltip Pase Directo']?` <span class="tooltip-icon" title="${r['Tooltip Pase Directo']}">❓</span>`:'';
+      const ttA = r['Tooltip NFT Acumulativo']?` <span class="tooltip-icon" title="${r['Tooltip NFT Acumulativo']}">❓</span>`:'';
+      modal.style.display='flex';
+      document.getElementById('modalDetails').innerHTML=`
         <div class="section" style="text-align:center;">
           ${r['Logo']?`<img src="${r['Logo']}" class="logo" style="width:80px;height:80px;">`:''}
           <h2>${r['Proyecto']}</h2>
           <div class="tag ${getEstadoClass(r['Estado Testnet'])}">${r['Estado Testnet']||'Desconocido'}</div>
-          <div><span class="tier-badge ${getTierBadge(r['Tier'])}">${r['Tier'] ? (r['Tier']==='1'?'🥇':r['Tier']==='2'?'🥈':'🥉')+' Tier '+r['Tier'] : 'Tier'}</span></div>
+          <div><span class="tier-badge ${getTierBadge(r['Tier'])}">${r['Tier']?(r['Tier']==='1'?'🥇':r['Tier']==='2'?'🥈':'🥉')+' Tier '+r['Tier']:'Tier'}</span></div>
         </div>
         <div class="section"><h3>🧠 Roles WL</h3><div class="info-block">${formatRolesWL(r['Roles WL'])}</div></div>
         <div class="section"><h3>✅ Pase WL Directo${ttD}</h3>
           <div class="info-block">${r['Pase WL Directo']||'—'}</div>
           <div class="info-block"><strong>Beneficio:</strong><br>${r['Beneficio WL Directo']||'—'}</div>
           <div class="info-block"><strong>Floor:</strong> ${floorD} MON</div>
-          ${r['Link Pase Directo'] ? `<a href="${r['Link Pase Directo']}" target="_blank" class="buy-button">Comprar Pase</a>` : ''}
+          ${r['Link Pase Directo']?`<a href="${r['Link Pase Directo']}" class="buy-button" target="_blank">Comprar Pase</a>`:''}
         </div>
         <div class="section"><h3>📦 NFT Acumulativo${ttA}</h3>
           <div class="info-block">${r['NFT Acumulativo']||'—'}</div>
           <div class="info-block"><strong>Beneficios:</strong><br>${r['Beneficios Acumulativos']||'—'}</div>
           <div class="info-block"><strong>Floor:</strong> ${floorA} MON</div>
-          ${r['Link NFT Acumulativo'] ? `<a href="${r['Link NFT Acumulativo']}" target="_blank" class="buy-button">Comprar NFT</a>` : ''}
+          ${r['Link NFT Acumulativo']?`<a href="${r['Link NFT Acumulativo']}" class="buy-button" target="_blank">Comprar NFT</a>`:''}
         </div>
         <div class="section"><h3>📝 Notas</h3><div class="info-block">${r['Notas']||'—'}</div></div>
-        ${(r['Link X']||r['Link Discord']||r['Link Web']) ? `
-          <div class="section"><h3>🌐 Enlaces</h3><div class="external-links">
-            ${r['Link X']?`<a href="${r['Link X']}" class="x" target="_blank">X</a>`:''}
-            ${r['Link Discord']?`<a href="${r['Link Discord']}" class="discord" target="_blank">Discord</a>`:''}
-            ${r['Link Web']?`<a href="${r['Link Web']}" class="web" target="_blank">Web</a>`:''}
-          </div></div>`: ''}
+        ${ (r['Link X']||r['Link Discord']||r['Link Web'])?`<div class="section"><h3>🌐 Enlaces</h3><div class="external-links">
+          ${r['Link X']?`<a href="${r['Link X']}" class="x" target="_blank">X</a>`:''}
+          ${r['Link Discord']?`<a href="${r['Link Discord']}" class="discord" target="_blank">Discord</a>`:''}
+          ${r['Link Web']?`<a href="${r['Link Web']}" class="web" target="_blank">Web</a>`:''}
+        </div></div>`:''}
       `;
     }
 
-    Papa.parse(SHEET_CSV, {
-      download:true, header:true,
-      complete: results => {
-        allData = results.data.map(r => {
-          const clean = {}; for (const k in r) clean[k.trim().replace(/\s+/g,' ')] = r[k];
-          return clean;
-        }).filter(r => r['Proyecto']);
-        const tiers = [...new Set(allData.map(r=>r['Tier']).filter(t=>t))];
-        tiers.forEach(t => {
-          const o = document.createElement('option'); o.value=t; o.textContent=t;
-          tierFilter.appendChild(o);
-        });
-        const ests = [...new Set(allData.map(r=>r['Estado Testnet']).filter(e=>e))];
-        ests.forEach(e => {
-          const o = document.createElement('option'); o.value=e; o.textContent=e;
-          estadoFilter.appendChild(o);
-        });
-        render(allData);
-        document.getElementById('fecha').textContent = new Date().toLocaleDateString('es‑AR');
-
-        const faqText = allData[0] && allData[1] ? allData[1]['FAQ'] : '';
-        faqBtn.onclick = () => {
-          document.getElementById('faqContent').innerText = faqText || 'Sin FAQ configurada';
-          faqModal.style.display = 'flex';
-        };
-      }
-    });
+    Papa.parse(SHEET_CSV,{download:true,header:true,complete(results){
+      allData = results.data.map(r=>{
+        const clean={}; for(const k in r) clean[k.trim().replace(/\s+/g,' ')]=r[k]; return clean;
+      }).filter(r=>r['Proyecto']);
+      const tiers=[...new Set(allData.map(r=>r['Tier']).filter(t=>t))];
+      tiers.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;document.getElementById('tierFilter').appendChild(o)});
+      const ests=[...new Set(allData.map(r=>r['Estado Testnet']).filter(e=>e))];
+      ests.forEach(e=>{const o=document.createElement('option');o.value=e;o.textContent=e;document.getElementById('estadoFilter').appendChild(o)});
+      render(allData);
+      document.getElementById('fecha').textContent=new Date().toLocaleDateString('es‑AR');
+      document.getElementById('faqBtn').onclick=()=>{
+        const faqTxt = allData[1] && allData[1]['FAQ'] ? allData[1]['FAQ'] : 'Sin FAQ configurada';
+        document.getElementById('faqContent').innerText = faqTxt;
+        document.getElementById('faqModal').style.display='flex';
+      };
+      document.getElementById('donateBtn').onclick=()=>document.getElementById('donateModal').style.display='flex';
+    }});
 
     function render(data){
-      cardGrid.innerHTML = '';
+      const grid=document.getElementById('cardGrid'); grid.innerHTML='';
       data.forEach((r,i)=>{
-        const card = document.createElement('div');
-        card.className = `card ${getTierBadge(r['Tier'])}`;
-        card.onclick = ()=> showModal(i);
-        card.innerHTML = `
+        const card=document.createElement('div');
+        card.className='card '+getTierBadge(r['Tier']);
+        card.onclick=()=>showModal(i);
+        card.innerHTML=`
           ${r['Logo']?`<img src="${r['Logo']}" class="logo">`:''}
           <h3>${r['Proyecto']}</h3>
           <div class="tag ${getEstadoClass(r['Estado Testnet'])}">${r['Estado Testnet']||'Desconocido'}</div>
-          <span class="tier-badge ${getTierBadge(r['Tier'])}">${r['Tier'] ? (r['Tier']==='1'?'🥇':r['Tier']==='2'?'🥈':'🥉')+' Tier '+r['Tier'] : 'Tier'}</span>
+          <span class="tier-badge ${getTierBadge(r['Tier'])}">${r['Tier']?(r['Tier']==='1'?'🥇':r['Tier']==='2'?'🥈':'🥉')+' Tier '+r['Tier']:'Tier'}</span>
         `;
-        cardGrid.appendChild(card);
+        grid.appendChild(card);
       });
     }
 
-    projectFilter.addEventListener('input', render.bind(null, allData));
-    tierFilter.addEventListener('change', () => applyFilters());
-    estadoFilter.addEventListener('change', () => applyFilters());
-
     function applyFilters(){
-      const name = projectFilter.value.toLowerCase();
-      const tf = tierFilter.value;
-      const ef = estadoFilter.value;
-      render(allData.filter(r =>
-        r['Proyecto'].toLowerCase().includes(name) &&
-        (!tf || r['Tier']===tf) &&
-        (!ef || r['Estado Testnet']===ef)
-      ));
+      const name=document.getElementById('projectFilter').value.toLowerCase();
+      const tf=document.getElementById('tierFilter').value;
+      const ef=document.getElementById('estadoFilter').value;
+      render(allData.filter(r=>r['Proyecto'].toLowerCase().includes(name)&&(!tf||r['Tier']===tf)&&(!ef||r['Estado Testnet']===ef)));
     }
+    document.getElementById('projectFilter').addEventListener('input', applyFilters);
+    document.getElementById('tierFilter').addEventListener('change', applyFilters);
+    document.getElementById('estadoFilter').addEventListener('change', applyFilters);
 
-    window.addEventListener('click', e => {
-      if(e.target===modal) modal.style.display='none';
-      if(e.target===faqModal) faqModal.style.display='none';
-      if(e.target===donateModal) donateModal.style.display='none';
+    window.addEventListener('click',e=>{
+      if(e.target.id==='modal') document.getElementById('modal').style.display='none';
+      if(e.target.id==='faqModal') document.getElementById('faqModal').style.display='none';
+      if(e.target.id==='donateModal') document.getElementById('donateModal').style.display='none';
     });
-
   </script>
 </body>
 </html>
