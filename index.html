@@ -1,160 +1,165 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Proyectos NFT Monad</title>
-  <style>
-    /* Estilos completos */
-    body { font-family: 'Segoe UI', sans-serif; background: #f0f0f0; margin:0; padding:0; color:#333; }
-    header { background:#4c51bf; color:white; text-align:center; padding:1.5rem; }
-    header h1 { margin:0; font-size:1.8rem; }
-    .filters { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; padding:1rem; }
-    .filters input, .filters select { padding:0.5rem; font-size:1rem; border-radius:6px; border:1px solid #ccc; }
-    main { max-width:1200px; margin:auto; padding:1rem; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1.5rem; }
-    .card { background:white; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.1); padding:1rem; display:flex; flex-direction:column; align-items:center; gap:0.5rem; border-left:6px solid transparent; transition:transform 0.2s ease; }
-    .card:hover { transform:translateY(-4px); box-shadow:0 8px 20px rgba(0,0,0,0.12); cursor:pointer; }
-    .card.tier-1-badge { background:#e6fffa; }
-    .card.tier-2-badge { background:#f0fff4; }
-    .card.tier-3-badge { background:#fffbea; }
-    .card.tier-4-badge { background:#fff5f5; }
-    .card.tier-5-badge { background:#ffe6e6; }
-    .logo { width:60px; height:60px; border-radius:50%; object-fit:cover; margin-bottom:0.5rem; }
-    .tag, .tier-badge { display:inline-block; padding:0.4rem 0.8rem; border-radius:6px; color:white; font-size:1rem; margin:0.2rem; font-weight:bold; }
-    .Abierto { background:#38a169; }
-    .Cerrado { background:#e53e3e; }
-    .Pendiente, .Desconocido, .Otro { background:#718096; }
-    .tier-1-badge { background:gold; }
-    .tier-2-badge { background:silver; }
-    .tier-3-badge, .tier-4-badge, .tier-5-badge { background:#cd7f32; }
-    .copy-btn, .buy-button { background:#4299e1; color:white; border:none; border-radius:6px; padding:0.35rem 0.8rem; font-size:0.85rem; font-weight:bold; text-decoration:none; cursor:pointer; margin-top:0.3rem; display:inline-block; transition:background0.3s; }
-    .buy-button:hover { background:#2b6cb0; }
-    .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; }
-    .modal-content { background:white; padding:2rem; border-radius:12px; width:95%; max-width:800px; max-height:90vh; overflow-y:auto; position:relative; box-shadow:0 8px 24px rgba(0,0,0,0.2); }
-    .modal-close { position:absolute; top:15px; right:20px; font-size:2rem; cursor:pointer; color:white; background:#e53e3e; border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 6px rgba(0,0,0,0.2); transition:background0.2s; z-index:999; }
-    .modal-close:hover { background:#c53030; }
-    .section { margin-bottom:1.2rem; padding:1rem; border:1px solid #e2e8f0; border-radius:8px; box-shadow:0 1px 4px rgba(0,0,0,0.05); line-height:1.4; }
-    .info-block { font-size:0.95rem; margin-top:0.4rem; }
-    .info-block strong { display:inline; font-weight:600; margin-right:0.3rem; }
-    .external-links a { margin-right:0.5rem; text-decoration:none; color:white; padding:0.3rem 0.6rem; border-radius:6px; font-size:0.9rem; display:inline-block; }
-    .external-links a.x { background:#1a1a1a; }
-    .external-links a.discord { background:#5865F2; }
-    .external-links a.web { background:#4A5568; }
-    footer { text-align:center; padding:1rem; font-size:0.85rem; color:#666; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Proyectos NFT Monad</title>
+<style>
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f0f0; margin:0; padding:0; color:#333; }
+  header { background:#4c51bf; color:white; text-align:center; padding:1.5rem; }
+  header h1 { margin:0; font-size:1.8rem; }
+  .filters { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; padding:1rem; }
+  .filters input, .filters select { padding:0.5rem; font-size:1rem; border-radius:6px; border:1px solid #ccc; }
+  main { max-width:1200px; margin:auto; padding:1rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1.5rem; }
+  .card { background:white; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.1); padding:1rem; display:flex; flex-direction:column; align-items:center; gap:0.5rem; border-left:6px solid transparent; transition:transform 0.2s ease; }
+  .card:hover { transform:translateY(-4px); box-shadow:0 8px 20px rgba(0,0,0,0.12); cursor:pointer; }
+  .card.tier-1-badge { border-left-color:#2f855a; background:#e6fffa; }
+  .card.tier-2-badge { border-left-color:#38a169; background:#f0fff4; }
+  .card.tier-3-badge { border-left-color:#d69e2e; background:#fffbea; }
+  .card.tier-4-badge { border-left-color:#dd6b20; background:#fff5f5; }
+  .card.tier-5-badge { border-left-color:#c53030; background:#ffe6e6; }
+  .logo { width:60px; height:60px; border-radius:50%; object-fit:cover; margin-bottom:0.5rem; }
+  .tag, .tier-badge { display:inline-block; padding:0.4rem 0.8rem; border-radius:6px; color:white; font-size:1rem; margin:0.2rem; font-weight:bold; }
+  .tier-badge { background:#805ad5; }
+  .tier-1-badge, .tier-2-badge, .tier-3-badge, .tier-4-badge, .tier-5-badge { background: transparent; }
+  .tag.Abierto { background:#38a169; }
+  .tag.Cerrado { background:#e53e3e; }
+  .tag.Pendiente, .tag.Desconocido, .tag.Otro { background:#718096; }
+  .copy-btn, .buy-button { background:#4299e1; color:white; border:none; border-radius:6px; padding:0.35rem 0.8rem; font-size:0.85rem; font-weight:bold; text-decoration:none; cursor:pointer; margin-top:0.3rem; display:inline-block; transition:background 0.3s; }
+  .buy-button:hover { background:#2b6cb0; }
+  .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; }
+  .modal-content { background:white; padding:2rem; border-radius:12px; width:95%; max-width:800px; max-height:90vh; overflow-y:auto; position:relative; box-shadow:0 8px 24px rgba(0,0,0,0.2); }
+  .modal-close { position:absolute; top:15px; right:20px; font-size:2rem; cursor:pointer; color:white; background:#e53e3e; border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 6px rgba(0,0,0,0.2); transition:background 0.2s; z-index:999; }
+  .modal-close:hover { background:#c53030; }
+  .section { margin-bottom:1.2rem; padding:1rem; border:1px solid #e2e8f0; border-radius:8px; box-shadow:0 1px 4px rgba(0,0,0,0.05); line-height:1.4; }
+  .info-block { font-size:0.95rem; margin-top:0.4rem; }
+  .info-block strong { display:inline; font-weight:600; margin-right:0.3rem; }
+  .tooltip-icon { margin-left:0.3rem; cursor:help; }
+  .external-links a { margin-right:0.5rem; text-decoration:none; color:white; padding:0.3rem 0.6rem; border-radius:6px; font-size:0.9rem; display:inline-block; }
+  .external-links a.x { background:#1a1a1a; }
+  .external-links a.discord { background:#5865F2; }
+  .external-links a.web { background:#4A5568; }
+  footer { text-align:center; padding:1rem; font-size:0.85rem; color:#666; }
+</style>
 </head>
 <body>
-  <header><h1>Proyectos NFT en Monad</h1><p>Actualizado: <span id="fecha"></span></p></header>
-  <div class="filters">
-    <input type="text" id="projectFilter" placeholder="Buscar proyecto...">
-    <select id="tierFilter"><option value="">Todos los Tiers</option></select>
-    <select id="estadoFilter"><option value="">Todos los Estados</option></select>
+<header><h1>Proyectos NFT en Monad</h1><p>Actualizado: <span id="fecha"></span></p></header>
+<div class="filters">
+  <input id="projectFilter" placeholder="Buscar proyecto...">
+  <select id="tierFilter"><option value="">Todos los Tiers</option></select>
+  <select id="estadoFilter"><option value="">Todos los Estados</option></select>
+</div>
+<main><div id="cardGrid" class="grid"></div></main>
+<div class="modal" id="modal"><div class="modal-content">
+  <button class="modal-close" onclick="modal.style.display='none'">&times;</button>
+  <div id="modalDetails"></div>
+</div></div>
+<footer>🔧 Generado desde Google Sheets</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script>
+const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
+let allData = [];
+const cardGrid = document.getElementById('cardGrid'),
+      projectFilter = document.getElementById('projectFilter'),
+      tierFilter = document.getElementById('tierFilter'),
+      estadoFilter = document.getElementById('estadoFilter'),
+      modal = document.getElementById('modal'),
+      modalDetails = document.getElementById('modalDetails'),
+      fechaSpan = document.getElementById('fecha');
+
+function getTierBadge(t){
+  return t==='1'?'tier-1-badge':t==='2'?'tier-2-badge':t==='3'?'tier-3-badge':t==='4'?'tier-4-badge':t==='5'?'tier-5-badge':'tier-0-badge';
+}
+function getEstadoClass(e){
+  return /abierto/i.test(e)?'Abierto':/cerrado/i.test(e)?'Cerrado':/pendiente/i.test(e)?'Pendiente':'Otro';
+}
+function showModal(i){
+  const r = allData[i];
+  const floorD = r['Floor Price Pase Directo (MON)']||'—';
+  const floorA = r['Floor Price NFT Acumulativo (MON)']||'—';
+  modal.style.display='flex';
+  modalDetails.innerHTML = `
+  <div class="section" style="text-align:center;">
+    ${r['Logo']?`<img src="${r['Logo']}" class="logo" style="width:80px;height:80px;">`:''}
+    <h2>${r['Proyecto']}</h2>
+    <div class="tag ${getEstadoClass(r['Estado Testnet'])}">${r['Estado Testnet'] || 'Desconocido'}</div>
+    <div style="margin-top:0.5rem;"><span class="tier-badge ${getTierBadge(r['Tier'])}">🏅 Tier ${r['Tier'] || '—'}</span></div>
   </div>
-  <main><div class="grid" id="cardGrid"></div></main>
-  <div class="modal" id="modal"><div class="modal-content"><button class="modal-close" onclick="modal.style.display='none'">&times;</button><div id="modalDetails"></div></div></div>
-  <footer>🔧 Generado desde Google Sheets</footer>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script>
-    const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
-    const cardGrid = document.getElementById('cardGrid');
-    const fechaSpan = document.getElementById('fecha');
-    const tierFilter = document.getElementById('tierFilter');
-    const estadoFilter = document.getElementById('estadoFilter');
-    const projectFilter = document.getElementById('projectFilter');
-    const modal = document.getElementById('modal');
-    const modalDetails = document.getElementById('modalDetails');
-    let allData = [];
+  <div class="section"><h3>🧠 Roles WL</h3><div class="info-block">${r['Roles WL']||'—'}</div></div>
+  <div class="section"><h3>✅ Pase WL Directo${r['Tooltip Pase Directo']?` <span class="tooltip-icon" title="${r['Tooltip Pase Directo']}">❓</span>`:''}</h3>
+    <div class="info-block">${r['Pase WL Directo']||'—'}</div>
+    <div class="info-block"><strong>Beneficio:</strong><br>${r['Beneficio WL Directo']||'—'}</div>
+    <div class="info-block"><strong>Floor:</strong> ${floorD} MON</div>
+    ${r['Link Pase Directo']?`<a href="${r['Link Pase Directo']}" class="buy-button" target="_blank">Comprar Pase</a>`:''}
+  </div>
+  <div class="section"><h3>📦 NFT Acumulativo${r['Tooltip NFT Acumulativo']?` <span class="tooltip-icon" title="${r['Tooltip NFT Acumulativo']}">❓</span>`:''}</h3>
+    <div class="info-block">${r['NFT Acumulativo']||'—'}</div>
+    <div class="info-block"><strong>Beneficios:</strong><br>${r['Beneficios Acumulativos']||'—'}</div>
+    <div class="info-block"><strong>Floor:</strong> ${floorA} MON</div>
+    ${r['Link NFT Acumulativo']?`<a href="${r['Link NFT Acumulativo']}" class="buy-button" target="_blank">Comprar NFT</a>`:''}
+  </div>
+  <div class="section"><h3>📝 Notas</h3><div class="info-block">${r['Notas']||'—'}</div></div>
+  ${(r['Link X']||r['Link Discord']||r['Link Web'])?`
+  <div class="section"><h3>🌐 Enlaces</h3><div class="external-links">
+    ${r['Link X']?`<a href="${r['Link X']}" class="x" target="_blank">X</a>`:''}
+    ${r['Link Discord']?`<a href="${r['Link Discord']}" class="discord" target="_blank">Discord</a>`:''}
+    ${r['Link Web']?`<a href="${r['Link Web']}" class="web" target="_blank">Web</a>`:''}
+  </div></div>`:''}
+  `;
+}
 
-    function getTierBadge(t){const tier= t?.toString();return tier==='1'?'tier-1‑badge':tier==='2'?'tier-2‑badge':tier==='3'?'tier‑3‑badge':tier==='4'?'tier‑4‑badge':tier==='5'?'tier‑5‑badge':'';}
-    function getEstadoClass(e){return /abierto/i.test(e)?'Abierto':/cerrado/i.test(e)?'Cerrado':/pendiente/i.test(e)?'Pendiente':'Otro';}
+function render(data){
+  cardGrid.innerHTML='';
+  data.forEach((r,i)=>{
+    const badge = getTierBadge(r['Tier']);
+    const card = document.createElement('div');
+    card.className = `card ${badge}`;
+    card.dataset.index = i;
+    card.innerHTML = `
+      ${r['Logo']?`<img src="${r['Logo']}" class="logo">`:''}
+      <h3>${r['Proyecto']}</h3>
+      <div class="tag ${getEstadoClass(r['Estado Testnet'])}">${r['Estado Testnet']||'Desconocido'}</div>
+      <div class="tier-badge ${badge}">Tier ${r['Tier']||'—'}</div>
+      <button class="copy-btn">Ver detalles</button>
+    `;
+    card.addEventListener('click',()=> showModal(i));
+    cardGrid.appendChild(card);
+  });
+}
 
-    function showModal(i){
-      const r = allData[i]; const estado = r['Estado Testnet'] || 'Desconocido';
-      const floorD = r['Floor Price Pase Directo (MON)'] || '—';
-      const floorA = r['Floor Price NFT Acumulativo (MON)'] || '—';
-      modal.style.display = 'flex';
-      modalDetails.innerHTML = `
-        <div class="section" style="text-align:center;">
-          ${r['Logo']?`<img src="${r['Logo']}" class="logo" style="width:80px;height:80px;">` :''}
-          <h2>${r['Proyecto']}</h2>
-          <div class="tag ${getEstadoClass(estado)}">${estado}</div>
-          <div style="margin-top:0.5rem;"><span class="tier-badge ${getTierBadge(r['Tier'])}">🏅 Tier ${r['Tier']}</span></div>
-        </div>
-        <div class="section"><h3>🧠 Roles WL</h3><div class="info-block">${r['Roles WL']||'—'}</div></div>
-        <div class="section"><h3>✅ Pase WL Directo</h3>
-          <div class="info-block">${r['Pase WL Directo']||'—'}${r['Tooltip Pase Directo']?` <span class="tooltip-icon" title="${r['Tooltip Pase Directo']}">❓</span>`:''}</div>
-          <div class="info-block"><strong>Beneficio:</strong><br>${r['Beneficio WL Directo']||'—'}</div>
-          <div class="info-block"><strong>Floor:</strong> ${floorD} MON</div>
-          ${r['Link Pase Directo']?`<a href="${r['Link Pase Directo']}" class="buy-button" target="_blank">Comprar Pase</a>`:''}
-        </div>
-        <div class="section"><h3>📦 NFT Acumulativo</h3>
-          <div class="info-block">${r['NFT Acumulativo']||'—'}${r['Tooltip NFT Acumulativo']?` <span class="tooltip-icon" title="${r['Tooltip NFT Acumulativo']}">❓</span>`:''}</div>
-          <div class="info-block"><strong>Beneficios:</strong><br>${r['Beneficios Acumulativos']||'—'}</div>
-          <div class="info-block"><strong>Floor:</strong> ${floorA} MON</div>
-          ${r['Link NFT Acumulativo']?`<a href="${r['Link NFT Acumulativo']}" class="buy-button" target="_blank">Comprar NFT</a>`:''}
-        </div>
-        <div class="section"><h3>📝 Notas</h3><div class="info-block">${r['Notas']||'—'}</div></div>
-        ${(r['Link X']||r['Link Discord']||r['Link Web'])?
-          `<div class="section"><h3>🌐 Enlaces</h3><div class="external-links">
-            ${r['Link X']?`<a href="${r['Link X']}" class="x" target="_blank">X</a>`:''}
-            ${r['Link Discord']?`<a href="${r['Link Discord']}" class="discord" target="_blank">Discord</a>`:''}
-            ${r['Link Web']?`<a href="${r['Link Web']}" class="web" target="_blank">Web</a>`:''}
-          </div></div>`:''}
-      `;
-    }
+function applyFilters(){
+  const nq = projectFilter.value.toLowerCase();
+  const tq = tierFilter.value, eq = estadoFilter.value;
+  const filtered = allData.filter(r=>
+    r['Proyecto'].toLowerCase().includes(nq) &&
+    (tq===''||r['Tier']===tq) &&
+    (eq===''||r['Estado Testnet']===eq)
+  );
+  render(filtered);
+}
 
-    function render(data){
-      cardGrid.innerHTML = '';
-      data.forEach((r,i)=>{
-        const badge = getTierBadge(r['Tier']);
-        const card = document.createElement('div');
-        card.className = `card ${badge}`;
-        card.dataset.index = i;
-        card.innerHTML = `
-          ${r['Logo']?`<img src="${r['Logo']}" class="logo">` :''}
-          <h3>${r['Proyecto']}</h3>
-          <div class="tag ${getEstadoClass(r['Estado Testnet'])}">${r['Estado Testnet']}</div>
-          <div class="tier-badge ${badge}">Tier ${r['Tier']}</div>
-          <button class="copy-btn">Ver detalles</button>
-        `;
-        card.querySelector('button').addEventListener('click',e=>{e.stopPropagation(); showModal(i);});
-        cardGrid.appendChild(card);
-      });
-    }
+Papa.parse(SHEET_CSV, { download:true, header:true, complete: results=>{
+  allData = results.data.map(r=>{
+    const c={};
+    Object.keys(r).forEach(k=>c[k.trim().replace(/\s+/g,' ')] = r[k]);
+    return c;
+  }).filter(r=>r['Proyecto']);
+  [...new Set(allData.map(r=>r['Tier']).filter(Boolean))].forEach(t=>{
+    const o=document.createElement('option'); o.value=t; o.textContent=t; tierFilter.appendChild(o);
+  });
+  [...new Set(allData.map(r=>r['Estado Testnet']).filter(Boolean))].forEach(e=>{
+    const o=document.createElement('option'); o.value=e; o.textContent=e; estadoFilter.appendChild(o);
+  });
+  render(allData);
+  fechaSpan.textContent = new Date().toLocaleDateString('es-AR');
+}});
 
-    function applyFilters(){
-      const nq = projectFilter.value.toLowerCase();
-      const tq = tierFilter.value;
-      const eq = estadoFilter.value;
-      render(allData.filter(r=>
-        r['Proyecto'].toLowerCase().includes(nq) &&
-        (tq===''||r['Tier']===tq) &&
-        (eq===''||r['Estado Testnet']===eq)
-      ));
-    }
-
-    Papa.parse(SHEET_CSV,{
-      download:true, header:true,
-      complete: results => {
-        allData = results.data.map(r=>{
-          const c={};
-          Object.keys(r).forEach(k=>{c[k.trim().replace(/\s+/g,' ')]=r[k]});
-          return c;
-        }).filter(r=>r['Proyecto']);
-        const tiers = [...new Set(allData.map(r=>r['Tier']).filter(Boolean))];
-        tiers.forEach(t=>{const o=document.createElement('option');o.value=t; o.textContent=t; tierFilter.appendChild(o)});
-        const estados = [...new Set(allData.map(r=>r['Estado Testnet']).filter(Boolean))];
-        estados.forEach(e=>{const o=document.createElement('option');o.value=e; o.textContent=e; estadoFilter.appendChild(o)});
-        render(allData);
-        fechaSpan.textContent = new Date().toLocaleDateString('es-AR');
-      }
-    });
-
-    projectFilter.addEventListener('input',applyFilters);
-    tierFilter.addEventListener('change',applyFilters);
-    estadoFilter.addEventListener('change',applyFilters);
-    window.onclick = e=>{if(e.target===modal)modal.style.display='none';};
-  </script>
+projectFilter.addEventListener('input', applyFilters);
+tierFilter.addEventListener('change', applyFilters);
+estadoFilter.addEventListener('change', applyFilters);
+window.onclick = e=>{ if(e.target===modal) modal.style.display='none'; };
+</script>
 </body>
 </html>
