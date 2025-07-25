@@ -83,9 +83,15 @@ function getEstadoClass(e){
   return /abierto/i.test(e)?'Abierto':/cerrado/i.test(e)?'Cerrado':/pendiente/i.test(e)?'Pendiente':'Otro';
 }
 
-function formatRolesWL(txt){
-  if(!txt) return '';
-  return txt.replace(/\n/g,'<br><br>').replace(/\. /g,'.<br><br>');
+function formatRolesWL(txt) {
+  if (!txt) return '';
+  const withImgs = parseImgTags(txt);
+  return withImgs.replace(/\n/g, '<br><br>').replace(/\. /g, '.<br><br>');
+}
+
+function parseImgTags(text) {
+  if (!text) return '';
+  return text.replace(/\[img\](https?:\/\/\S+)/g, (_, url) => `<img src="${url}" style="max-width:100px; display:block; margin:0.5rem 0;">`);
 }
 
 function showModal(i){
