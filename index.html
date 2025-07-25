@@ -61,6 +61,35 @@
     .info-block strong { display: block; margin-bottom: 0.2rem; }
     .icons a { margin-right: 10px; font-size: 1.2rem; text-decoration: none; }
     footer { text-align: center; padding: 1rem; font-size: 0.85rem; color: #666; }
+    /* Fondo degradado por tier (tier 1 a 5) */
+.card.tier-1-badge { background: #e6fffa; }  /* verde claro */
+.card.tier-2-badge { background: #f0fff4; }  /* verde muy pálido */
+.card.tier-3-badge { background: #fffbea; }  /* amarillento */
+.card.tier-4-badge { background: #fff5f5; }  /* rosado claro */
+.card.tier-5-badge { background: #ffe6e6; }  /* rojo pálido */
+
+/* Suavizar animaciones */
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+/* Etiquetas */
+.tier-badge {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  background: #805ad5;
+}
+.tag {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+}
+
   </style>
   <script src="https://kit.fontawesome.com/ae2d2bcb43.js" crossorigin="anonymous"></script>
 </head>
