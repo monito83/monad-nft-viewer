@@ -91,8 +91,13 @@ function formatRolesWL(txt) {
 
 function parseImgTags(text) {
   if (!text) return '';
-  return text.replace(/\[img\](https?:\/\/\S+)/g, (_, url) => `<img src="${url}" style="max-width:100px; display:block; margin:0.5rem 0;">`);
+  return text.replace(/\[img\](https?:\/\/\S+)/g, (_, url) => `
+    <a href="${url}" target="_blank">
+      <img src="${url}" style="max-width:100px; display:block; margin:0.5rem 0; cursor:pointer;">
+    </a>
+  `);
 }
+
 
 function showModal(i){
   const r = allData[i];
