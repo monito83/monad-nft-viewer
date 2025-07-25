@@ -85,9 +85,11 @@ function getEstadoClass(e){
 
 function formatRolesWL(txt) {
   if (!txt) return '';
-  const withImgs = parseImgTags(txt);
-  return withImgs.replace(/\n/g, '<br><br>').replace(/\. /g, '.<br><br>');
+  const safeText = txt.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const withImgs = parseImgTags(safeText);
+  return withImgs.replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>');
 }
+
 
 function parseImgTags(text) {
   if (!text) return '';
