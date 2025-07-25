@@ -189,23 +189,31 @@ console.log('PRIMER ROW:', results.data[0]);
       render(filtered);
     }
 
-    Papa.parse(SHEET_CSV, {
-      download: true,
-      header: true,
-      complete: results => {
-        // 🧼 Normalizar claves
-        results.data = results.data.map(row => {
-          const cleaned = {};
-          for (const key in row) {
-            const newKey = key.trim().replace(/\s+/g, ' ');
-            cleaned[newKey] = row[key];
-          }
-          return cleaned;
-        });
+Papa.parse(SHEET_CSV, {
+  download: true,
+  header: true,
+  complete: results => {
+    results.data = results.data.map(row => {
+      const cleaned = {};
+      for (const key in row) {
+        cleaned[key.trim().replace(/\s+/g, ' ')] = row[key];
+      }
+      return cleaned;
+    });
+
+    allData = results.data.filter(r => r['Proyecto']);
+
+    // ← Inserta aquí los logs:
+    console.log('COLUMNAS CSV:', Object.keys(allData[0]));
+    console.log('PRIMER ROW:', allData[0]);
+
+    render(allData);
+    fechaSpan.textContent = new Date().toLocaleDateString('es-AR');
+  }
+});
+
 
         allData = results.data.filter(r => r['Proyecto']);
-        console.log('COLUMNAS CSV:', Object.keys(allData[0]));
-    console.log('PRIMER ROW:', allData[0]);
         [...new Set(allData.map(r => r['Tier']).filter(Boolean))].forEach(tier => {
           const opt = document.createElement('option');
           opt.value = tier;
