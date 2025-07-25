@@ -6,31 +6,30 @@
   <title>Proyectos NFT Monad</title>
   <style>
     body { font-family: 'Segoe UI', sans-serif; background: #f0f0f0; margin: 0; padding: 0; color: #333; }
-    header { background: #4c51bf; color: white; text-align: center; padding: 1.5rem 1rem; }
+    header { background: #4c51bf; color: white; text-align: center; padding: 1.5rem; }
     header h1 { margin: 0; font-size: 1.8rem; }
-    .filters { display: flex; gap:1rem; flex-wrap: wrap; justify-content: center; padding: 1rem; }
+    .filters { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; padding: 1rem; }
     .filters input, .filters select {
-      padding: .5rem; font-size: 1rem; border: 1px solid #ccc; border-radius:6px;
+      padding: .5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px;
     }
-    main { max-width: 1200px; margin: auto; padding: 1rem; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 1.5rem; }
+    main { max-width:1200px; margin:auto; padding:1rem; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap:1.5rem; }
 
     .card {
-      background: white; border-radius:12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      padding:1rem; display:flex; flex-direction: column; align-items:center; gap:.5rem;
-      border-left:6px solid transparent;
-      transition: transform .2s ease, box-shadow .2s ease;
+      background:white; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.1);
+      padding:1rem; display:flex; flex-direction:column; align-items:center; gap:.5rem;
+      border-left:6px solid transparent; transition:transform .2s ease, box-shadow .2s ease;
     }
-    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); cursor:pointer; }
+    .card:hover { transform: translateY(-4px); box-shadow:0 8px 20px rgba(0,0,0,0.12); cursor:pointer; }
 
-    /* Degradado por tiers: tier‑1 verde claro a tier‑5 rojo claro */
-    .card.tier-1-badge { background: #e6fffa; }
-    .card.tier-2-badge { background: #f0fff4; }
-    .card.tier-3-badge { background: #fffbea; }
-    .card.tier-4-badge { background: #fff5f5; }
-    .card.tier-5-badge { background: #ffe6e6; }
+    /* Fondo por tier */
+    .card.tier-1-badge { background:#e6fffa; }
+    .card.tier-2-badge { background:#f0fff4; }
+    .card.tier-3-badge { background:#fffbea; }
+    .card.tier-4-badge { background:#fff5f5; }
+    .card.tier-5-badge { background:#ffe6e6; }
 
-    .logo { width:60px; height:60px; border-radius:50%; object-fit:cover; display:block; }
+    .logo { width:60px; height:60px; border-radius:50%; object-fit:cover; }
 
     .tag, .tier-badge {
       display:inline-block; padding:.4rem .8rem; border-radius:6px; color:white;
@@ -39,16 +38,14 @@
     .Abierto { background:#38a169; }
     .Cerrado { background:#e53e3e; }
     .Pendiente, .Desconocido, .Otro { background:#718096; }
-
     .tier-badge { background:#805ad5; }
-    .tier-1-badge { background: gold; color:#333; }
-    .tier-2-badge { background: silver; color:#333; }
-    .tier-3-badge, .tier-4-badge, .tier-5-badge { background:#cd7f32; color:#fff; }
+    .tier-1-badge { background:gold; }
+    .tier-2-badge { background:silver; }
+    .tier-3-badge, .tier-4-badge, .tier-5-badge { background:#cd7f32; }
 
     .copy-btn, .buy-button {
       background:#4299e1; color:white; border:none; border-radius:6px;
-      padding:.4rem .8rem; cursor:pointer; font-size:.9rem; text-decoration:none;
-      font-weight:bold;
+      padding:.4rem .8rem; cursor:pointer; font-size:.9rem; font-weight:bold; text-decoration:none;
     }
 
     .modal {
@@ -65,6 +62,13 @@
     .info-block { font-size:.95rem; line-height:1.5; white-space:pre-line; margin-top:1rem; }
     .info-block strong { display:block; margin-bottom:.2rem; }
     footer { text-align:center; padding:1rem; font-size:.85rem; color:#666; }
+
+    .modal-content .section { margin-bottom:1rem; }
+    .modal-content hr { border:none; border-top:1px solid #e2e8f0; margin:1rem 0; }
+    .modal-content pre {
+      background:#f7fafc; padding:.6rem; border-radius:6px; font-size:.93rem;
+    }
+    .modal-content .copy-btn { font-size:.85rem; padding:.3rem .6rem; }
   </style>
   <script src="https://kit.fontawesome.com/ae2d2bcb43.js" crossorigin="anonymous"></script>
 </head>
@@ -73,11 +77,13 @@
     <h1>Proyectos NFT en Monad</h1>
     <p>Actualizado: <span id="fecha"></span></p>
   </header>
+
   <div class="filters">
     <input type="text" id="projectFilter" placeholder="Buscar proyecto...">
     <select id="tierFilter"><option value="">Todos los Tiers</option></select>
     <select id="estadoFilter"><option value="">Todos los Estados</option></select>
   </div>
+
   <main><div class="grid" id="cardGrid"></div></main>
 
   <div class="modal" id="modal">
@@ -121,23 +127,25 @@
     function showModal(index) {
       const row = allData[index];
       const estado = row['Estado Testnet'] || 'Desconocido';
-      const floorDirecto = row['Floor Price Pase Directo (MON)'] || '';
-      const floorAcumulativo = row['Floor Price NFT Acumulativo (MON)'] || '';
+      const floorD = row['Floor Price Pase Directo (MON)'] || '';
+      const floorA = row['Floor Price NFT Acumulativo (MON)'] || '';
       modal.style.display = 'flex';
       modalDetails.innerHTML = `
-        ${row['Logo'] ? `<img src="${row['Logo']}" class="logo" style="width:80px;height:80px;" alt="logo">` : ''}
-        <h2 style="margin:0; text-align:center;">${row['Proyecto']}</h2>
+        ${row['Logo'] ? `<img src="${row['Logo']}" class="logo" style="width:80px;height:80px;">` : ''}
+        <h2 style="text-align:center; margin:0;">${row['Proyecto']}</h2>
         <div class="tag ${getEstadoClass(estado)}" style="margin:auto;">${estado}</div>
         <div style="text-align:center; margin:1rem 0;">
           <span class="tier-badge ${getTierBadge(row['Tier'])}" style="font-size:1rem;">🏅 Tier ${row['Tier']}</span>
         </div>
-        <div class="info-block"><strong>💰 Floor Directo:</strong> ${floorDirecto} MON</div>
-        <div class="info-block"><strong>💰 Floor Acumulativo:</strong> ${floorAcumulativo} MON</div>
-        <div class="info-block"><strong>🧠 Roles WL:</strong><br>${(row['Roles WL'] || '').replace(/\n/g,'<br>')}</div>
-        <div class="info-block"><strong>📦 Pase WL Directo:</strong><br>${(row['Pase WL Directo'] || '').replace(/\n/g,'<br>')}</div>
-        <div class="info-block"><strong>📦 NFT Acumulativo:</strong><br>${(row['NFT Acumulativo'] || '').replace(/\n/g,'<br>')}</div>
-        <div class="info-block"><strong>📎 Notas:</strong><br>${(row['Notas'] || '')}</div>
-        ${row['Link X'] || row['Link Discord'] || row['Link Web'] ? `
+        <div class="info-block"><strong>💰 Floor Directo:</strong> ${floorD} MON</div>
+        <div class="info-block"><strong>💰 Floor Acumulativo:</strong> ${floorA} MON</div>
+        <div class="info-block"><strong>🧠 Roles WL:</strong><br>${row['Roles WL'] || '—'}</div>
+        <div class="info-block"><strong>📦 Pase WL Directo:</strong><br>${row['Pase WL Directo'] || '—'}</div>
+        <div class="info-block"><strong>📄 Beneficio WL Directo:</strong><br>${row['Beneficio WL Directo'] || '—'}</div>
+        <div class="info-block"><strong>📦 NFT Acumulativo:</strong><br>${row['NFT Acumulativo'] || '—'}</div>
+        <div class="info-block"><strong>📄 Beneficios Acumulativos:</strong><br>${row['Beneficios Acumulativos'] || '—'}</div>
+        <div class="info-block"><strong>📎 Notas:</strong><br>${row['Notas'] || '—'}</div>
+        ${(row['Link X']||row['Link Discord']|| row['Link Web']) ? `
           <div class="info-block"><strong>🌐 Enlaces:</strong>
             ${row['Link X'] ? `<br><a href="${row['Link X']}" target="_blank">X</a>` : ''}
             ${row['Link Discord'] ? `<br><a href="${row['Link Discord']}" target="_blank">Discord</a>` : ''}
@@ -148,22 +156,19 @@
 
     function render(data) {
       cardGrid.innerHTML = '';
-      data.forEach((row, i) => {
-        const badgeClass = getTierBadge(row['Tier']);
+      data.forEach((row,i) => {
+        const badge = getTierBadge(row['Tier']);
         const card = document.createElement('div');
-        card.className = `card ${badgeClass}`;
+        card.className = `card ${badge}`;
         card.dataset.index = i;
         card.innerHTML = `
-          ${row['Logo'] ? `<img src="${row['Logo']}" class="logo" alt="logo">` : ''}
+          ${row['Logo']? `<img src="${row['Logo']}" class="logo">`: ''}
           <h3>${row['Proyecto']}</h3>
           <div class="tag ${getEstadoClass(row['Estado Testnet'])}">${row['Estado Testnet']}</div>
-          <div class="tier-badge ${badgeClass}">Tier ${row['Tier']}</div>
+          <div class="tier-badge ${badge}">Tier ${row['Tier']}</div>
           <button class="copy-btn">Ver detalles</button>
         `;
-        card.querySelector('button').addEventListener('click', e => {
-          e.stopPropagation();
-          showModal(i);
-        });
+        card.querySelector('button').addEventListener('click', e => { e.stopPropagation(); showModal(i); });
         cardGrid.appendChild(card);
       });
     }
@@ -184,19 +189,17 @@
       download: true,
       header: true,
       complete: results => {
-        results.data = results.data.map(row => {
-          const cleaned = {};
-          for (const k in row) {
-            cleaned[k.trim().replace(/\s+/g,' ')] = row[k];
-          }
-          return cleaned;
+        results.data = results.data.map(r=>{
+          const c = {};
+          for(const k in r) c[k.trim().replace(/\s+/g,' ')] = r[k];
+          return c;
         });
-        allData = results.data.filter(r => r['Proyecto']);
-        [...new Set(allData.map(r => r['Tier']).filter(Boolean))].forEach(t => {
-          const opt = document.createElement('option'); opt.value = t; opt.textContent = t; tierFilter.appendChild(opt);
+        allData = results.data.filter(r=> r['Proyecto']);
+        [...new Set(allData.map(r => r['Tier']).filter(Boolean))].forEach(t=>{
+          const o = document.createElement('option'); o.value=t; o.textContent=t; tierFilter.appendChild(o);
         });
-        [...new Set(allData.map(r => r['Estado Testnet']).filter(Boolean))].forEach(e => {
-          const opt = document.createElement('option'); opt.value = e; opt.textContent = e; estadoFilter.appendChild(opt);
+        [...new Set(allData.map(r=>r['Estado Testnet']).filter(Boolean))].forEach(e=>{
+          const o=document.createElement('option'); o.value=e; o.textContent=e; estadoFilter.appendChild(o);
         });
         render(allData);
         fechaSpan.textContent = new Date().toLocaleDateString('es-AR');
@@ -206,7 +209,7 @@
     projectFilter.addEventListener('input', applyFilters);
     tierFilter.addEventListener('change', applyFilters);
     estadoFilter.addEventListener('change', applyFilters);
-    window.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
+    window.onclick = e => { if(e.target===modal) modal.style.display='none'; };
   </script>
 </body>
 </html>
