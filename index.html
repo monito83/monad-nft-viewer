@@ -95,10 +95,11 @@ function parseImgTags(text) {
   if (!text) return '';
   return text.replace(/\[img\](https?:\/\/\S+)/g, (_, url) => `
     <a href="${url}" target="_blank">
-      <img src="${url}" style="max-width:100px; display:block; margin:0.5rem 0; cursor:pointer;">
+      <img src="${url}" style="max-width:100px; max-height:100px; display:inline-block; margin:4px; vertical-align:middle; border-radius:6px;">
     </a>
   `);
 }
+
 
 
 function showModal(i){
