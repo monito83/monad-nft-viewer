@@ -184,7 +184,8 @@
 
         document.getElementById('fecha').textContent = new Date().toLocaleDateString('es-AR');
         document.getElementById('faqBtn').onclick = () => {
-          const faqText = allData[1]?.FAQ || 'Sin FAQ configurada.';
+          const faqEntry = allData.find(r => r['FAQ'] && r['FAQ'].trim() !== '');
+          const faqText = faqEntry ? faqEntry['FAQ'] : 'Sin FAQ configurada.';
           document.getElementById('faqContent').innerText = faqText;
           document.getElementById('faqModal').style.display = 'flex';
         };
