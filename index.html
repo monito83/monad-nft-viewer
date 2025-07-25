@@ -138,8 +138,6 @@ ${(row['Link X'] || row['Link Discord'] || row['Link Web']) ? `
   </div>` : ''}
   `;
 }
-console.log('COLUMNAS CSV:', Object.keys(results.data[0]));
-console.log('PRIMER ROW:', results.data[0]);
     function render(data) {
       cardGrid.innerHTML = '';
       data.forEach((row, i) => {
