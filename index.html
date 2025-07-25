@@ -86,18 +86,24 @@
   </div>
 
   <footer>🔧 Generado desde Google Sheets</footer>
-
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script>
-  const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
+    const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
     let allData = [];
 
-    function getTierBadge(t){ return ['','tier-1-badge','tier-2-badge','tier-3-badge','tier-4-badge','tier-5-badge'][parseInt(t)]||''; }
-    function getEstadoClass(e){ return /abierto/i.test(e)?'Abierto':/cerrado/i.test(e)?'Cerrado':/pendiente/i.test(e)?'Pendiente':'Otro'; }
+    function getTierBadge(t){
+      return ['','tier-1-badge','tier-2-badge','tier-3-badge','tier-4-badge','tier-5-badge'][parseInt(t)]||'';
+    }
+
+    function getEstadoClass(e){
+      return /abierto/i.test(e)?'Abierto':/cerrado/i.test(e)?'Cerrado':/pendiente/i.test(e)?'Pendiente':'Otro';
+    }
+
     function parseImgTags(text){
       if (!text) return '';
       return text.replace(/\[img\](https?:\/\/\S+)/g, (_,url) => `<a href="${url}" target="_blank"><img src="${url}" style="max-width:100px; max-height:100px; margin:4px; vertical-align:middle; border-radius:6px;"></a>`);
     }
+
     function formatRolesWL(txt){
       if(!txt) return '';
       const safe = txt.replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -141,24 +147,6 @@
       `;
     }
 
-    Papa.parse(SHEET_CSV,{download:true,header:true,complete(results){
-      allData = results.data.map(r=>{
-        const clean={}; for(const k in r) clean[k.trim().replace(/\s+/g,' ')]=r[k]; return clean;
-      }).filter(r=>r['Proyecto']);
-      const tiers=[...new Set(allData.map(r=>r['Tier']).filter(t=>t))];
-      tiers.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;document.getElementById('tierFilter').appendChild(o)});
-      const ests=[...new Set(allData.map(r=>r['Estado Testnet']).filter(e=>e))];
-      ests.forEach(e=>{const o=document.createElement('option');o.value=e;o.textContent=e;document.getElementById('estadoFilter').appendChild(o)});
-      render(allData);
-      document.getElementById('fecha').textContent=new Date().toLocaleDateString('es‑AR');
-      document.getElementById('faqBtn').onclick=()=>{
-        const faqTxt = allData[1] && allData[1]['FAQ'] ? allData[1]['FAQ'] : 'Sin FAQ configurada';
-        document.getElementById('faqContent').innerText = faqTxt;
-        document.getElementById('faqModal').style.display='flex';
-      };
-      document.getElementById('donateBtn').onclick=()=>document.getElementById('donateModal').style.display='flex';
-    }});
-
     function render(data){
       const grid=document.getElementById('cardGrid'); grid.innerHTML='';
       data.forEach((r,i)=>{
@@ -181,15 +169,56 @@
       const ef=document.getElementById('estadoFilter').value;
       render(allData.filter(r=>r['Proyecto'].toLowerCase().includes(name)&&(!tf||r['Tier']===tf)&&(!ef||r['Estado Testnet']===ef)));
     }
+
+    Papa.parse(SHEET_CSV, {
+      download: true,
+      header: true,
+      complete: function(results) {
+        allData = results.data.map(row => {
+          const cleaned = {};
+          for (const key in row) cleaned[key.trim().replace(/\s+/g, ' ')] = row[key];
+          return cleaned;
+        }).filter(r => r['Proyecto']);
+
+        render(allData);
+
+        document.getElementById('fecha').textContent = new Date().toLocaleDateString('es-AR');
+        document.getElementById('faqBtn').onclick = () => {
+          const faqText = allData[1]?.FAQ || 'Sin FAQ configurada.';
+          document.getElementById('faqContent').innerText = faqText;
+          document.getElementById('faqModal').style.display = 'flex';
+        };
+        document.getElementById('donateBtn').onclick = () => {
+          document.getElementById('donateModal').style.display = 'flex';
+        };
+
+        const tierSet = new Set(), estadoSet = new Set();
+        allData.forEach(r => {
+          if (r['Tier']) tierSet.add(r['Tier']);
+          if (r['Estado Testnet']) estadoSet.add(r['Estado Testnet']);
+        });
+        tierSet.forEach(t => {
+          const o=document.createElement('option');
+          o.value=t;o.textContent=t;
+          document.getElementById('tierFilter').appendChild(o);
+        });
+        estadoSet.forEach(e => {
+          const o=document.createElement('option');
+          o.value=e;o.textContent=e;
+          document.getElementById('estadoFilter').appendChild(o);
+        });
+      }
+    });
+
     document.getElementById('projectFilter').addEventListener('input', applyFilters);
     document.getElementById('tierFilter').addEventListener('change', applyFilters);
     document.getElementById('estadoFilter').addEventListener('change', applyFilters);
 
-    window.addEventListener('click',e=>{
-      if(e.target.id==='modal') document.getElementById('modal').style.display='none';
-      if(e.target.id==='faqModal') document.getElementById('faqModal').style.display='none';
-      if(e.target.id==='donateModal') document.getElementById('donateModal').style.display='none';
-    });
+    window.onclick = e => {
+      if (e.target.id === 'modal') document.getElementById('modal').style.display = 'none';
+      if (e.target.id === 'faqModal') document.getElementById('faqModal').style.display = 'none';
+      if (e.target.id === 'donateModal') document.getElementById('donateModal').style.display = 'none';
+    };
   </script>
 </body>
 </html>
