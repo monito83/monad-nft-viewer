@@ -303,35 +303,40 @@
 
       modal.style.display = 'flex';
       modalDetails.innerHTML = `
-        <div class="section">
-          <div style="text-align:center;">
-            ${r['Logo'] ? `<img src="${r['Logo']}" class="logo" style="width:80px;height:80px;">` : ''}
-            <h2>${r['Proyecto']}</h2>
-            <div class="tag ${getEstadoClass(estado)}">${estado}</div>
-            <div style="margin-top:0.5rem;">
-              <span class="tier-badge ${getTierBadge(r['Tier'])}">🏅 Tier ${r['Tier']}</span>
-            </div>
-          </div>
-        </div>
-<!-- Dentro de modalDetails, después de la sección de título -->
-<div class="section">
-  <h3>🧠 Roles WL</h3>
+        <!-- ... dentro de showModal(...) modalDetails.innerHTML = `...` ... -->
+<div class="section" style="text-align:center;">
+  ${r['Logo'] ? `<img src="${r['Logo']}" class="logo" style="width:80px;height:80px;">` : ''}
+  <h2>${r['Proyecto']}</h2>
+  <div class="tag ${getEstadoClass(estado)}">${estado}</div>
+  <div style="margin-top:0.5rem;">
+    <span class="tier-badge ${getTierBadge(r['Tier'])}">🏅 Tier ${r['Tier']}</span>
+  </div>
+</div>
+
+<div class="section"><h3>🧠 Roles WL</h3>
   <div class="info-block">${r['Roles WL'] || '—'}</div>
 </div>
 
-        <div class="section"><h3>✅ Pase WL Directo</h3>
-          <div class="info-block">${r['Pase WL Directo'] || '—'}</div>
-          <div class="info-block"><strong>Beneficio:</strong><br>${r['Beneficio WL Directo'] || '—'}</div>
-          <div class="info-block"><strong>Floor:</strong> ${floorD} MON</div>
-          ${r['Link Pase Directo'] ? `<a href="${r['Link Pase Directo']}" target="_blank" class="buy-button">Comprar Pase</a>` : ''}
-        </div>
+<div class="section"><h3>✅ Pase WL Directo</h3>
+  <div class="info-block">${r['Pase WL Directo'] || '—'}
+    ${r['Tooltip Pase Directo'] ? `<span class="tooltip-icon" title="${r['Tooltip Pase Directo']}">❓</span>` : ''}
+  </div>
+  <div class="info-block"><strong>Beneficio:</strong><br>${r['Beneficio WL Directo'] || '—'}</div>
+  <div class="info-block"><strong>Floor:</strong> ${floorD} MON</div>
+  ${r['Link Pase Directo'] ? `<a href="${r['Link Pase Directo']}" class="buy-button" target="_blank">Comprar Pase</a>` : ''}
+</div>
 
-        <div class="section"><h3>📦 NFT Acumulativo</h3>
-          <div class="info-block">${r['NFT Acumulativo'] || '—'}</div>
-          <div class="info-block"><strong>Beneficios:</strong><br>${r['Beneficios Acumulativos'] || '—'}</div>
-          <div class="info-block"><strong>Floor:</strong> ${floorA} MON</div>
-          ${r['Link NFT Acumulativo'] ? `<a href="${r['Link NFT Acumulativo']}" target="_blank" class="buy-button">Comprar NFT</a>` : ''}
-        </div>
+<div class="section"><h3>📦 NFT Acumulativo</h3>
+  <div class="info-block">${r['NFT Acumulativo'] || '—'}
+    ${r['Tooltip NFT Acumulativo'] ? `<span class="tooltip-icon" title="${r['Tooltip NFT Acumulativo']}">❓</span>` : ''}
+  </div>
+  <div class="info-block"><strong>Beneficios:</strong><br>${r['Beneficios Acumulativos'] || '—'}</div>
+  <div class="info-block"><strong>Floor:</strong> ${floorA} MON</div>
+  ${r['Link NFT Acumulativo'] ? `<a href="${r['Link NFT Acumulativo']}" class="buy-button" target="_blank">Comprar NFT</a>` : ''}
+</div>
+
+<!-- resto: notas + enlaces -->
+
 
         <div class="section"><h3>📝 Notas</h3>
           <div class="info-block">${r['Notas'] || '—'}</div>
