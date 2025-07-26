@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Proyectos NFT en Monad</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
@@ -20,38 +20,37 @@
     <input id="projectFilter" type="text" placeholder="Buscar proyecto…">
     <select id="tierFilter"><option value="">Todos los Tiers</option></select>
     <select id="estadoFilter"><option value="">Todos los Estados</option></select>
-    <select id="sortSelect">
-    <option value="tier">Ordenar por Tier</option>
-    <option value="nombre">Ordenar por Nombre</option>
-  </select>  
+    <!-- Nuevo select de orden -->
+    <select id="sortOrder">
+      <option value="">Ordenar por...</option>
+      <option value="tier">Tier</option>
+      <option value="nombre">Nombre</option>
+    </select>
   </div>
 
   <main><div id="cardGrid" class="grid"></div></main>
 
-  <!-- MODAL DETALLES -->
   <div id="modal" class="modal">
     <div class="modal-content">
-      <button class="modal-close" data-close="modal">&times;</button>
+      <button class="modal-close" onclick="document.getElementById('modal').style.display='none'">&times;</button>
       <div id="modalDetails"></div>
     </div>
   </div>
 
-  <!-- MODAL FAQ -->
   <div id="faqModal" class="modal">
     <div class="modal-content">
-      <button class="modal-close" data-close="faqModal">&times;</button>
+      <button class="modal-close" onclick="document.getElementById('faqModal').style.display='none'">&times;</button>
       <h2>FAQ</h2>
       <div id="faqContent"></div>
     </div>
   </div>
 
-  <!-- MODAL DONACIONES -->
   <div id="donateModal" class="modal">
     <div class="modal-content">
-      <button class="modal-close" data-close="donateModal">&times;</button>
+      <button class="modal-close" onclick="document.getElementById('donateModal').style.display='none'">&times;</button>
       <h2>Donaciones</h2>
       <p>Si te gusta esta herramienta, podés donar a la siguiente billetera MON:<br>
-        <strong>0xbd36dcf15db0a9449ec5ccc997df1c756fc16ac5</strong></p>
+      <strong>0xbd36dcf15db0a9449ec5ccc997df1c756fc16ac5</strong></p>
     </div>
   </div>
 
@@ -59,22 +58,5 @@
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="script.js"></script>
-
-  <script>
-    // 👇 CIERRA CUALQUIER MODAL AL HACER CLICK EN BOTÓN X
-    document.querySelectorAll('.modal-close').forEach(btn => {
-      btn.onclick = () => {
-        const id = btn.getAttribute('data-close');
-        document.getElementById(id).style.display = 'none';
-      };
-    });
-
-    // 👇 CIERRA MODALES SI HACE CLICK FUERA DEL MODAL
-    window.onclick = e => {
-      ['modal', 'faqModal', 'donateModal'].forEach(id => {
-        if (e.target.id === id) document.getElementById(id).style.display = 'none';
-      });
-    };
-  </script>
 </body>
 </html>
