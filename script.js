@@ -166,23 +166,27 @@ function applyFiltersAndSort() {
   const ef = document.getElementById('estadoFilter').value;
   const sort = document.getElementById('sortOrder').value;
 
-  filteredData = allData.filter(
-    (r) =>
-      r['Proyecto'].toLowerCase().includes(name) &&
-      (!tf || r['Tier'] === tf) &&
-      (!ef || r['Estado Testnet'] === ef)
+  filteredData = allData.filter(r =>
+    r['Proyecto'].toLowerCase().includes(name) &&
+    (!tf || r['Tier'] === tf) &&
+    (!ef || r['Estado Testnet'] === ef)
   );
 
   if (sort === 'tier') {
-    filteredData.sort(
-      (a, b) => (parseInt(a['Tier']) || 0) - (parseInt(b['Tier']) || 0)
-    );
+    filteredData.sort((a, b) => (parseInt(a['Tier']) || 0) - (parseInt(b['Tier']) || 0));
   } else if (sort === 'nombre') {
     filteredData.sort((a, b) => a['Proyecto'].localeCompare(b['Proyecto']));
+  } else if (sort === 'floorD') {
+    filteredData.sort((a, b) => {
+      const fa = parseFloat(a['Floor Price Pase Directo (MON)']) || Infinity;
+      const fb = parseFloat(b['Floor Price Pase Directo (MON)']) || Infinity;
+      return fa - fb;
+    });
   }
 
   render(filteredData);
 }
+
 
 Papa.parse(SHEET_CSV, {
   download: true,
@@ -211,7 +215,12 @@ Papa.parse(SHEET_CSV, {
     document.getElementById('donateBtn').onclick = () => {
       document.getElementById('donateModal').style.display = 'flex';
     };
-
+    document.getElementById('helpBtn').onclick = () => {
+      window.open('https://forms.gle/63JmoMoxH517yuv17', '_blank');
+    };
+    
+    document.getElementById('sortOrder').addEventListener('change', applyFiltersAndSort);
+    
     const tierSet = new Set(),
       estadoSet = new Set();
     allData.forEach((r) => {
