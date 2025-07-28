@@ -1,57 +1,54 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PROYECTOS NFT EN MONAD</title>
+  <title>NFT PROJECTS ON MONAD</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-
 </head>
 <body>
   <header>
-  <div style="display:flex; align-items:center; justify-content:center; gap:1rem;">
-  <img src="https://raw.githubusercontent.com/monito83/monad-nft-viewer/refs/heads/main/logo_monad2.png" alt="Logo" style="height:40px;">
-  <h1 style="font-family:'Montserrat', sans-serif; font-weight:700; font-size:2rem;">
-  PROYECTOS NFT EN MONAD
-  </h1>
-  <img src="https://raw.githubusercontent.com/monito83/monad-nft-viewer/refs/heads/main/logo_monad2.png" alt="Logo" style="height:40px;">
-</div>
+    <div style="display:flex; align-items:center; justify-content:center; gap:1rem;">
+      <img src="https://raw.githubusercontent.com/monito83/monad-nft-viewer/refs/heads/main/logo_monad2.png" alt="Logo" style="height:40px;">
+      <h1 style="font-family:'Montserrat', sans-serif; font-weight:700; font-size:2rem;">
+        NFT PROJECTS ON MONAD
+      </h1>
+      <img src="https://raw.githubusercontent.com/monito83/monad-nft-viewer/refs/heads/main/logo_monad2.png" alt="Logo" style="height:40px;">
+    </div>
     <div class="header-buttons">
       <button id="faqBtn">FAQ</button>
-      <button id="donateBtn">Donar</button>
-      <button id="helpBtn">Ayudame 😊</button>
+      <button id="donateBtn">Donate</button>
+      <button id="helpBtn">Help Me 😊</button>
     </div>
-    <p>Actualizado: <span id="fecha"></span> V5</p>
-     <!-- Tu firma e íconos sociales -->
-  <div class="creator-social">
-  <p>Creado por: <strong>Monito83</strong></p>
-  <div class="social-icons">
-    <a href="https://x.com/martinescopc" target="_blank" title="X / Twitter">
-      <img src="https://cdn-icons-png.flaticon.com/512/3670/3670151.png" alt="X" />
-    </a>
-    <a href="https://discord.com/users/monito83" target="_blank" title="Discord">
-      <img src="https://cdn-icons-png.flaticon.com/512/3670/3670157.png" alt="Discord" />
-    </a>
-    <a href="https://t.me/tinchodido" target="_blank" title="Telegram">
-      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram" />
-    </a>
-  </div>
-</div>
+    <p>Updated: <span id="fecha"></span> V5</p>
+    <div class="creator-social">
+      <p>Created by: <strong>Monito83</strong></p>
+      <div class="social-icons">
+        <a href="https://x.com/martinescopc" target="_blank" title="X / Twitter">
+          <img src="https://cdn-icons-png.flaticon.com/512/3670/3670151.png" alt="X" />
+        </a>
+        <a href="https://discord.com/users/monito83" target="_blank" title="Discord">
+          <img src="https://cdn-icons-png.flaticon.com/512/3670/3670157.png" alt="Discord" />
+        </a>
+        <a href="https://t.me/tinchodido" target="_blank" title="Telegram">
+          <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram" />
+        </a>
+      </div>
+    </div>
 
-    <button id="themeToggle">🌙</button> Modo Oscuro/claro
+    <button id="themeToggle">🌙</button> Dark/Light Mode
   </header>
 
   <div class="filters">
-    <input id="projectFilter" type="text" placeholder="Buscar proyecto…">
-    <select id="tierFilter"><option value="">Todos los Tiers</option></select>
-    <select id="estadoFilter"><option value="">Todos los Estados</option></select>
-    <!-- Nuevo select de orden -->
+    <input id="projectFilter" type="text" placeholder="Search project…">
+    <select id="tierFilter"><option value="">All Tiers</option></select>
+    <select id="estadoFilter"><option value="">All Status</option></select>
     <select id="sortOrder">
-      <option value="">Ordenar por...</option>
+      <option value="">Sort by...</option>
       <option value="tier">Tier</option>
-      <option value="nombre">Nombre</option>
-      <option value="floorD">Floor Pase Directo (MON)</option>
+      <option value="nombre">Name</option>
+      <option value="floorD">Direct Pass Floor (MON)</option>
     </select>
   </div>
 
@@ -75,23 +72,23 @@
   <div id="donateModal" class="modal">
     <div class="modal-content">
       <button class="modal-close" onclick="document.getElementById('donateModal').style.display='none'">&times;</button>
-      <h2>Donaciones</h2>
-      <p>Si te gusta esta herramienta, podés donar a la siguiente billetera MON:<br>
+      <h2>Donations</h2>
+      <p>If you like this tool, you can donate to the following MON wallet:<br>
       <strong>0xbd36dcf15db0a9449ec5ccc997df1c756fc16ac5</strong></p>
     </div>
   </div>
 
   <footer>
-  <p>Creado por: <strong>Monito83</strong></p>
-  <div class="social-icons">
-    <a href="https://x.com/martinescopc" target="_blank" title="X / Twitter">
-      <img src="https://cdn-icons-png.flaticon.com/512/3670/3670151.png" alt="X" />
-    </a>
-    <a href="https://discord.com/users/monito83" target="_blank" title="Discord">
-      <img src="https://cdn-icons-png.flaticon.com/512/3670/3670157.png" alt="Discord" />
-    </a>
-  </div>
-</footer>
+    <p>Created by: <strong>Monito83</strong></p>
+    <div class="social-icons">
+      <a href="https://x.com/martinescopc" target="_blank" title="X / Twitter">
+        <img src="https://cdn-icons-png.flaticon.com/512/3670/3670151.png" alt="X" />
+      </a>
+      <a href="https://discord.com/users/monito83" target="_blank" title="Discord">
+        <img src="https://cdn-icons-png.flaticon.com/512/3670/3670157.png" alt="Discord" />
+      </a>
+    </div>
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="script.js"></script>

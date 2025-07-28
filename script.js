@@ -1,29 +1,25 @@
 const SHEET_CSV =
   'https://docs.google.com/spreadsheets/d/1lG1Xzzzs4jNKII6deHT_PtY6ltGPp2RAlr7_ak-wRZ4/export?format=csv';
+
 let allData = [];
 let filteredData = [];
 
 function getTierBadge(t) {
   return (
-    [
-      '',
-      'tier-1-badge',
-      'tier-2-badge',
-      'tier-3-badge',
-      'tier-4-badge',
-      'tier-5-badge',
-    ][parseInt(t)] || ''
+    ['', 'tier-1-badge', 'tier-2-badge', 'tier-3-badge', 'tier-4-badge', 'tier-5-badge'][parseInt(t)] || ''
   );
 }
-function getEstadoClass(e) {
-  return /abierto/i.test(e)
+
+function getStatusClass(status) {
+  return /open/i.test(status)
     ? 'Abierto'
-    : /cerrado/i.test(e)
+    : /closed/i.test(status)
     ? 'Cerrado'
-    : /pendiente/i.test(e)
+    : /pending/i.test(status)
     ? 'Pendiente'
     : 'Otro';
 }
+
 function parseImgTags(text) {
   if (!text) return '';
   return text.replace(
@@ -32,92 +28,68 @@ function parseImgTags(text) {
       `<a href="${url}" target="_blank"><img src="${url}" style="max-width:100px; max-height:100px; margin:4px; vertical-align:middle; border-radius:6px;"></a>`
   );
 }
-function formatRolesWL(txt) {
+
+function formatWLRoles(txt) {
   if (!txt) return '';
   const safe = txt.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  return parseImgTags(safe)
-    .replace(/\n{2,}/g, '<br><br>')
-    .replace(/\n/g, '<br>');
+  return parseImgTags(safe).replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>');
 }
 
 function showModal(i) {
   const r = filteredData[i];
-  const floorD = r['Floor Price Pase Directo (MON)'] || '—';
-  const floorA = r['Floor Price NFT Acumulativo (MON)'] || '—';
-  const ttD = r['Tooltip Pase Directo']
-    ? ` <span class="tooltip-icon" title="${r['Tooltip Pase Directo']}">❓</span>`
+  const floorD = r['Floor Price Direct Pass (MON)'] || '—';
+  const floorA = r['Floor Price Cumulative NFT (MON)'] || '—';
+  const ttD = r['Tooltip Direct Pass']
+    ? ` <span class="tooltip-icon" title="${r['Tooltip Direct Pass']}">❓</span>`
     : '';
-  const ttA = r['Tooltip NFT Acumulativo']
-    ? ` <span class="tooltip-icon" title="${r['Tooltip NFT Acumulativo']}">❓</span>`
+  const ttA = r['Tooltip Cumulative NFT']
+    ? ` <span class="tooltip-icon" title="${r['Tooltip Cumulative NFT']}">❓</span>`
     : '';
+
   document.getElementById('modalDetails').innerHTML = `
     <div class="section" style="text-align:center;">
-      ${
-        r['Logo']
-          ? `<img src="${r['Logo']}" class="logo" style="width:80px;height:80px;">`
-          : ''
-      }
-      <h2>${r['Proyecto']}</h2>
-      <div class="tag ${getEstadoClass(r['Estado Testnet'])}">${
-    r['Estado Testnet'] || 'Desconocido'
-  }</div>
-      <div><span class="tier-badge ${getTierBadge(r['Tier'])}">${
-    r['Tier']
-      ? (r['Tier'] === '1' ? '🥇' : r['Tier'] === '2' ? '🥈' : '🥉') +
-        ' Tier ' +
-        r['Tier']
-      : 'Tier'
-  }</span></div>
+      ${r['Logo'] ? `<img src="${r['Logo']}" class="logo" style="width:80px;height:80px;">` : ''}
+      <h2>${r['Project']}</h2>
+      <div class="tag ${getStatusClass(r['Testnet Status'])}">
+        ${r['Testnet Status'] || 'Unknown'}
+      </div>
+      <div><span class="tier-badge ${getTierBadge(r['Tier'])}">
+        ${
+          r['Tier']
+            ? (r['Tier'] === '1' ? '🥇' : r['Tier'] === '2' ? '🥈' : '🥉') + ' Tier ' + r['Tier']
+            : 'Tier'
+        }
+      </span></div>
     </div>
-    <div class="section"><h3>🧠 Roles WL</h3><div class="info-block">${formatRolesWL(
-      r['Roles WL']
-    )}</div></div>
-    <div class="section"><h3>✅ Pase WL Directo${ttD}</h3>
-      <div class="info-block">${r['Pase WL Directo'] || '—'}</div>
-      <div class="info-block"><strong>Beneficio:</strong><br>${
-        r['Beneficio WL Directo'] || '—'
-      }</div>
+    <div class="section"><h3>🧠 WL Roles</h3><div class="info-block">${formatWLRoles(r['WL Roles'])}</div></div>
+    <div class="section"><h3>✅ Direct WL Pass${ttD}</h3>
+      <div class="info-block">${r['Direct WL Pass'] || '—'}</div>
+      <div class="info-block"><strong>Benefit:</strong><br>${r['Direct WL Benefit'] || '—'}</div>
       <div class="info-block"><strong>Floor:</strong> ${floorD} MON</div>
       ${
-        r['Link Pase Directo']
-          ? `<a href="${r['Link Pase Directo']}" class="buy-button" target="_blank">Comprar Pase</a>`
+        r['Direct Pass Link']
+          ? `<a href="${r['Direct Pass Link']}" class="buy-button" target="_blank">Buy Pass</a>`
           : ''
       }
     </div>
-    <div class="section"><h3>📦 NFT Acumulativo${ttA}</h3>
-      <div class="info-block">${r['NFT Acumulativo'] || '—'}</div>
-      <div class="info-block"><strong>Beneficios:</strong><br>${
-        r['Beneficios Acumulativos'] || '—'
-      }</div>
+    <div class="section"><h3>📦 Cumulative NFT${ttA}</h3>
+      <div class="info-block">${r['Cumulative NFT'] || '—'}</div>
+      <div class="info-block"><strong>Benefits:</strong><br>${r['Cumulative Benefits'] || '—'}</div>
       <div class="info-block"><strong>Floor:</strong> ${floorA} MON</div>
       ${
-        r['Link NFT Acumulativo']
-          ? `<a href="${r['Link NFT Acumulativo']}" class="buy-button" target="_blank">Comprar NFT</a>`
+        r['Cumulative NFT Link']
+          ? `<a href="${r['Cumulative NFT Link']}" class="buy-button" target="_blank">Buy NFT</a>`
           : ''
       }
     </div>
-    <div class="section"><h3>📝 Notas</h3><div class="info-block">${
-      r['Notas'] || '—'
-    }</div></div>
+    <div class="section"><h3>📝 Notes</h3><div class="info-block">${r['Notes'] || '—'}</div></div>
     ${
-      r['Link X'] || r['Link Discord'] || r['Link Web']
+      r['X Link'] || r['Discord Link'] || r['Web Link']
         ? `
-      <div class="section"><h3>🌐 Enlaces</h3><div class="external-links">
-        ${
-          r['Link X']
-            ? `<a href="${r['Link X']}" class="x" target="_blank">X</a>`
-            : ''
-        }
-        ${
-          r['Link Discord']
-            ? `<a href="${r['Link Discord']}" class="discord" target="_blank">Discord</a>`
-            : ''
-        }
-        ${
-          r['Link Web']
-            ? `<a href="${r['Link Web']}" class="web" target="_blank">Web</a>`
-            : ''
-        }
+      <div class="section"><h3>🌐 Links</h3><div class="external-links">
+        ${r['X Link'] ? `<a href="${r['X Link']}" class="x" target="_blank">X</a>` : ''}
+        ${r['Discord Link'] ? `<a href="${r['Discord Link']}" class="discord" target="_blank">Discord</a>` : ''}
+        ${r['Web Link'] ? `<a href="${r['Web Link']}" class="web" target="_blank">Website</a>` : ''}
       </div></div>`
         : ''
     }
@@ -134,28 +106,27 @@ function render(data) {
     card.onclick = () => showModal(i);
     card.innerHTML = `
     ${r['Logo'] ? `<img src="${r['Logo']}" class="logo">` : ''}
-    <h3>${r['Proyecto']}</h3>
-    <div class="tag ${getEstadoClass(r['Estado Testnet'])}">
-      ${r['Estado Testnet'] || 'Desconocido'}
+    <h3>${r['Project']}</h3>
+    <div class="tag ${getStatusClass(r['Testnet Status'])}">
+      ${r['Testnet Status'] || 'Unknown'}
     </div>
     <span class="tier-badge ${getTierBadge(r['Tier'])}">
       ${r['Tier'] ? (r['Tier'] === '1' ? '🥇' : r['Tier'] === '2' ? '🥈' : '🥉') + ' Tier ' + r['Tier'] : 'Tier'}
     </span>
     <div class="floor-info">
       <div class="floor-item">
-        <strong>WL Pase:</strong>
-        <span>${r['Floor Price Pase Directo (MON)'] || '—'} MON</span>
+        <strong>WL Pass:</strong>
+        <span>${r['Floor Price Direct Pass (MON)'] || '—'} MON</span>
       </div>
       <div class="floor-item">
-        <strong>NFT Acum:</strong>
-        <span>${r['Floor Price NFT Acumulativo (MON)'] || '—'} MON</span>
+        <strong>Acc. NFT:</strong>
+        <span>${r['Floor Price Cumulative NFT (MON)'] || '—'} MON</span>
       </div>
     </div>
     <div class="mainnet-date">
-      <strong>Mainnet:</strong> ${r['Fecha Mainnet'] || 'TBA'}
+      <strong>Mainnet:</strong> ${r['Mainnet Date'] || 'TBA'}
     </div>
   `;
-  
     grid.appendChild(card);
   });
 }
@@ -167,26 +138,25 @@ function applyFiltersAndSort() {
   const sort = document.getElementById('sortOrder').value;
 
   filteredData = allData.filter(r =>
-    r['Proyecto'].toLowerCase().includes(name) &&
+    r['Project'].toLowerCase().includes(name) &&
     (!tf || r['Tier'] === tf) &&
-    (!ef || r['Estado Testnet'] === ef)
+    (!ef || r['Testnet Status'] === ef)
   );
 
   if (sort === 'tier') {
     filteredData.sort((a, b) => (parseInt(a['Tier']) || 0) - (parseInt(b['Tier']) || 0));
   } else if (sort === 'nombre') {
-    filteredData.sort((a, b) => a['Proyecto'].localeCompare(b['Proyecto']));
+    filteredData.sort((a, b) => a['Project'].localeCompare(b['Project']));
   } else if (sort === 'floorD') {
     filteredData.sort((a, b) => {
-      const fa = parseFloat(a['Floor Price Pase Directo (MON)']) || Infinity;
-      const fb = parseFloat(b['Floor Price Pase Directo (MON)']) || Infinity;
+      const fa = parseFloat(a['Floor Price Direct Pass (MON)']) || Infinity;
+      const fb = parseFloat(b['Floor Price Direct Pass (MON)']) || Infinity;
       return fa - fb;
     });
   }
 
   render(filteredData);
 }
-
 
 Papa.parse(SHEET_CSV, {
   download: true,
@@ -199,17 +169,16 @@ Papa.parse(SHEET_CSV, {
           cleaned[key.trim().replace(/\s+/g, ' ')] = row[key];
         return cleaned;
       })
-      .filter((r) => r['Proyecto']);
+      .filter((r) => r['Project']);
 
     applyFiltersAndSort();
-    document.getElementById('fecha').textContent =
-      new Date().toLocaleDateString('es-AR');
+    document.getElementById('fecha').textContent = new Date().toLocaleDateString('en-US');
 
     document.getElementById('faqBtn').onclick = () => {
       const faqEntry = allData.find((r) => r['FAQ'] && r['FAQ'].trim());
       document.getElementById('faqContent').innerText = faqEntry
         ? faqEntry['FAQ']
-        : 'Sin FAQ configurada.';
+        : 'No FAQ available.';
       document.getElementById('faqModal').style.display = 'flex';
     };
     document.getElementById('donateBtn').onclick = () => {
@@ -218,14 +187,13 @@ Papa.parse(SHEET_CSV, {
     document.getElementById('helpBtn').onclick = () => {
       window.open('https://forms.gle/63JmoMoxH517yuv17', '_blank');
     };
-    
+
     document.getElementById('sortOrder').addEventListener('change', applyFiltersAndSort);
-    
-    const tierSet = new Set(),
-      estadoSet = new Set();
+
+    const tierSet = new Set(), estadoSet = new Set();
     allData.forEach((r) => {
       if (r['Tier']) tierSet.add(r['Tier']);
-      if (r['Estado Testnet']) estadoSet.add(r['Estado Testnet']);
+      if (r['Testnet Status']) estadoSet.add(r['Testnet Status']);
     });
     tierSet.forEach((t) => {
       const o = document.createElement('option');
@@ -240,30 +208,20 @@ Papa.parse(SHEET_CSV, {
       document.getElementById('estadoFilter').appendChild(o);
     });
 
-    document
-      .getElementById('projectFilter')
-      .addEventListener('input', applyFiltersAndSort);
-    document
-      .getElementById('tierFilter')
-      .addEventListener('change', applyFiltersAndSort);
-    document
-      .getElementById('estadoFilter')
-      .addEventListener('change', applyFiltersAndSort);
-    document
-      .getElementById('sortOrder')
-      .addEventListener('change', applyFiltersAndSort);
+    document.getElementById('projectFilter').addEventListener('input', applyFiltersAndSort);
+    document.getElementById('tierFilter').addEventListener('change', applyFiltersAndSort);
+    document.getElementById('estadoFilter').addEventListener('change', applyFiltersAndSort);
+    document.getElementById('sortOrder').addEventListener('change', applyFiltersAndSort);
   },
 });
 
 window.onclick = (e) => {
-  if (e.target.id === 'modal')
-    document.getElementById('modal').style.display = 'none';
-  if (e.target.id === 'faqModal')
-    document.getElementById('faqModal').style.display = 'none';
-  if (e.target.id === 'donateModal')
-    document.getElementById('donateModal').style.display = 'none';
+  if (e.target.id === 'modal') document.getElementById('modal').style.display = 'none';
+  if (e.target.id === 'faqModal') document.getElementById('faqModal').style.display = 'none';
+  if (e.target.id === 'donateModal') document.getElementById('donateModal').style.display = 'none';
 };
-// Tema claro/oscuro persistente con localStorage
+
+// Dark/light theme toggle with localStorage
 const themeToggle = document.getElementById('themeToggle');
 function setTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
@@ -276,7 +234,6 @@ themeToggle.onclick = () => {
 };
 const saved = localStorage.getItem('theme') || 'light';
 setTheme(saved);
-// 🌙 Modo oscuro toggle
 document.getElementById('themeToggle').addEventListener('click', () => {
   document.body.classList.toggle('dark');
 });
