@@ -32,8 +32,19 @@ function parseImgTags(text) {
 function formatWLRoles(txt) {
   if (!txt) return '';
   const safe = txt.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  return parseImgTags(safe).replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>');
+  const withImages = parseImgTags(safe);
+  const withLineBreaks = withImages
+    .replace(/\n{2,}/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+
+  const highlightedRoles = withLineBreaks.replace(
+    /@([\w\-]+)/g,
+    '<span class="highlight-role">@$1</span>'
+  );
+
+  return highlightedRoles;
 }
+
 
 function showModal(i) {
   const r = filteredData[i];
@@ -61,41 +72,66 @@ function showModal(i) {
         }
       </span></div>
     </div>
-    <div class="section"><h3>🧠 WL Roles</h3><div class="info-block">${formatWLRoles(r['WL Roles'])}</div></div>
-    <div class="section"><h3>✅ Direct WL Pass${ttD}</h3>
-      <div class="info-block">${r['Direct WL Pass'] || '—'}</div>
-      <div class="info-block"><strong>Benefit:</strong><br>${r['Direct WL Benefit'] || '—'}</div>
-      <div class="info-block"><strong>Floor:</strong> ${floorD} MON</div>
-      ${
-        r['Direct Pass Link']
-          ? `<a href="${r['Direct Pass Link']}" class="buy-button" target="_blank">Buy Pass</a>`
-          : ''
-      }
+
+    <div class="section">
+    <h3><i class="fas fa-brain"></i> WL Roles</h3>
+      <div class="info-block">${formatWLRoles(r['WL Roles'])}</div>
     </div>
-    <div class="section"><h3>📦 Cumulative NFT${ttA}</h3>
-      <div class="info-block">${r['Cumulative NFT'] || '—'}</div>
-      <div class="info-block"><strong>Benefits:</strong><br>${r['Cumulative Benefits'] || '—'}</div>
-      <div class="info-block"><strong>Floor:</strong> ${floorA} MON</div>
-      ${
-        r['Cumulative NFT Link']
-          ? `<a href="${r['Cumulative NFT Link']}" class="buy-button" target="_blank">Buy NFT</a>`
-          : ''
-      }
+
+    <div class="section">
+    <h3><i class="fas fa-ticket-alt"></i> Direct WL Pass${ttD}</h3>
+      <div class="info-block">
+        <strong>Pass:</strong> ${r['Direct WL Pass'] || '—'}
+      </div>
+      <div class="info-block">
+        <strong>Benefit:</strong> ${r['Direct WL Benefit'] || '—'}
+      </div>
+      <div class="info-block">
+        <strong>Floor:</strong> ${floorD} MON
+      </div>
+      ${r['Direct Pass Link']
+        ? `<a href="${r['Direct Pass Link']}" class="buy-button" target="_blank">Buy Pass</a>`
+        : ''}
     </div>
-    <div class="section"><h3>📝 Notes</h3><div class="info-block">${r['Notes'] || '—'}</div></div>
+
+    <div class="section">
+    <h3><i class="fas fa-cubes"></i> Cumulative NFT${ttA}</h3>
+      <div class="info-block">
+        <strong>Pass:</strong> ${r['Cumulative NFT'] || '—'}
+      </div>
+      <div class="info-block">
+        <strong>Benefits:</strong> ${r['Cumulative Benefits'] || '—'}
+      </div>
+      <div class="info-block">
+        <strong>Floor:</strong> ${floorA} MON
+      </div>
+      ${r['Cumulative NFT Link']
+        ? `<a href="${r['Cumulative NFT Link']}" class="buy-button" target="_blank">Buy NFT</a>`
+        : ''}
+    </div>
+
+    <div class="section">
+    <h3><i class="fas fa-note-sticky"></i> Notes</h3>
+      <div class="info-block">${r['Notes'] || '—'}</div>
+    </div>
+
     ${
       r['X Link'] || r['Discord Link'] || r['Web Link']
-        ? `
-      <div class="section"><h3>🌐 Links</h3><div class="external-links">
-        ${r['X Link'] ? `<a href="${r['X Link']}" class="x" target="_blank">X</a>` : ''}
-        ${r['Discord Link'] ? `<a href="${r['Discord Link']}" class="discord" target="_blank">Discord</a>` : ''}
-        ${r['Web Link'] ? `<a href="${r['Web Link']}" class="web" target="_blank">Website</a>` : ''}
-      </div></div>`
+        ? `<div class="section">
+        <h3><i class="fas fa-link"></i> Links</h3>
+        <div class="external-links">
+          ${r['X Link'] ? `<a href="${r['X Link']}" target="_blank"><i class="fab fa-x-twitter"></i></a>` : ''}
+          ${r['Discord Link'] ? `<a href="${r['Discord Link']}" target="_blank"><i class="fab fa-discord"></i></a>` : ''}
+          ${r['Web Link'] ? `<a href="${r['Web Link']}" target="_blank"><i class="fas fa-globe"></i></a>` : ''}
+        </div>        
+          </div>`
         : ''
     }
   `;
+
   document.getElementById('modal').style.display = 'flex';
 }
+
 
 function render(data) {
   const grid = document.getElementById('cardGrid');
@@ -237,3 +273,12 @@ setTheme(saved);
 document.getElementById('themeToggle').addEventListener('click', () => {
   document.body.classList.toggle('dark');
 });
+const viewToggle = document.getElementById('viewToggle');
+let isListView = false;
+
+viewToggle.onclick = () => {
+  if (window.innerWidth < 768) return; // prevent toggle on small screens
+  isListView = !isListView;
+  document.getElementById('cardGrid').classList.toggle('list-view', isListView);
+  viewToggle.textContent = isListView ? '🧱' : '📄';
+};
