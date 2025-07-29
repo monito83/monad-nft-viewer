@@ -151,18 +151,25 @@ function render(data) {
     </span>
     <div class="floor-info">
       <div class="floor-item">
-        <strong>WL Pass:</strong>
-        <span>${r['Floor Price Direct Pass (MON)'] || '—'} MON</span>
+      <strong data-tippy-content="Floor price for WL Pass">WL Pass: </strong>
+        <span>${r['Floor Price Direct Pass (MON)'] || '—'} $MON</span>
       </div>
       <div class="floor-item">
-        <strong>Acc. NFT:</strong>
-        <span>${r['Floor Price Cumulative NFT (MON)'] || '—'} MON</span>
+      <strong data-tippy-content="FP for Accumulative NFT">Acc. NFT:</strong>
+        <span>${r['Floor Price Cumulative NFT (MON)'] || '—'} $MON</span>
       </div>
     </div>
     <div class="mainnet-date">
       <strong>Mainnet:</strong> ${r['Mainnet Date'] || 'TBA'}
     </div>
   `;
+  tippy('[data-tippy-content]', {
+    theme: 'custom',
+    animation: 'shift-away',
+    duration: [200,200],
+    delay: [100,50],
+    arrow: true
+  });
     grid.appendChild(card);
   });
 }
@@ -198,57 +205,64 @@ Papa.parse(SHEET_CSV, {
   download: true,
   header: true,
   complete: (results) => {
-    allData = results.data
-      .map((row) => {
-        const cleaned = {};
-        for (const key in row)
-          cleaned[key.trim().replace(/\s+/g, ' ')] = row[key];
-        return cleaned;
-      })
-      .filter((r) => r['Project']);
+    // 1) Prune columns after "Notes"
+    const headers   = results.meta.fields;
+    const notesIndex = headers.indexOf('Notes');
+    const faqIndex   = headers.indexOf('FAQ');
+    // Mantén hasta la última columna relevante (Notes o FAQ)
+    const lastIndex  = Math.max(notesIndex, faqIndex);
+    const keepFields = lastIndex >= 0
+      ? headers.slice(0, lastIndex + 1)
+      : headers;
+    
 
-    applyFiltersAndSort();
-    document.getElementById('fecha').textContent = new Date().toLocaleDateString('en-US');
+    allData = results.data.map(row => {
+      const pruned = {};
+      keepFields.forEach(key => {
+        pruned[key] = row[key];
+      });
+      return pruned;
+    });
+    filteredData = [...allData];
 
-    document.getElementById('faqBtn').onclick = () => {
-      const faqEntry = allData.find((r) => r['FAQ'] && r['FAQ'].trim());
-      document.getElementById('faqContent').innerText = faqEntry
-        ? faqEntry['FAQ']
-        : 'No FAQ available.';
-      document.getElementById('faqModal').style.display = 'flex';
-    };
-    document.getElementById('donateBtn').onclick = () => {
-      document.getElementById('donateModal').style.display = 'flex';
-    };
-    document.getElementById('helpBtn').onclick = () => {
-      window.open('https://forms.gle/63JmoMoxH517yuv17', '_blank');
-    };
-
-    document.getElementById('sortOrder').addEventListener('change', applyFiltersAndSort);
-
-    const tierSet = new Set(), estadoSet = new Set();
-    allData.forEach((r) => {
+    // 2) Generar sets para filtros de Tier y Estado
+    const tierSet = new Set();
+    const estadoSet = new Set();
+    allData.forEach(r => {
       if (r['Tier']) tierSet.add(r['Tier']);
       if (r['Testnet Status']) estadoSet.add(r['Testnet Status']);
     });
-    tierSet.forEach((t) => {
+
+    // 3) Rellenar los <select> con esas opciones
+    const tierFilter = document.getElementById('tierFilter');
+    tierSet.forEach(t => {
       const o = document.createElement('option');
       o.value = t;
       o.textContent = t;
-      document.getElementById('tierFilter').appendChild(o);
+      tierFilter.appendChild(o);
     });
-    estadoSet.forEach((e) => {
+
+    const estadoFilter = document.getElementById('estadoFilter');
+    estadoSet.forEach(e => {
       const o = document.createElement('option');
       o.value = e;
       o.textContent = e;
-      document.getElementById('estadoFilter').appendChild(o);
+      estadoFilter.appendChild(o);
     });
 
-    document.getElementById('projectFilter').addEventListener('input', applyFiltersAndSort);
-    document.getElementById('tierFilter').addEventListener('change', applyFiltersAndSort);
-    document.getElementById('estadoFilter').addEventListener('change', applyFiltersAndSort);
-    document.getElementById('sortOrder').addEventListener('change', applyFiltersAndSort);
-  },
+    // 4) Adjuntar listeners de filtrado y orden
+    document.getElementById('projectFilter')
+      .addEventListener('input', applyFiltersAndSort);
+    document.getElementById('tierFilter')
+      .addEventListener('change', applyFiltersAndSort);
+    document.getElementById('estadoFilter')
+      .addEventListener('change', applyFiltersAndSort);
+    document.getElementById('sortOrder')
+      .addEventListener('change', applyFiltersAndSort);
+
+    // 5) Renderizado inicial
+    applyFiltersAndSort();
+  }
 });
 
 window.onclick = (e) => {
@@ -256,6 +270,18 @@ window.onclick = (e) => {
   if (e.target.id === 'faqModal') document.getElementById('faqModal').style.display = 'none';
   if (e.target.id === 'donateModal') document.getElementById('donateModal').style.display = 'none';
 };
+// —————— Inicializar tooltips ——————
+window.addEventListener('load', () => {
+  if (typeof tippy === 'function') {
+    tippy('[data-tippy-content]', {
+      theme: 'custom',
+      animation: 'shift-away',
+      duration: [200, 200],
+      delay: [100, 50],
+      arrow: true
+    });
+  }
+});
 
 // Dark/light theme toggle with localStorage
 const themeToggle = document.getElementById('themeToggle');
@@ -282,3 +308,35 @@ viewToggle.onclick = () => {
   document.getElementById('cardGrid').classList.toggle('list-view', isListView);
   viewToggle.textContent = isListView ? '🧱' : '📄';
 };
+// ————————————————————————————
+// HEADER BUTTONS: FAQ, Donate y Help Me
+// Se ejecuta al terminar de cargar toda la página
+window.addEventListener('load', () => {
+  // FAQ Button
+  const faqBtn = document.getElementById('faqBtn');
+  if (faqBtn) {
+    faqBtn.addEventListener('click', () => {
+      // Buscamos la primera entrada con FAQ no vacía
+      const faqEntry = allData.find(r => r.FAQ && r.FAQ.trim());
+      document.getElementById('faqContent').innerText =
+        faqEntry ? faqEntry.FAQ : 'No FAQ available.';
+      document.getElementById('faqModal').style.display = 'flex';
+    });
+  }
+
+  // Donate Button
+  const donateBtn = document.getElementById('donateBtn');
+  if (donateBtn) {
+    donateBtn.addEventListener('click', () => {
+      document.getElementById('donateModal').style.display = 'flex';
+    });
+  }
+
+  // Help Me Button
+  const helpBtn = document.getElementById('helpBtn');
+  if (helpBtn) {
+    helpBtn.addEventListener('click', () => {
+      window.open('https://forms.gle/63JmoMoxH517yuv17', '_blank');
+    });
+  }
+});

@@ -1,3 +1,26 @@
+/* Transiciones globales para tema */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Si usas variables CSS para colores: */
+:root {
+  --bg-light: #fff;
+  --bg-dark: #121212;
+  --text-light: #333;
+  --text-dark: #eee;
+}
+
+body {
+  background-color: var(--bg-light);
+  color: var(--text-light);
+}
+
+body.dark-mode {
+  background-color: var(--bg-dark);
+  color: var(--text-dark);
+}
+
 :root {
   --bg-color: #f0f0f0;
   --text-color: #333;
@@ -63,7 +86,7 @@ header h1 {
 .sidebar input,
 .sidebar select {
   width: 100%;
-  margin-bottom: 1rem;
+  margin-bottom: 0rem;
   padding: 0.5rem;
   font-size: 0.95rem;
   border: 1px solid #ccc;
@@ -88,6 +111,21 @@ header h1 {
   transition: transform 0.2s ease;
   text-align: center;
 }
+/* Transiciones y elevación en hover de la card */
+.card {
+  /* Asegura que la sombra y posición animen suavemente */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  /* Sombra base suave */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+  /* Eleva ligeramente la tarjeta */
+  transform: translateY(-6px);
+  /* Sombra más marcada al elevarse */
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
 .card:hover {
   transform: translateY(-4px);
   box-shadow: 0 6px 20px rgba(0,0,0,0.15);
@@ -412,4 +450,265 @@ body.dark .info-block strong {
 .external-links i {
   font-size: 1.1rem;
 }
+/* Botones del header: transición y hover */
+header.controls button {
+  /* Ajusta estos valores a tu paleta de colores */
+  background-color: var(--btn-bg, #f0f0f0);
+  color: var(--btn-text, #333);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
 
+  /* Transición suave para fondo y color */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+header.controls button:hover {
+  background-color: var(--btn-hover-bg, #e0e0e0);
+  color: var(--btn-hover-text, #000);
+}
+
+/* Modo oscuro */
+body.dark-mode header.controls button {
+  background-color: var(--btn-dark-bg, #333);
+  color: var(--btn-dark-text, #eee);
+}
+
+body.dark-mode header.controls button:hover {
+  background-color: var(--btn-dark-hover-bg, #444);
+}
+
+:root {
+  --tier-1: #3d8b0fde;
+  --tier-2: #0764ce;
+  --tier-3: #cd7f32;
+  --tier-4: #523d06;
+  --tier-5: #dda0dd;
+  --list-bg-alt: rgba(0,0,0,0.03);
+}
+/* Cuando #cardGrid tenga .list-view, cada .card se convierte en fila */
+#cardGrid.list-view {
+  display: block;
+}
+
+#cardGrid.list-view .card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  border-left: 6px solid transparent;
+  transition: background-color 0.3s ease;
+}
+
+/* Borde por Tier */
+#cardGrid.list-view .card.tier-1-badge { border-left-color: var(--tier-1); }
+#cardGrid.list-view .card.tier-2-badge { border-left-color: var(--tier-2); }
+#cardGrid.list-view .card.tier-3-badge { border-left-color: var(--tier-3); }
+#cardGrid.list-view .card.tier-4-badge { border-left-color: var(--tier-4); }
+#cardGrid.list-view .card.tier-5-badge { border-left-color: var(--tier-5); }
+
+.tippy-box[data-theme~='custom'] {
+  background-color: rgba(55, 10, 114, 0.829);
+  color: rgb(255, 255, 255);
+  border-radius: 4px;
+  padding: 0.4em 0.6em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.tippy-box[data-theme~='custom'] .tippy-arrow {
+  color: rgba(221, 194, 107, 0.8);
+}
+/* —————————————————————————————— */
+/*   S T Y L E   F O R   S I D E B A R   F I L T E R S   */
+/* —————————————————————————————— */
+
+/* Asegura que container coloque la sidebar y el contenido lado a lado */
+.container {
+  display: flex;
+  gap: 1.5rem;
+}
+
+/* Sidebar como panel de filtros */
+aside.sidebar {
+  flex: 0 0 240px;
+  padding: 1rem;
+  background-color: var(--sidebar-bg, #fafafa);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* Espaciado uniforme entre filtros */
+aside.sidebar > * + * {
+  margin-top: 1rem;
+}
+
+/* Inputs y selects: base compartida */
+aside.sidebar input,
+aside.sidebar select {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  font-size: 1rem;
+  border: 1px solid var(--input-border, #ccc);
+  border-radius: 6px;
+  background-color: var(--input-bg, #fff);
+  color: var(--input-text, #333);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Placeholder más suave */
+aside.sidebar input::placeholder {
+  color: var(--input-placeholder, #888);
+}
+
+/* Focus destacado */
+aside.sidebar input:focus,
+aside.sidebar select:focus {
+  outline: none;
+  border-color: var(--accent-color, #884DFF);
+  box-shadow: 0 0 0 3px rgba(136,77,255,0.2);
+}
+
+/* Personaliza la flecha nativa de los selects */
+aside.sidebar select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path fill='%23999' d='M0 0 l5 6 l5 -6 z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2rem; /* espacio para la flecha */
+}
+
+/* Dark mode */
+body.dark-mode aside.sidebar {
+  background-color: var(--sidebar-bg-dark, #2b2b2b);
+}
+
+body.dark-mode aside.sidebar input,
+body.dark-mode aside.sidebar select {
+  background-color: var(--input-bg-dark, #333);
+  color: var(--input-text-dark, #eee);
+  border-color: var(--input-border-dark, #555);
+}
+
+body.dark-mode aside.sidebar input::placeholder {
+  color: #aaa;
+}
+/* Al final de tu style.css */
+aside.sidebar input,
+aside.sidebar select {
+  /* Asegura que padding y border queden dentro del width */
+  box-sizing: border-box;
+  /* Siguen ocupando el 100% del ancho del sidebar */
+  width: 100%;
+}
+
+/* ————————————————————————————————————— */
+/*  Prices inline en modo lista (una línea)  */
+/* ————————————————————————————————————— */
+#cardGrid.list-view .floor-info {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  flex-wrap: nowrap;   /* que no se corten en varias líneas */
+}
+
+#cardGrid.list-view .floor-info .floor-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;         /* espacio entre label y badge */
+  margin: 0;           /* quitar márgenes que apilen */
+}
+
+#cardGrid.list-view .floor-info .floor-item strong {
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+#cardGrid.list-view .floor-info .floor-item span {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  background-color: #2b6cb0;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  white-space: nowrap; /* que todo quede en una línea */
+  min-width: auto;     /* que solo ocupe lo que necesite */
+}
+/* ———————————————————————————————————————— */
+/*  List‑view: nombre y labels en blanco + iconos FontAwesome  */
+/* ———————————————————————————————————————— */
+
+/* Nombre del proyecto en blanco */
+#cardGrid.list-view .card h3 {
+  color: #fff;
+}
+
+/* Labels “WL Pass” y “Acc. NFT” en blanco */
+#cardGrid.list-view .floor-info .floor-item strong {
+  color: #fff;
+  position: relative;
+  padding-left: 1.2em; /* espacio para el icono */
+}
+
+/* Insertar iconos antes de cada label */
+#cardGrid.list-view .floor-info .floor-item:nth-child(1) strong::before {
+  content: "\f3ff"; /* unicode de fa-ticket-alt */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+#cardGrid.list-view .floor-info .floor-item:nth-child(2) strong::before {
+  content: "\f1b3"; /* unicode de fa-cubes */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Asegúrate de que los badges sigan legibles */
+#cardGrid.list-view .floor-info .floor-item span {
+  color: #fff; /* si quieres que los números también sean blancos en lista */
+}
+
+/* 1) Box‑sizing global para que padding y borders no sumen ancho extra */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* 2) Ajustes responsive para móviles */
+@media (max-width: 768px) {
+  /* Poner sidebar encima en vez de al costado */
+  .container {
+    flex-direction: column;
+    padding: 0 1rem;      /* margen lateral para que respire */
+  }
+  aside.sidebar, 
+  #cardGrid {
+    width: 100% !important; /* ocupar todo el ancho disponible */
+  }
+  aside.sidebar {
+    margin-bottom: 1rem;   /* espacio antes de las tarjetas */
+    box-shadow: none;      /* simplifica la vista móvil */
+  }
+
+  /* Asegurar que los selects muestren bien la flecha */
+  aside.sidebar select {
+    padding-right: 2.5rem; /* más espacio interno */
+    background-position: right 1rem center; /* mover la flecha */
+  }
+  
+  /* También en el header, si tus filtros están arriba */
+  header.controls .filters {
+    flex-direction: column;
+  }
+  header.controls .filters input,
+  header.controls .filters select {
+    width: 100%;
+  }
+}

@@ -16,11 +16,11 @@
       <img src="https://raw.githubusercontent.com/monito83/monad-nft-viewer/refs/heads/main/logo_monad2.png" alt="Logo" class="logo">
     </div>
     <div class="header-actions">
-      <button id="faqBtn">FAQ</button>
+      <button id="faqBtn" data-tippy-content="Open Faq box">FAQ</button>
       <button id="donateBtn">Donate</button>
-      <button id="helpBtn">Help Me 😊</button>
-      <button id="themeToggle">🌙</button>
-      <button id="viewToggle">📄</button>
+      <button id="helpBtn" data-tippy-content="Help me to assig Tiers to proyects">Help Me 😊</button>
+      <button id="themeToggle" data-tippy-content="Theme Day/Night" >🌙</button>
+      <button id="viewToggle" data-tippy-content="Grid/List">📄</button>
     </div>
     <div class="creator-social">
     <p>Created by: <strong>Monito83</strong></p>
@@ -37,7 +37,7 @@
     </div>
   </div>
   
-    <p class="last-update">Updated: <span id="fecha"></span> V5</p>
+    <p class="last-update">Updated: <span id="fecha"></span> V6.1Beta</p>
   </header>
 
   <div class="container">
@@ -91,6 +91,8 @@
     </div>
   </footer>
 
+  <script src="https://unpkg.com/@popperjs/core@2"></script>
+ <script src="https://unpkg.com/tippy.js@6"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="script.js"></script>
 </body>
