@@ -712,3 +712,39 @@ aside.sidebar select {
     width: 100%;
   }
 }
+/* ──────────────────────────────────────────── */
+/* Indicador “+” en esquina superior de cada card */
+/* ──────────────────────────────────────────── */
+.card {
+  /* Asegúrate que todas las cards sean posicionables */
+  position: relative;
+}
+
+.card .info-indicator {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  background-color: var(--accent-color, #884DFF);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+.card .info-indicator:hover {
+  transform: scale(1.1);
+  background-color: var(--accent-hover, #6f3ecb);
+}
+
+/* Ajuste opcional en vista lista */
+#cardGrid.list-view .card .info-indicator {
+  top: 0.4rem;
+  right: 0.4rem;
+}
