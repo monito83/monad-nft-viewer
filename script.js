@@ -163,6 +163,21 @@ function render(data) {
       <strong>Mainnet:</strong> ${r['Mainnet Date'] || 'TBA'}
     </div>
   `;
+     // ─────── NUEVO: indicador "+" ───────
+    // 1) Asegura posición relativa
+    card.style.position = 'relative';
+    // 2) Crea el badge
+    const indicator = document.createElement('div');
+    indicator.className = 'info-indicator';
+    indicator.textContent = '+';
+    // 3) Que abra el modal al click, sin propagar al card
+    indicator.addEventListener('click', e => {
+      e.stopPropagation();
+      showModal(i);
+    });
+    // 4) Agrégalo a la tarjeta
+    card.appendChild(indicator);
+    // ────────────────────────────────────
   tippy('[data-tippy-content]', {
     theme: 'custom',
     animation: 'shift-away',
